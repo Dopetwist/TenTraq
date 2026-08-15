@@ -837,7 +837,7 @@ button#send:hover {
 
 #footer {
     background-color: var(--secondary-color);
-    padding: 3rem 5%;
+    padding: 2rem 5%;
 }
 
 #footer h3 {
@@ -848,4 +848,13 @@ button#send:hover {
 .footer-link {
     color: var(--background-color);
     margin-right: 1rem;
+}
+
+.copyright-container {
+    margin-top: 2rem;
+}
+
+.copyright {
+    font-size: 0.9rem;
+    color: #999;
 }

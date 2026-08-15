@@ -3,7 +3,7 @@ import { Link } from "react-router";
 function Sidebar() {
     return (
         <div className="sidebar">
-            <Link to={"/"}><h1>TenTrackr</h1></Link>
+            <Link to={"/"}><h1>TenTraq</h1></Link>
                 
             <div className="sidebar-contents">
                 <Link to={"/dashboard"} className="sidebar-item">Dashboard</Link>

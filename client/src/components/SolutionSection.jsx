@@ -1,3 +1,5 @@
+import { BookText, House, FileUp, Mail, Search } from "lucide-react";
+
 function SolutionSection() {
     return (
         <div id="solution-section">
@@ -5,31 +7,31 @@ function SolutionSection() {
 
             <div className="solution-section-cards">
                 <div className="card1 solution-card">
-                    <p>(Placeholder for Icon)</p>
+                    <span><BookText size={34} /></span>
                     <h2 className="title">Tenant Registry</h2>
 
                     <p>Store tenant records in one place</p>
                 </div>
                 <div className="card2 solution-card">
-                    <p>(Placeholder for Icon)</p>
+                    <span><House size={34} /></span>
                     <h2 className="title">Property Grouping</h2>
                     
                     <p>Organize tenants by property</p>
                 </div>
                 <div className="card3 solution-card">
-                    <p>(Placeholder for Icon)</p>
+                    <span><FileUp size={34} /></span>
                     <h2 className="title">Document Upload</h2>
 
                     <p>Save tenant agreements and IDs</p>
                 </div>
                 <div className="card4 solution-card">
-                    <p>(Placeholder for Icon)</p>
+                    <span><Mail size={34} /></span>
                     <h2 className="title">Email Tenants</h2>
 
                     <p>Send email to one tenant or all</p>
                 </div>
                 <div className="card5 solution-card">
-                    <p>(Placeholder for Icon)</p>
+                    <span><Search size={34} /></span>
                     <h2 className="title">Smart Search</h2>
 
                     <p>Find tenants instantly</p>

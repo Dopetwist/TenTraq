@@ -1,3 +1,5 @@
+import { UserPlus, BookOpen, MessagesSquare } from "lucide-react";
+
 function HowItWorks() {
     return (
         <div id="how-section">
@@ -6,7 +8,7 @@ function HowItWorks() {
             <div className="how-container">
                 <div className="how-box">
                     <div className="icon-box">
-                        <h4>(Placeholder for icon)</h4>
+                        <span><UserPlus size={30} /></span>
                         <h3>Step 1</h3>
                     </div>
 
@@ -16,7 +18,7 @@ function HowItWorks() {
                 </div>
                 <div className="how-box">
                     <div className="icon-box">
-                        <h4>(Placeholder for icon)</h4>
+                        <span><BookOpen size={30} /></span>
                         <h3>Step 2</h3>
                     </div>
 
@@ -26,7 +28,7 @@ function HowItWorks() {
                 </div>
                 <div className="how-box">
                     <div className="icon-box">
-                        <h4>(Placeholder for icon)</h4>
+                        <span><MessagesSquare size={30} /></span>
                         <h3>Step 3</h3>
                     </div>
 

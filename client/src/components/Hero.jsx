@@ -8,7 +8,7 @@ function Hero() {
                     <h1><span className="manage">Manage <span>Tenants</span></span></h1> <br /> 
                     <h2 className="chaos">Without the Chaos</h2> 
                 </div>
-                <p> TenTrackr helps landlords and property managers organize tenant records,
+                <p> TenTraq helps landlords and property managers organize tenant records,
                     documents, and communication in one simple dashboard 
                 </p>
 
