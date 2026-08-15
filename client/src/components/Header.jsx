@@ -5,7 +5,7 @@ function Header() {
     return (
         <div className="header">
             <div className="app-name">
-                <h1>TenTrackr</h1>
+                <h1>TenTraq</h1>
             </div>
 
             <Navbar />

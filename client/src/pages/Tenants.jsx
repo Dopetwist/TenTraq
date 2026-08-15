@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Search } from "lucide-react";
 import PropertyAccordion from "../components/PropertyAccordion";
 
 function Tenants() {
@@ -8,7 +9,7 @@ function Tenants() {
 
             <div className="search-con">
                 <div className="search-icon">
-                    icon
+                    <Search size={20} />
                 </div>
                 <input type="text" name="search" id="search" placeholder="Search tenant..." />
             </div>
