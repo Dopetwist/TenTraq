@@ -1,6 +1,6 @@
-# 🏠 Tenants Web App
+# 🏠 TenTraq
 
-A modern and responsive tenants management web application built to simplify property and tenant management for landlords, property managers, and real estate businesses.
+A modern and responsive tenants management web application built to simplify property and tenants management for landlords, property managers, and real estate businesses.
 
 The platform allows users to manage tenants, rental properties, payments, and tenant records from a centralized dashboard with an intuitive user experience.
 
