@@ -90,7 +90,6 @@ function TenantDetails() {
                         <button 
                         className="delete-btn"
                         onClick={() => {
-                            console.log("Clicked");
                             setSelectedTenantId(id);
                             setShowModal(true);
                         }}

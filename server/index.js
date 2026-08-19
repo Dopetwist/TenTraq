@@ -22,9 +22,16 @@ app.use(express.static("client/dist")); // server serves react for deployment
 
 // Database Connection
 const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT,
 });
+
+db.connect()
+    .then(() => console.log("Connected to PostgreSQL database"))
+    .catch((err) => console.error("Database connection error:", err.stack));
 
 
 // Tenants endpoints
@@ -32,7 +39,7 @@ const db = new Pool({
 // get all tenants details
 app.get("/api/tenants", async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM tenant_app.tenants");
+        const result = await db.query("SELECT * FROM tenants");
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -45,10 +52,10 @@ app.get("/api/tenants/:id", async (req, res) => {
         const { id } = req.params;
 
         const result = await db.query(
-            `SELECT * FROM tenant_app.tenants 
-            LEFT JOIN tenant_app.properties
-            ON tenant_app.tenants.property_id = tenant_app.properties.id
-            WHERE tenant_app.tenants.id = $1`, 
+            `SELECT * FROM tenants 
+            LEFT JOIN properties
+            ON tenants.property_id = properties.id
+            WHERE tenants.id = $1`, 
         [id]);
 
         // If tenant doesn't exist
@@ -78,8 +85,8 @@ app.post("/api/tenants", async (req, res) => {
         } = req.body;
 
         const result = await db.query(
-            `INSERT INTO tenant_app.tenants 
-                (full_name, email, phone, property_id, room_number, rent_amount, move_in_date, lease_end, currency)
+            `INSERT INTO tenants 
+                (full_name, email, phone, property_id, room_number, rent_amount, lease_start_date, lease_end_date, currency)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
             [full_name, email, phone, property, room, rent, move_in, lease_end, currency]
@@ -145,7 +152,7 @@ app.delete("/api/tenants/:id", async (req, res) => {
 // get all properties
 app.get("/api/properties", async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM tenant_app.properties");
+        const result = await db.query("SELECT * FROM properties");
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -154,7 +161,18 @@ app.get("/api/properties", async (req, res) => {
 
 // add properties
 app.post("/api/properties", async (req, res) => {
+    try {
+        const { property_name, address } = req.body;
 
+        const result = await db.query(
+            "INSERT INTO properties (property_name, property_address) VALUES ($1, $2) RETURNING *",
+            [property_name, address]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 
