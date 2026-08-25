@@ -1,6 +1,10 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
 
 function Sidebar() {
+    const navigate = useNavigate();
+    const { signOut } = useAuth();
+
     return (
         <div className="sidebar">
             <Link to={"/"}><h1>TenTraq</h1></Link>
@@ -12,7 +16,7 @@ function Sidebar() {
                 <Link to={"/register"} className="sidebar-item">Register Tenant</Link>
                 <Link to={"/emails"} className="sidebar-item">Emails</Link>
                 <Link to={"/settings"} className="sidebar-item">Settings</Link>
-                <Link to={"/logout"} className="sidebar-item">Logout</Link>
+                <button type="button" className="sidebar-item sidebar-logout" onClick={() => { signOut(); navigate("/login", { replace: true }); }}>Logout</button>
             </div>
         </div>
     )
