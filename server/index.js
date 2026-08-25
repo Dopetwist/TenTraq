@@ -3,6 +3,13 @@ import env from "dotenv";
 import cors from "cors";
 import pkg from "pg";
 import pg from "pg";
+import {
+    createHmac,
+    randomBytes,
+    scrypt as scryptCallback,
+    timingSafeEqual
+} from "node:crypto";
+import { promisify } from "node:util";
 
 const { Pool } = pkg;
 
@@ -10,6 +17,8 @@ env.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
+const authSecret = process.env.AUTH_SECRET || "local-development-secret-change-me";
+const scrypt = promisify(scryptCallback);
 
 // Prevent backend date timezone shifts
 pg.types.setTypeParser(1082, (val) => val);
@@ -32,6 +41,135 @@ const db = new Pool({
 db.connect()
     .then(() => console.log("Connected to PostgreSQL database"))
     .catch((err) => console.error("Database connection error:", err.stack));
+
+const createLandlordsTable = async () => {
+    await db.query(`
+        CREATE TABLE IF NOT EXISTS landlords (
+            id SERIAL PRIMARY KEY,
+            full_name VARCHAR(120) NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        )
+    `);
+};
+
+const hashPassword = async (password) => {
+    const salt = randomBytes(16).toString("hex");
+    const derivedKey = await scrypt(password, salt, 64);
+    return `${salt}:${Buffer.from(derivedKey).toString("hex")}`;
+};
+
+const verifyPassword = async (password, storedHash) => {
+    const [salt, key] = storedHash.split(":");
+    if (!salt || !key) return false;
+
+    const derivedKey = await scrypt(password, salt, 64);
+    const storedKey = Buffer.from(key, "hex");
+    return storedKey.length === derivedKey.length && timingSafeEqual(storedKey, derivedKey);
+};
+
+const createToken = (landlord) => {
+    const payload = Buffer.from(JSON.stringify({
+        id: landlord.id,
+        email: landlord.email,
+        exp: Date.now() + (7 * 24 * 60 * 60 * 1000)
+    })).toString("base64url");
+    const signature = createHmac("sha256", authSecret).update(payload).digest("base64url");
+    return `${payload}.${signature}`;
+};
+
+const readToken = (token) => {
+    const [payload, signature] = token.split(".");
+    if (!payload || !signature) return null;
+
+    const expectedSignature = createHmac("sha256", authSecret).update(payload).digest("base64url");
+    const received = Buffer.from(signature);
+    const expected = Buffer.from(expectedSignature);
+    if (received.length !== expected.length || !timingSafeEqual(received, expected)) return null;
+
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    return data.exp > Date.now() ? data : null;
+};
+
+const getAuthToken = (req) => {
+    const header = req.headers.authorization || "";
+    return header.startsWith("Bearer ") ? header.slice(7) : null;
+};
+
+app.post("/api/auth/register", async (req, res) => {
+    const fullName = req.body.full_name?.trim();
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!fullName || !email || !password || password.length < 8) {
+        return res.status(400).json({ error: "Name, email, and a password of at least 8 characters are required." });
+    }
+
+    try {
+        const passwordHash = await hashPassword(password);
+        const result = await db.query(
+            `INSERT INTO landlords (full_name, email, password_hash)
+             VALUES ($1, $2, $3) RETURNING id, full_name, email`,
+            [fullName, email, passwordHash]
+        );
+        const landlord = result.rows[0];
+        res.status(201).json({ landlord, token: createToken(landlord) });
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(409).json({ error: "An account with that email already exists." });
+        }
+        console.error(error);
+        res.status(500).json({ error: "Unable to create your account right now." });
+    }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email and password are required." });
+    }
+
+    try {
+        const result = await db.query(
+            "SELECT id, full_name, email, password_hash FROM landlords WHERE email = $1",
+            [email]
+        );
+        const landlord = result.rows[0];
+        if (!landlord || !(await verifyPassword(password, landlord.password_hash))) {
+            return res.status(401).json({ error: "Invalid email or password." });
+        }
+
+        const safeLandlord = {
+            id: landlord.id,
+            full_name: landlord.full_name,
+            email: landlord.email
+        };
+        res.json({ landlord: safeLandlord, token: createToken(safeLandlord) });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Unable to sign in right now." });
+    }
+});
+
+app.get("/api/auth/me", async (req, res) => {
+    try {
+        const token = getAuthToken(req);
+        const claims = token && readToken(token);
+        if (!claims) return res.status(401).json({ error: "Authentication required." });
+
+        const result = await db.query(
+            "SELECT id, full_name, email FROM landlords WHERE id = $1",
+            [claims.id]
+        );
+        if (result.rows.length === 0) return res.status(401).json({ error: "Account not found." });
+        res.json({ landlord: result.rows[0] });
+    } catch (error) {
+        res.status(401).json({ error: "Invalid authentication token." });
+    }
+});
 
 
 // Tenants endpoints
@@ -189,6 +327,10 @@ app.post("/api/upload-document", async (req, res) => {
 
 
 // Server listener
+createLandlordsTable()
+    .then(() => console.log("Landlords table is ready"))
+    .catch((error) => console.error("Unable to initialize landlords table:", error.message));
+
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
 });
