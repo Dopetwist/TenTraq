@@ -12,6 +12,7 @@ import './index.css';
 import AppLayout from "./components/AppLayout";
 import Login from "./pages/Login";
 import LandlordRegister from "./pages/LandlordRegister";
+import ForgotPassword from "./pages/ForgotPassword";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register-landlord" element={<LandlordRegister />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* App route to display other pages with fixed sidebar */}
           <Route element={<ProtectedRoute />}>

@@ -907,14 +907,32 @@ button#send:hover {
 .auth-panel h1 {
     margin-top: 0.6rem;
     color: var(--secondary-color);
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(1.25rem, 5vw, 1.5rem);
     line-height: 1.05;
 }
 
 .auth-copy {
+    font-size: 0.9rem;
     margin-top: 1rem;
     color: var(--sub-text-color);
     line-height: 1.6;
+}
+
+.auth-copy-text {
+    font-size: 0.7rem;
+    margin-top: 0.5rem;
+    color: var(--sub-text-color);
+    line-height: 1.5;
+}
+
+.auth-link {
+    font-size: 0.7rem;
+    color: var(--primary-color);
+    margin-top: 0.5rem;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
 }
 
 .auth-form {
@@ -946,7 +964,7 @@ button#send:hover {
 }
 
 .auth-submit {
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     padding: 0.9rem 1rem;
     border-radius: 0.45rem;
     background: var(--primary-color);
@@ -964,6 +982,12 @@ button#send:hover {
 .auth-error {
     margin-top: 1rem;
     color: var(--delete-color);
+    font-size: 0.9rem;
+}
+
+.auth-success {
+    margin-top: 1rem;
+    color: #15803d;
     font-size: 0.9rem;
 }
 
