@@ -985,6 +985,12 @@ button#send:hover {
     font-size: 0.9rem;
 }
 
+.auth-success {
+    margin-top: 1rem;
+    color: #15803d;
+    font-size: 0.9rem;
+}
+
 .auth-switch {
     margin-top: 1.75rem;
     color: var(--sub-text-color);

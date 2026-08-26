@@ -21,7 +21,7 @@ function LandlordRegister() {
         try {
             const data = await apiRequest("/api/auth/register", {
                 method: "POST",
-                body: JSON.stringify({ full_name: formData.full_name, email: formData.email, password: formData.password })
+                body: JSON.stringify({ full_name: formData.full_name, email: formData.email, password: formData.password, secret_word: formData.secret_word })
             });
             signIn(data);
             navigate("/dashboard", { replace: true });

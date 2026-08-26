@@ -42,17 +42,19 @@ db.connect()
     .then(() => console.log("Connected to PostgreSQL database"))
     .catch((err) => console.error("Database connection error:", err.stack));
 
-const createLandlordsTable = async () => {
+/* const createLandlordsTable = async () => {
     await db.query(`
         CREATE TABLE IF NOT EXISTS landlords (
             id SERIAL PRIMARY KEY,
             full_name VARCHAR(120) NOT NULL,
             email VARCHAR(255) UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            secret_word VARCHAR(120) NOT NULL DEFAULT '',
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
     `);
-};
+    await db.query("ALTER TABLE landlords ADD COLUMN IF NOT EXISTS secret_word VARCHAR(120) NOT NULL DEFAULT ''");
+}; */
 
 const hashPassword = async (password) => {
     const salt = randomBytes(16).toString("hex");
@@ -101,17 +103,18 @@ app.post("/api/auth/register", async (req, res) => {
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
+    const secretWord = req.body.secret_word?.trim();
 
-    if (!fullName || !email || !password || password.length < 8) {
-        return res.status(400).json({ error: "Name, email, and a password of at least 8 characters are required." });
+    if (!fullName || !email || !password || password.length < 8 || !secretWord) {
+        return res.status(400).json({ error: "Name, email, password, and a secret word are required." });
     }
 
     try {
         const passwordHash = await hashPassword(password);
         const result = await db.query(
-            `INSERT INTO landlords (full_name, email, password_hash)
-             VALUES ($1, $2, $3) RETURNING id, full_name, email`,
-            [fullName, email, passwordHash]
+            `INSERT INTO landlords (full_name, email, password_hash, secret_word)
+             VALUES ($1, $2, $3, $4) RETURNING id, full_name, email`,
+            [fullName, email, passwordHash, secretWord]
         );
         const landlord = result.rows[0];
         res.status(201).json({ landlord, token: createToken(landlord) });
@@ -151,6 +154,37 @@ app.post("/api/auth/login", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Unable to sign in right now." });
+    }
+});
+
+app.post("/api/auth/reset-password", async (req, res) => {
+    const email = req.body.email?.trim().toLowerCase();
+    const secretWord = req.body.secret_word?.trim();
+    const password = req.body.password;
+
+    if (!email || !secretWord || !password || password.length < 8) {
+        return res.status(400).json({ error: "Email, secret word, and a password of at least 8 characters are required." });
+    }
+
+    try {
+        const result = await db.query(
+            "SELECT id, secret_word FROM landlords WHERE email = $1",
+            [email]
+        );
+        const landlord = result.rows[0];
+        if (!landlord || landlord.secret_word !== secretWord) {
+            return res.status(401).json({ error: "The email or secret word is incorrect." });
+        }
+
+        const passwordHash = await hashPassword(password);
+        await db.query(
+            "UPDATE landlords SET password_hash = $1 WHERE id = $2",
+            [passwordHash, landlord.id]
+        );
+        res.json({ message: "Your password has been updated. You can now sign in." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Unable to reset your password right now." });
     }
 });
 
@@ -327,9 +361,10 @@ app.post("/api/upload-document", async (req, res) => {
 
 
 // Server listener
-createLandlordsTable()
+/* createLandlordsTable()
     .then(() => console.log("Landlords table is ready"))
     .catch((error) => console.error("Unable to initialize landlords table:", error.message));
+*/
 
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
