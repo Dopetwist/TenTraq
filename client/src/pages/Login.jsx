@@ -29,23 +29,33 @@ function Login() {
         }
     };
 
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setFormData({ ...formData, [name]: value });
+    }
+
     return (
         <main className="auth-page">
-            <section className="auth-panel">
+            <div className="auth-panel">
                 <Link className="auth-brand" to="/">TenTraq</Link>
                 <p className="auth-eyebrow">Landlord workspace</p>
                 <h1>Welcome back.</h1>
                 <p className="auth-copy">Sign in to keep your properties and tenants moving smoothly.</p>
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <label htmlFor="login-email">Email address</label>
-                    <input id="login-email" type="email" value={formData.email} onChange={(event) => setFormData({ ...formData, email: event.target.value })} required autoComplete="email" />
+                    <input id="login-email" type="email" name="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
+                    
                     <label htmlFor="login-password">Password</label>
-                    <input id="login-password" type="password" value={formData.password} onChange={(event) => setFormData({ ...formData, password: event.target.value })} required autoComplete="current-password" />
+                    <input id="login-password" type="password" name="password" value={formData.password} onChange={handleChange} required autoComplete="current-password" />
+                    <Link to="/forgot-password" className="auth-link">
+                        Forgot your password?
+                    </Link>
+                    
                     {error && <p className="auth-error" role="alert">{error}</p>}
                     <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in..." : "Sign in"}</button>
                 </form>
                 <p className="auth-switch">New to TenTraq? <Link to="/register-landlord">Create an account</Link></p>
-            </section>
+            </div>
         </main>
     );
 }

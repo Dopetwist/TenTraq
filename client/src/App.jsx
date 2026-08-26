@@ -24,6 +24,7 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register-landlord" element={<LandlordRegister />} />
+          <Route path="/forgot-password" element={<div>Forgot Password Page</div>} />
 
           {/* App route to display other pages with fixed sidebar */}
           <Route element={<ProtectedRoute />}>

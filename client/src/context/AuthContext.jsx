@@ -4,19 +4,19 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(() => {
-        const savedUser = localStorage.getItem("tentrackr-user");
+        const savedUser = localStorage.getItem("tentraq-user");
         return savedUser ? JSON.parse(savedUser) : null;
     });
 
     const signIn = ({ landlord, token }) => {
-        localStorage.setItem("tentrackr-token", token);
-        localStorage.setItem("tentrackr-user", JSON.stringify(landlord));
+        localStorage.setItem("tentraq-token", token);
+        localStorage.setItem("tentraq-user", JSON.stringify(landlord));
         setUser(landlord);
     };
 
     const signOut = () => {
-        localStorage.removeItem("tentrackr-token");
-        localStorage.removeItem("tentrackr-user");
+        localStorage.removeItem("tentraq-token");
+        localStorage.removeItem("tentraq-user");
         setUser(null);
     };
 

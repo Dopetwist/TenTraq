@@ -1,7 +1,7 @@
 const API_URL = "http://localhost:5000";
 
 export const apiRequest = async (path, options = {}) => {
-	const token = localStorage.getItem("tentrackr-token");
+	const token = localStorage.getItem("tentraq-token");
 	const response = await fetch(`${API_URL}${path}`, {
 		...options,
 		headers: {
