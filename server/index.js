@@ -327,7 +327,7 @@ app.delete("/api/tenants/:id", async (req, res) => {
 // get all properties
 app.get("/api/properties", async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM properties");
+        const result = await db.query("SELECT * FROM landlords LEFT JOIN properties ON landlords.id = properties.landlord_id");
         const properties = result.rows;
         res.json(properties);
     } catch (error) {

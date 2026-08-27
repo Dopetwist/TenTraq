@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
 import Modal from "./Modal";
 
@@ -12,10 +13,11 @@ function PropertyAccordion() {
     const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
+    const { user } = useAuth();
+
     const navigate = useNavigate();
 
-    /* const landlordId = localStorage.getItem("tentraq-user") ? JSON.parse(localStorage.getItem("tentraq-user")).id : null; */
-
+    // Toggle the expanded state of a property
     const toggleProperty = (propertyId) => {
         if (expandedProperty === propertyId) {
             setExpandedProperty(null);
@@ -24,14 +26,18 @@ function PropertyAccordion() {
         }
     };
 
-    // Fetch All properties from backend database
+    const landlordId = user ? user.id : null; // Get landlord ID from user context
+
+    // Fetch user properties from backend database
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 const res = await axios.get("http://localhost:5000/api/properties");
-                setProperties(res.data);
+
+                const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
+                setProperties(filteredProperties);
             } catch (error) {
-                console.error(error.message);
+                console.error("Error fetching properties:", error.message);
             }
         }
 
@@ -82,7 +88,7 @@ function PropertyAccordion() {
             )}
 
             {properties.length === 0 ? (
-                <p className="loading">Loading properties...</p>
+                <p className="loading">No properties found.</p>
             ) : (
                     properties.map(property => (
                         <div key={property.id} className="property-item">
