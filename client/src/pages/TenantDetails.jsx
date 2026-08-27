@@ -104,8 +104,8 @@ function TenantDetails() {
                 <p><strong>Email:</strong> <span>{tenant.email}</span></p>
                 <p><strong>Phone:</strong> <span>{tenant.phone}</span></p>
                 <p><strong>Rent:</strong> <span>{tenant.rent_amount ? symbol : ""}{tenant.rent_amount}</span></p>
-                <p><strong>Move-in Date:</strong> <span>{formatDate(tenant.move_in_date)}</span></p>
-                <p><strong>Lease End:</strong> <span>{formatDate(tenant.lease_end)}</span></p>
+                <p><strong>Lease Start Date:</strong> <span>{formatDate(tenant.lease_start_date)}</span></p>
+                <p><strong>Lease End Date:</strong> <span>{formatDate(tenant.lease_end_date)}</span></p>
             </div>
 
             <div className="document-section">

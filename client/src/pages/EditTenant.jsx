@@ -23,8 +23,8 @@ function EditTenant() {
         room: "",
         currency: "NGN",
         rent: "",
-        move_in: "",
-        lease_end: ""
+        lease_start_date: "",
+        lease_end_date: ""
     });
 
     const handleSubmit = async (e) => {
@@ -51,8 +51,8 @@ function EditTenant() {
                 room: "",
                 currency: "NGN",
                 rent: "",
-                move_in: "",
-                lease_end: ""
+                lease_start_date: "",
+                lease_end_date: ""
             });
 
             // Redirect to tenant details page after short delay
@@ -74,10 +74,11 @@ function EditTenant() {
     };
 
     const handleChange = (e) => {
+        const { name, value } = e.target;
         setFormData({
             ...formData,
             currency: "NGN",
-            [e.target.name]: e.target.value
+            [name]: value
         });
     };
 
@@ -90,7 +91,8 @@ function EditTenant() {
                 property: tenant.property_id, // Tenant property_id field
                 room: tenant.room_number,
                 rent: tenant.rent_amount,
-                move_in: tenant.move_in_date
+                lease_start_date: tenant.lease_start_date,
+                lease_end_date: tenant.lease_end_date
             });
         }
     }, [location.state]);
@@ -202,20 +204,20 @@ function EditTenant() {
                 </div>
                 
                 <div className="edit-form-sub">
-                    <label>Move-in Date:</label>
+                    <label>Lease Start Date:</label>
                     <input 
                     type="date" 
-                    name="move_in" 
-                    value={formData.move_in} 
+                    name="lease_start_date" 
+                    value={formData.lease_start_date} 
                     onChange={handleChange} />
                 </div>
                     
                 <div className="edit-form-sub">
-                    <label>Lease End:</label>
+                    <label>Lease End Date:</label>
                     <input 
                     type="date" 
-                    name="lease_end" 
-                    value={formData.lease_end} 
+                    name="lease_end_date" 
+                    value={formData.lease_end_date} 
                     onChange={handleChange} />
                 </div>
 

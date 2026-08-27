@@ -254,8 +254,8 @@ app.post("/api/tenants", async (req, res) => {
             room,
             currency,
             rent,
-            move_in,
-            lease_end
+            lease_start_date,
+            lease_end_date
         } = req.body;
 
         const result = await db.query(
@@ -263,7 +263,7 @@ app.post("/api/tenants", async (req, res) => {
                 (full_name, email, phone, property_id, room_number, rent_amount, lease_start_date, lease_end_date, currency)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
              RETURNING *`,
-            [full_name, email, phone, property, room, rent, move_in, lease_end, currency]
+            [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, currency]
         );
 
         res.status(201).json(result.rows[0]); // return created tenant
@@ -284,16 +284,16 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
         room,
         currency,
         rent,
-        move_in,
-        lease_end
+        lease_start_date,
+        lease_end_date
     } = req.body;
 
     try {
-        await db.query(`UPDATE tenant_app.tenants SET 
+        await db.query(`UPDATE tenants SET 
             full_name = $1, email = $2, phone = $3, property_id = $4, room_number = $5, 
-            rent_amount = $6, move_in_date = $7, lease_end = $8, currency = $9
-            WHERE tenant_app.tenants.id = $10
-            `, [full_name, email, phone, property, room, rent, move_in, lease_end, currency, id]);
+            rent_amount = $6, lease_start_date = $7, lease_end_date = $8, currency = $9
+            WHERE tenants.id = $10
+            `, [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, currency, id]);
 
         res.status(200).json({ message: "Tenant updated successfully" });
     } catch (error) {
@@ -304,10 +304,11 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
 
 // delete a tenant
 app.delete("/api/tenants/:id", async (req, res) => {
+    
     const { id } = req.params;
 
     try {
-        const result = await db.query("DELETE FROM tenant_app.tenants WHERE tenant_app.tenants.id = $1", [id]);
+        const result = await db.query("DELETE FROM tenants WHERE tenants.id = $1", [id]);
 
         if (result.rowCount === 0) {
             return res.status(404).json({ message: "Tenant not found!" });
@@ -326,7 +327,7 @@ app.delete("/api/tenants/:id", async (req, res) => {
 // get all properties
 app.get("/api/properties", async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM properties");
+        const result = await db.query("SELECT * FROM landlords LEFT JOIN properties ON landlords.id = properties.landlord_id");
         const properties = result.rows;
         res.json(properties);
     } catch (error) {

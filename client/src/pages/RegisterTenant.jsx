@@ -16,8 +16,8 @@ function RegisterTenant() {
         room: "",
         currency: "NGN",
         rent: "",
-        move_in: "",
-        lease_end: ""
+        lease_start_date: "",
+        lease_end_date: ""
     });
 
     const [ toast, setToast ] = useState(null); // toast state
@@ -52,8 +52,8 @@ function RegisterTenant() {
                 room: "",
                 currency: "NGN",
                 rent: "",
-                move_in: "",
-                lease_end: ""
+                lease_start_date: "",
+                lease_end_date: ""
             });
 
             // Redirect to tenant details page after short delay
@@ -186,12 +186,12 @@ function RegisterTenant() {
                         </div>
 
                         <div className="small-input">
-                            <label htmlFor="move-in">Move-In Date:</label>
+                            <label htmlFor="lease-start">Lease Start Date:</label>
                             <input 
                                 type="date" 
-                                name="move_in" 
-                                id="move-in"
-                                value={formData.move_in}
+                                name="lease_start_date" 
+                                id="lease-start"
+                                value={formData.lease_start_date}
                                 onChange={handleChange}
                                 required
                             />
@@ -201,9 +201,9 @@ function RegisterTenant() {
                             <label htmlFor="lease-end">Lease End Date:</label>
                             <input 
                                 type="date" 
-                                name="lease_end" 
+                                name="lease_end_date" 
                                 id="lease-end"
-                                value={formData.lease_end}
+                                value={formData.lease_end_date}
                                 onChange={handleChange}
                                 required
                             />

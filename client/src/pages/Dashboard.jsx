@@ -1,4 +1,8 @@
+import { useAuth } from "../context/AuthContext.jsx";
+
 function Dashboard() {
+    /* const { user } = useAuth(); */
+
     return (
         <div id="dashboard">
             
