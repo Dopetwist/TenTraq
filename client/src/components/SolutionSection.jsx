@@ -10,7 +10,7 @@ function SolutionSection() {
                     <span><BookText size={34} /></span>
                     <h2 className="title">Tenant Registry</h2>
 
-                    <p>Store tenant records in one place</p>
+                    <p>Store tenants records in one place</p>
                 </div>
                 <div className="card2 solution-card">
                     <span><House size={34} /></span>
@@ -22,7 +22,7 @@ function SolutionSection() {
                     <span><FileUp size={34} /></span>
                     <h2 className="title">Document Upload</h2>
 
-                    <p>Save tenant agreements and IDs</p>
+                    <p>Save tenants documents and IDs</p>
                 </div>
                 <div className="card4 solution-card">
                     <span><Mail size={34} /></span>

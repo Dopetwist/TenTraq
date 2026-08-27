@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { apiRequest } from "../services/api.js";
+import PasswordInput from "../components/PasswordInput.jsx";
 
 function ForgotPassword() {
     const [formData, setFormData] = useState({ email: "", secret_word: "", password: "", confirmPassword: "" });
@@ -57,10 +58,10 @@ function ForgotPassword() {
                     <input id="forgot-secret-word" type="text" name="secret_word" value={formData.secret_word} onChange={handleChange} required autoComplete="off" />
 
                     <label htmlFor="forgot-password">New password</label>
-                    <input id="forgot-password" type="password" name="password" minLength="8" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput id="forgot-password" name="password" minLength="8" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
 
                     <label htmlFor="forgot-confirm-password">Confirm new password</label>
-                    <input id="forgot-confirm-password" type="password" name="confirmPassword" minLength="8" value={formData.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput id="forgot-confirm-password" name="confirmPassword" minLength="8" value={formData.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
 
                     {error && <p className="auth-error" role="alert">{error}</p>}
                     {success && <p className="auth-success" role="status">{success}</p>}

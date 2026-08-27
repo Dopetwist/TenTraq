@@ -56,6 +56,7 @@ db.connect()
     await db.query("ALTER TABLE landlords ADD COLUMN IF NOT EXISTS secret_word VARCHAR(120) NOT NULL DEFAULT ''");
 }; */
 
+// Authentication Utilities
 const hashPassword = async (password) => {
     const salt = randomBytes(16).toString("hex");
     const derivedKey = await scrypt(password, salt, 64);
@@ -75,7 +76,7 @@ const createToken = (landlord) => {
     const payload = Buffer.from(JSON.stringify({
         id: landlord.id,
         email: landlord.email,
-        exp: Date.now() + (7 * 24 * 60 * 60 * 1000)
+        exp: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days in milliseconds
     })).toString("base64url");
     const signature = createHmac("sha256", authSecret).update(payload).digest("base64url");
     return `${payload}.${signature}`;
@@ -99,6 +100,7 @@ const getAuthToken = (req) => {
     return header.startsWith("Bearer ") ? header.slice(7) : null;
 };
 
+// Authentication Endpoints
 app.post("/api/auth/register", async (req, res) => {
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
@@ -325,7 +327,8 @@ app.delete("/api/tenants/:id", async (req, res) => {
 app.get("/api/properties", async (req, res) => {
     try {
         const result = await db.query("SELECT * FROM properties");
-        res.json(result.rows);
+        const properties = result.rows;
+        res.json(properties);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

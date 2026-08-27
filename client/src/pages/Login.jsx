@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { apiRequest } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import PasswordInput from "../components/PasswordInput.jsx";
 
 function Login() {
     const navigate = useNavigate();
@@ -46,7 +47,7 @@ function Login() {
                     <input id="login-email" type="email" name="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
                     
                     <label htmlFor="login-password">Password</label>
-                    <input id="login-password" type="password" name="password" value={formData.password} onChange={handleChange} required autoComplete="current-password" />
+                    <PasswordInput id="login-password" name="password" value={formData.password} onChange={handleChange} required autoComplete="current-password" />
                     <Link to="/forgot-password" className="auth-link">
                         Forgot your password?
                     </Link>

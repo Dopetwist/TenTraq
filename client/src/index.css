@@ -32,9 +32,12 @@ section {
 }
 
 .header {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding: 1rem 5%;
-    margin-top: 1rem;
+    background-color: var(--background-color);
+    padding: 1.5rem 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -53,7 +56,7 @@ section {
     font-weight: 600;
 }
 
-.get-started {
+.get-started, .sign-in {
     background-color: var(--primary-color);
     color: var(--background-color);
     font-size: 1.1rem;
@@ -63,7 +66,8 @@ section {
 
 .get-started:hover,
 .view-demo:hover,
-.cta-btn:hover {
+.cta-btn:hover,
+.sign-in:hover {
     cursor: pointer;
 }
 
@@ -93,6 +97,7 @@ section {
 
 #hero {
     display: flex;
+    padding-top: 15%;
 }
 
 .hero-texts p {
@@ -956,6 +961,33 @@ button#send:hover {
     border-radius: 0.45rem;
     background: #f8fafc;
     font-size: 1rem;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 3rem;
+}
+
+.password-visibility-toggle {
+    position: absolute;
+    top: 0.45rem;
+    right: 0;
+    bottom: 0;
+    width: 3rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--sub-text-color);
+    cursor: pointer;
+}
+
+.password-visibility-toggle:hover,
+.password-visibility-toggle:focus-visible {
+    color: var(--primary-color);
 }
 
 .auth-form input:focus {
