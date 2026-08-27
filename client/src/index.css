@@ -958,6 +958,33 @@ button#send:hover {
     font-size: 1rem;
 }
 
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    padding-right: 3rem;
+}
+
+.password-visibility-toggle {
+    position: absolute;
+    top: 0.45rem;
+    right: 0;
+    bottom: 0;
+    width: 3rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: transparent;
+    color: var(--sub-text-color);
+    cursor: pointer;
+}
+
+.password-visibility-toggle:hover,
+.password-visibility-toggle:focus-visible {
+    color: var(--primary-color);
+}
+
 .auth-form input:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px #2563eb1c;

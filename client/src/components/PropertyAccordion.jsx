@@ -14,6 +14,8 @@ function PropertyAccordion() {
 
     const navigate = useNavigate();
 
+    /* const landlordId = localStorage.getItem("tentraq-user") ? JSON.parse(localStorage.getItem("tentraq-user")).id : null; */
+
     const toggleProperty = (propertyId) => {
         if (expandedProperty === propertyId) {
             setExpandedProperty(null);

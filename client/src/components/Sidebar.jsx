@@ -5,6 +5,8 @@ function Sidebar() {
     const navigate = useNavigate();
     const { signOut } = useAuth();
 
+    /* const landlordId = localStorage.getItem("tentraq-user") ? JSON.parse(localStorage.getItem("tentraq-user")).id : null; */
+
     return (
         <div className="sidebar">
             <Link to={"/"}><h1>TenTraq</h1></Link>

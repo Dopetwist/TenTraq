@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { apiRequest } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import PasswordInput from "../components/PasswordInput.jsx";
 
 function LandlordRegister() {
     const navigate = useNavigate();
@@ -52,10 +53,10 @@ function LandlordRegister() {
                     <input id="register-email" type="email" name="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
                     
                     <label htmlFor="register-password">Password</label>
-                    <input id="register-password" type="password" name="password" minLength="8" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput id="register-password" name="password" minLength="8" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
                     
                     <label htmlFor="register-confirm-password">Confirm password</label>
-                    <input id="register-confirm-password" type="password" name="confirmPassword" minLength="8" value={formData.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput id="register-confirm-password" name="confirmPassword" minLength="8" value={formData.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
                     
                     <label htmlFor="register-secret-word">Secret word (for account recovery)</label>
                     <p className="auth-copy-text">This word will help you recover your account if you ever forget your password. Do not share it with anyone.</p>
