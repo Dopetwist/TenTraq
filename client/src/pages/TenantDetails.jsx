@@ -104,6 +104,7 @@ function TenantDetails() {
                 <p><strong>Email:</strong> <span>{tenant.email}</span></p>
                 <p><strong>Phone:</strong> <span>{tenant.phone}</span></p>
                 <p><strong>Rent:</strong> <span>{tenant.rent_amount ? symbol : ""}{tenant.rent_amount}</span></p>
+                <p><strong>Status:</strong> <span className={`status ${tenant.status}`}>{tenant.status}</span></p>
                 <p><strong>Lease Start Date:</strong> <span>{formatDate(tenant.lease_start_date)}</span></p>
                 <p><strong>Lease End Date:</strong> <span>{formatDate(tenant.lease_end_date)}</span></p>
             </div>

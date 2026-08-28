@@ -246,6 +246,8 @@ app.get("/api/tenants/:id", async (req, res) => {
 // register a new tenant
 app.post("/api/tenants", async (req, res) => {
     try {
+        const initialStatus = "active"; // default status for new tenants
+
         const { 
             full_name, 
             email, 
@@ -260,10 +262,10 @@ app.post("/api/tenants", async (req, res) => {
 
         const result = await db.query(
             `INSERT INTO tenants 
-                (full_name, email, phone, property_id, room_number, rent_amount, lease_start_date, lease_end_date, currency)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                (full_name, email, phone, property_id, room_number, rent_amount, lease_start_date, lease_end_date, status, currency)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING *`,
-            [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, currency]
+            [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, initialStatus, currency]
         );
 
         res.status(201).json(result.rows[0]); // return created tenant
@@ -284,6 +286,7 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
         room,
         currency,
         rent,
+        status,
         lease_start_date,
         lease_end_date
     } = req.body;
@@ -291,9 +294,9 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
     try {
         await db.query(`UPDATE tenants SET 
             full_name = $1, email = $2, phone = $3, property_id = $4, room_number = $5, 
-            rent_amount = $6, lease_start_date = $7, lease_end_date = $8, currency = $9
-            WHERE tenants.id = $10
-            `, [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, currency, id]);
+            rent_amount = $6, lease_start_date = $7, lease_end_date = $8, status = $9, currency = $10
+            WHERE tenants.id = $11
+            `, [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, status, currency, id]);
 
         res.status(200).json({ message: "Tenant updated successfully" });
     } catch (error) {
@@ -351,6 +354,7 @@ app.post("/api/properties", async (req, res) => {
     }
 });
 
+// get landlord dashboard data
 app.get("/api/landlords/:id", async (req, res) => {
 
     const { id } = req.params;
