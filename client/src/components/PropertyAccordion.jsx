@@ -107,6 +107,8 @@ function PropertyAccordion() {
                                                     <p className="phone">{tenant.phone}</p>
                                                 </div>
 
+                                                <div className={`status ${tenant.status}`}>{tenant.status}</div>
+
                                                 <div className="action-btns">
                                                     <button 
                                                     className="view-btn"

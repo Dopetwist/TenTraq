@@ -23,6 +23,7 @@ function EditTenant() {
         room: "",
         currency: "NGN",
         rent: "",
+        status: "active",
         lease_start_date: "",
         lease_end_date: ""
     });
@@ -51,6 +52,7 @@ function EditTenant() {
                 room: "",
                 currency: "NGN",
                 rent: "",
+                status: "active",
                 lease_start_date: "",
                 lease_end_date: ""
             });
@@ -91,6 +93,7 @@ function EditTenant() {
                 property: tenant.property_id, // Tenant property_id field
                 room: tenant.room_number,
                 rent: tenant.rent_amount,
+                status: tenant.status,
                 lease_start_date: tenant.lease_start_date,
                 lease_end_date: tenant.lease_end_date
             });
@@ -114,7 +117,6 @@ function EditTenant() {
 
     return (
         <div className="edit-container">
-            {/* <div className={`overlay ${clicked ? "dark" : ""}`}></div> */}
             {clicked && (
                 <div className="wait">
                     <p>Please wait...</p>
@@ -202,7 +204,20 @@ function EditTenant() {
                         onChange={handleChange} />
                     </div>
                 </div>
-                
+
+                <div className="edit-form-sub">
+                    <label>Status:</label>
+                    <select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleChange}
+                    >
+                        <option value="active">Active</option>
+                        <option value="packed">Packed</option>
+                        <option value="quitted">Quitted</option>
+                    </select>
+                </div>
+
                 <div className="edit-form-sub">
                     <label>Lease Start Date:</label>
                     <input 

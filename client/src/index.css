@@ -16,6 +16,7 @@
     --secondary-color: #1E293B;
     --background-color: #F8FAFC;
     --accent-color: #10B981;
+    --warning-color: #F59E0B;
     --sub-text-color: #555;
     --delete-color: #EF4444;
 }
@@ -246,15 +247,12 @@ section {
 
 #dashboard {
     min-height: 100vh;
-    /* background-color: red; */
-    /* padding: 1rem; */
     display: flex;
     justify-content: space-between;
 }
 
 .dashboard-container {
     width: 80%;
-    /* background-color: purple; */
     padding: 2rem;
 }
 
@@ -266,6 +264,13 @@ section {
 .dashboard-container .tenants-box {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+}
+
+.dashboard-error {
+    color: var(--delete-color);
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
 }
 
 .tenants-box .inner-box {
@@ -437,6 +442,34 @@ button.send-email {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+
+.status {
+    font-size: 0.8rem;
+    background: transparent;
+    border: 0.1rem solid transparent;
+    border-radius: 1rem;
+    padding: 0.2rem 1rem;
+    text-transform: capitalize;
+    font-weight: 500;
+}
+
+.status.active {
+    color: var(--accent-color);
+    background-color: #10B9811c;
+    border-color: var(--accent-color);
+}
+
+.status.quitted {
+    color: var(--warning-color);
+    background-color: #F59E0B1c;
+    border-color: var(--warning-color);
+}
+
+.status.packed {
+    color: var(--delete-color);
+    background-color: #EF44441c;
+    border-color: var(--delete-color);
 }
 
 .edit-btn {
