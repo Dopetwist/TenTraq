@@ -116,7 +116,7 @@ function EditTenant() {
         }
 
         fetchProperties();
-    }, []);
+    }, [landlordId]);
 
 
     return (

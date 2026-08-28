@@ -8,6 +8,8 @@ function Dashboard() {
 
     const { user } = useAuth();
 
+    console.log(user);
+
     const landlordId = user ? user.id : null;
 
     useEffect(() => {
@@ -40,6 +42,7 @@ function Dashboard() {
         <div id="dashboard">
             
             <div className="dashboard-container">
+                <h1 className="dashboard-title">Welcome, {user?.full_name}</h1>
                 <h1>Dashboard</h1>
 
                 {error && <p className="dashboard-error" role="alert">{error}</p>}
