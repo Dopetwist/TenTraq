@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
 import Toast from "../components/Toast";
 
 function EditTenant() {
     const { id } = useParams();
 
+    const [ properties, setProperties ] = useState([]);
+    const [ toast, setToast ] = useState(null); // toast state
+    const [ clicked, setClicked ] = useState(false);
+
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [ properties, setProperties ] = useState([]);
+    const { user } = useAuth();
 
-    const [ toast, setToast ] = useState(null); // toast state
-
-    const [ clicked, setClicked ] = useState(false);
+    const landlordId = user ? user.id : null; // Get landlord ID from user context
 
     const [formData, setFormData] = useState({
         full_name: "",
@@ -100,12 +103,13 @@ function EditTenant() {
         }
     }, [location.state]);
 
-    // Fetch All properties from backend database
+    // Fetch all properties from backend database and filter by landlord ID
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 const res = await axios.get("http://localhost:5000/api/properties");
-                setProperties(res.data);
+                const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
+                setProperties(filteredProperties);
             } catch (error) {
                 console.error(error.message);
             }
