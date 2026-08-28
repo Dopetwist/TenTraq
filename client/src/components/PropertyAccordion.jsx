@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
+import { apiRequest } from "../services/api.js";
 import axios from "axios";
 import Modal from "./Modal";
+import PropertyModal from "./PropertyModal";
 
 function PropertyAccordion() {
 
@@ -10,12 +12,15 @@ function PropertyAccordion() {
     const [ properties, setProperties ] = useState([]);
     const [ tenants, setTenants ] = useState([]);
     const [ showModal, setShowModal ] = useState(false);
+    const [ showPropertyModal, setShowPropertyModal ] = useState(false);
     const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
     const { user } = useAuth();
 
     const navigate = useNavigate();
+
+    const location = useLocation();
 
     // Toggle the expanded state of a property
     const toggleProperty = (propertyId) => {
@@ -29,8 +34,7 @@ function PropertyAccordion() {
     const landlordId = user ? user.id : null; // Get landlord ID from user context
 
     // Fetch user properties from backend database
-    useEffect(() => {
-        const fetchProperties = async () => {
+    const fetchProperties = async () => {
             try {
                 const res = await axios.get("http://localhost:5000/api/properties");
 
@@ -39,10 +43,12 @@ function PropertyAccordion() {
             } catch (error) {
                 console.error("Error fetching properties:", error.message);
             }
-        }
+    };
 
+    useEffect(() => {
         fetchProperties();
-    }, []);
+    }, [landlordId]);
+    
 
     // Fetch All tenants from backend database
     useEffect(() => {
@@ -83,9 +89,20 @@ function PropertyAccordion() {
     return (
         <div id="property-container">
 
-            {properties.length > 0 && (
-                <p className="your-props">Your Properties</p>
-            )}
+            <div className="property-header">
+                {properties.length > 0 && (
+                    <p className="your-props">Your Properties</p>
+                )}
+
+                {location.pathname === "/properties" && (
+                    <button 
+                    className="add-property-btn" 
+                    onClick={() => setShowPropertyModal(true)}
+                    >
+                        Add Property
+                    </button>
+                )}
+            </div>
 
             {properties.length === 0 ? (
                 <p className="loading">No properties found.</p>
@@ -144,6 +161,12 @@ function PropertyAccordion() {
                 confirmText="Delete"
                 cancelText="Cancel"
                 isLoading={isDeleting}
+            />
+
+            <PropertyModal
+                isOpen={showPropertyModal}
+                onClose={() => setShowPropertyModal(false)}
+                onCreated={fetchProperties}
             />
             
         </div>

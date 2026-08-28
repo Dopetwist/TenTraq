@@ -330,7 +330,7 @@ app.delete("/api/tenants/:id", async (req, res) => {
 // get all properties
 app.get("/api/properties", async (req, res) => {
     try {
-        const result = await db.query("SELECT * FROM landlords LEFT JOIN properties ON landlords.id = properties.landlord_id");
+        const result = await db.query("SELECT * FROM properties");
         const properties = result.rows;
         res.json(properties);
     } catch (error) {
@@ -341,11 +341,18 @@ app.get("/api/properties", async (req, res) => {
 // add properties
 app.post("/api/properties", async (req, res) => {
     try {
+        const token = getAuthToken(req);
+        const claims = token && readToken(token);
+        if (!claims) return res.status(401).json({ error: "Authentication required." });
+
         const { property_name, address } = req.body;
+        if (!property_name?.trim() || !address?.trim()) {
+            return res.status(400).json({ error: "Property name and address are required." });
+        }
 
         const result = await db.query(
-            "INSERT INTO properties (property_name, property_address) VALUES ($1, $2) RETURNING *",
-            [property_name, address]
+            "INSERT INTO properties (landlord_id, property_name, property_address) VALUES ($1, $2, $3) RETURNING *",
+            [claims.id, property_name.trim(), address.trim()]
         );
 
         res.status(201).json(result.rows[0]);

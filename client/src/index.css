@@ -336,6 +336,26 @@ button.send-email {
     background-color: var(--primary-color);
 }
 
+.property-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+}
+
+.add-property-btn {
+    background-color: var(--accent-color);
+    color: var(--background-color);
+    padding: 0.5rem 2rem;
+    border-radius: 0.3rem;
+}
+
+.add-property-btn:hover {
+    cursor: pointer;
+    background-color: #009865;
+}
+
 #property-container {
     width: 90%;
     padding: 2rem 1rem;
@@ -795,8 +815,75 @@ button#send:hover {
     background: #fff;
     padding: 1rem 2rem;
     border-radius: 0.5rem;
-    width: 25%;
+    width: min(92%, 32rem);
     text-align: center;
+}
+
+.property-modal {
+    text-align: left;
+}
+
+.modal-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.modal-heading h2 {
+    color: var(--secondary-color);
+}
+
+.modal-eyebrow {
+    color: var(--accent-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.35rem;
+}
+
+.modal-close-btn {
+    background: transparent;
+    color: var(--sub-text-color);
+    font-size: 1.4rem;
+    line-height: 1;
+    padding: 0.1rem 0.35rem;
+    cursor: pointer;
+}
+
+.property-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.property-form input,
+.property-form textarea {
+    width: 100%;
+    margin-bottom: 0.8rem;
+    padding: 0.7rem 0.8rem;
+    border: 0.1rem solid #cbd5e1;
+    border-radius: 0.3rem;
+    resize: vertical;
+}
+
+.form-error {
+    color: var(--delete-color);
+    margin-bottom: 0.4rem;
+}
+
+.confirm-btn {
+    background: var(--accent-color);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.3rem;
+    cursor: pointer;
+}
+
+.confirm-btn:disabled {
+    cursor: wait;
+    opacity: 0.7;
 }
 
 .modal h3 {

@@ -1,12 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
+import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
 import Toast from "../components/Toast";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
 
+    const [ toast, setToast ] = useState(null); // toast state
+
     const navigate = useNavigate();
+
+    const { user } = useAuth();
+
+    const landlordId = user ? user.id : null; // Get landlord ID from user context
 
     const [ formData, setFormData ] = useState({
         full_name: "",
@@ -19,8 +26,6 @@ function RegisterTenant() {
         lease_start_date: "",
         lease_end_date: ""
     });
-
-    const [ toast, setToast ] = useState(null); // toast state
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -71,19 +76,20 @@ function RegisterTenant() {
         }
     };
 
-    // Fetch All properties from backend database
+    // Fetch all properties from backend database and filter by landlord ID
     useEffect(() => {
         const fetchProperties = async () => {
             try {
                 const res = await axios.get("http://localhost:5000/api/properties");
-                setProperties(res.data);
+                const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
+                setProperties(filteredProperties);
             } catch (error) {
                 console.error(error.message);
             }
         }
 
         fetchProperties();
-    }, []);
+    }, [landlordId]);
 
     return (
         <div id="register-section">
