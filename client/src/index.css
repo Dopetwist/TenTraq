@@ -246,15 +246,12 @@ section {
 
 #dashboard {
     min-height: 100vh;
-    /* background-color: red; */
-    /* padding: 1rem; */
     display: flex;
     justify-content: space-between;
 }
 
 .dashboard-container {
     width: 80%;
-    /* background-color: purple; */
     padding: 2rem;
 }
 
@@ -266,6 +263,13 @@ section {
 .dashboard-container .tenants-box {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
+}
+
+.dashboard-error {
+    color: var(--delete-color);
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 2rem;
 }
 
 .tenants-box .inner-box {

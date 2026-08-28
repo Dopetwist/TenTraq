@@ -1,7 +1,40 @@
+import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
+import { apiRequest } from "../services/api.js";
 
 function Dashboard() {
-    /* const { user } = useAuth(); */
+    const [dashboardData, setDashboardData] = useState(null);
+    const [error, setError] = useState("");
+
+    const { user } = useAuth();
+
+    const landlordId = user ? user.id : null;
+
+    useEffect(() => {
+        if (!landlordId) return;
+
+        let isCurrentRequest = true;
+
+        const fetchUserData = async () => {
+            try {
+                const data = await apiRequest(`/api/landlords/${landlordId}`);
+
+                if (isCurrentRequest) {
+                    setDashboardData(data);
+                    setError("");
+                }
+            } catch (requestError) {
+                console.error("Unable to load dashboard data:", requestError);
+                if (isCurrentRequest) setError("Unable to load dashboard data.");
+            }
+        };
+
+        fetchUserData();
+
+        return () => {
+            isCurrentRequest = false;
+        };
+    }, [landlordId]);
 
     return (
         <div id="dashboard">
@@ -9,22 +42,24 @@ function Dashboard() {
             <div className="dashboard-container">
                 <h1>Dashboard</h1>
 
+                {error && <p className="dashboard-error" role="alert">{error}</p>}
+
                 <div className="tenants-box">
                     <div className="total-tenants inner-box">
                         <h2>Total Tenants</h2>
-                        <span>32</span>
+                        <span>{dashboardData?.totalTenants ?? 0}</span>
                     </div>
                     <div className="total-properties inner-box">
                         <h2>Total Properties</h2>
-                        <span>4</span>
+                        <span>{dashboardData?.totalProperties ?? 0}</span>
                     </div>
                     <div className="documents-uploaded inner-box">
                         <h2>Documents Uploaded</h2>
-                        <span>55</span>
+                        <span>{dashboardData?.documentsUploaded ?? 0}</span>
                     </div>
                     <div className="recent-tenants inner-box">
                         <h2>Recent Tenants</h2>
-                        <span>2</span>
+                        <span>{dashboardData?.recentTenants?.length ?? 0}</span>
                     </div>
                 </div>
             </div>

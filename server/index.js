@@ -351,6 +351,58 @@ app.post("/api/properties", async (req, res) => {
     }
 });
 
+app.get("/api/landlords/:id", async (req, res) => {
+
+    const { id } = req.params;
+
+    try {
+        const query = `WITH landlord_properties AS (
+                SELECT id, property_name
+                FROM properties
+                WHERE landlord_id = $1
+            ), landlord_tenants AS (
+                SELECT tenants.id, tenants.full_name, tenants.email, tenants.property_id,
+                       landlord_properties.property_name
+                FROM tenants
+                INNER JOIN landlord_properties ON landlord_properties.id = tenants.property_id
+            )
+            SELECT
+                (SELECT COUNT(*)::int FROM landlord_properties) AS total_properties,
+                (SELECT COUNT(*)::int FROM landlord_tenants) AS total_tenants,
+                0::int AS documents_uploaded,
+                COALESCE(
+                    (SELECT json_agg(
+                        json_build_object(
+                            'id', id,
+                            'fullName', full_name,
+                            'email', email,
+                            'propertyId', property_id,
+                            'propertyName', property_name
+                        ) ORDER BY id DESC
+                    ) FROM (
+                        SELECT * FROM landlord_tenants
+                        ORDER BY id DESC
+                        LIMIT 5
+                    ) recent_tenants),
+                    '[]'::json
+                ) AS recent_tenants`;
+
+        const result = await db.query(query, [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Landlord not found." });
+        }
+
+        const dashboard = result.rows[0];
+        res.json({
+            totalTenants: dashboard.total_tenants,
+            totalProperties: dashboard.total_properties,
+            documentsUploaded: dashboard.documents_uploaded,
+            recentTenants: dashboard.recent_tenants
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Email endpoint
 app.post("/api/send-email", async (req, res) => {
