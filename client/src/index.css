@@ -646,6 +646,12 @@ button.send-email {
     border: 0.1rem solid var(--sub-text-color);
 }
 
+.form-text {
+    font-size: 0.7rem;
+    color: var(--sub-text-color);
+    margin: 0.5rem 0;
+}
+
 .inner-div {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
