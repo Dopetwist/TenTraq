@@ -8,8 +8,6 @@ function Dashboard() {
 
     const { user } = useAuth();
 
-    console.log(user);
-
     const landlordId = user ? user.id : null;
 
     useEffect(() => {

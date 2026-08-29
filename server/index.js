@@ -10,6 +10,9 @@ import {
     timingSafeEqual
 } from "node:crypto";
 import { promisify } from "node:util";
+import { v2 as cloudinary } from "cloudinary";
+import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const { Pool } = pkg;
 
@@ -19,6 +22,24 @@ const app = express();
 const port = process.env.PORT || 5000;
 const authSecret = process.env.AUTH_SECRET || "local-development-secret-change-me";
 const scrypt = promisify(scryptCallback);
+
+// Configure Cloudinary
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure Multer to use Cloudinary for storage
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "document_uploads",
+        resource_type: "auto", // allows images, PDFs, etc.
+    },
+});
+
+const upload = multer({ storage }); // Multer middleware for handling file uploads
 
 // Prevent backend date timezone shifts
 pg.types.setTypeParser(1082, (val) => val);
@@ -244,7 +265,7 @@ app.get("/api/tenants/:id", async (req, res) => {
 });
 
 // register a new tenant
-app.post("/api/tenants", async (req, res) => {
+app.post("/api/tenants", upload.single("document"), async (req, res) => {
     try {
         const initialStatus = "active"; // default status for new tenants
 
@@ -260,15 +281,30 @@ app.post("/api/tenants", async (req, res) => {
             lease_end_date
         } = req.body;
 
+        // Access the uploaded file
+        const documentUrl = req.file ? req.file.path : null; // Cloudinary URL of the uploaded document
+
+        console.log("Uploaded document:", documentUrl);
+
+        // Validate required fields
+        if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date) {
+            return res.status(400).json({ error: "All fields are required." });
+        }
+
         const result = await db.query(
-            `INSERT INTO tenants 
-                (full_name, email, phone, property_id, room_number, rent_amount, lease_start_date, lease_end_date, status, currency)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+            `INSERT INTO tenants (
+                full_name, email, phone, property_id, room_number, rent_amount, 
+                lease_start_date, lease_end_date, status, currency
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
              RETURNING *`,
             [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, initialStatus, currency]
         );
 
-        res.status(201).json(result.rows[0]); // return created tenant
+        const newTenant = result.rows[0];
+
+        await db.query(`INSERT INTO documents (document_url, tenant_id) VALUES ($1, $2)`, [documentUrl, newTenant.id]);
+
+        res.status(201).json(newTenant); // return created tenant
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
