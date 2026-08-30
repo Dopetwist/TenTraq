@@ -25,6 +25,7 @@ function RegisterTenant() {
         rent: "",
         lease_start_date: "",
         lease_end_date: "",
+        document_title: "",
         document: null
     });
 
@@ -74,6 +75,7 @@ function RegisterTenant() {
                 rent: "",
                 lease_start_date: "",
                 lease_end_date: "",
+                document_title: "",
                 document: null
             });
 
@@ -233,19 +235,32 @@ function RegisterTenant() {
                     </div>
 
                     <label htmlFor="upload-doc">Upload Document:</label>
-                    <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant's lease agreement. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
-                    <input 
-                        type="file" 
-                        id="upload-doc" 
-                        name="document" 
-                        accept=".pdf,.doc,.docx"
-                        onChange={(e) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                document: e.target.files[0]
-                            }))
-                        } 
-                    />
+                    <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
+                    <div className="document-box">
+                        <div className="title-box">
+                            <input 
+                                type="text" 
+                                id="upload-title" 
+                                name="document_title" 
+                                placeholder="Enter document title"
+                                value={formData.document_title}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <input 
+                            type="file" 
+                            id="upload-doc" 
+                            name="document" 
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    document: e.target.files[0]
+                                }))
+                            } 
+                        />
+                    </div>
 
                     <div className="register-btns">
                         <button 
