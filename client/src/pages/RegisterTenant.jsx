@@ -6,6 +6,8 @@ import Toast from "../components/Toast";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
+    const [ isSubmitting, setIsSubmitting ] = useState(false); // submission state
+    const [ error, setError ] = useState(""); // error state
 
     const [ toast, setToast ] = useState(null); // toast state
 
@@ -40,6 +42,8 @@ function RegisterTenant() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+        setIsSubmitting(true); // Set submission state to true
 
         const payload = new FormData(); // Create a FormData object to handle file upload
 
@@ -90,7 +94,10 @@ function RegisterTenant() {
                 message: err.response?.data?.error || "Something went wrong",
                 type: "error"
             });
+            setError(err.response?.data?.error || "Something went wrong");
             console.error(err.response?.data || err.message);
+        } finally {
+            setIsSubmitting(false); // Reset submission state
         }
     };
 
@@ -262,12 +269,15 @@ function RegisterTenant() {
                         />
                     </div>
 
+                    {error && <p className="form-error" role="alert">{error}</p>}
+
                     <div className="register-btns">
                         <button 
                         type="submit" 
                         id="save"
+                        disabled={isSubmitting}
                         >
-                            Save Tenant
+                            {isSubmitting ? "Registering..." : "Register Tenant"}
                         </button>
                         <button 
                         id="cancel"

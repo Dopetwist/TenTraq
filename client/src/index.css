@@ -918,7 +918,8 @@ button#send:hover {
     cursor: pointer;
 }
 
-.confirm-btn:disabled {
+.confirm-btn:disabled,
+#save:disabled {
     cursor: wait;
     opacity: 0.7;
 }
