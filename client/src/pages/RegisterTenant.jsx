@@ -6,6 +6,8 @@ import Toast from "../components/Toast";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
+    const [ isSubmitting, setIsSubmitting ] = useState(false); // submission state
+    const [ error, setError ] = useState(""); // error state
 
     const [ toast, setToast ] = useState(null); // toast state
 
@@ -25,6 +27,7 @@ function RegisterTenant() {
         rent: "",
         lease_start_date: "",
         lease_end_date: "",
+        document_title: "",
         document: null
     });
 
@@ -39,6 +42,8 @@ function RegisterTenant() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+        setIsSubmitting(true); // Set submission state to true
 
         const payload = new FormData(); // Create a FormData object to handle file upload
 
@@ -74,6 +79,7 @@ function RegisterTenant() {
                 rent: "",
                 lease_start_date: "",
                 lease_end_date: "",
+                document_title: "",
                 document: null
             });
 
@@ -88,7 +94,10 @@ function RegisterTenant() {
                 message: err.response?.data?.error || "Something went wrong",
                 type: "error"
             });
+            setError(err.response?.data?.error || "Something went wrong");
             console.error(err.response?.data || err.message);
+        } finally {
+            setIsSubmitting(false); // Reset submission state
         }
     };
 
@@ -233,26 +242,42 @@ function RegisterTenant() {
                     </div>
 
                     <label htmlFor="upload-doc">Upload Document:</label>
-                    <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant's lease agreement. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
-                    <input 
-                        type="file" 
-                        id="upload-doc" 
-                        name="document" 
-                        accept=".pdf,.doc,.docx"
-                        onChange={(e) =>
-                            setFormData((prev) => ({
-                                ...prev,
-                                document: e.target.files[0]
-                            }))
-                        } 
-                    />
+                    <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
+                    <div className="document-box">
+                        <div className="title-box">
+                            <input 
+                                type="text" 
+                                id="upload-title" 
+                                name="document_title" 
+                                placeholder="Enter document title"
+                                value={formData.document_title}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <input 
+                            type="file" 
+                            id="upload-doc" 
+                            name="document" 
+                            accept=".pdf,.doc,.docx"
+                            onChange={(e) =>
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    document: e.target.files[0]
+                                }))
+                            } 
+                        />
+                    </div>
+
+                    {error && <p className="form-error" role="alert">{error}</p>}
 
                     <div className="register-btns">
                         <button 
                         type="submit" 
                         id="save"
+                        disabled={isSubmitting}
                         >
-                            Save Tenant
+                            {isSubmitting ? "Registering..." : "Register Tenant"}
                         </button>
                         <button 
                         id="cancel"

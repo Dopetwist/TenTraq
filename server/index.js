@@ -278,16 +278,15 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
             currency,
             rent,
             lease_start_date,
-            lease_end_date
+            lease_end_date,
+            document_title
         } = req.body;
 
         // Access the uploaded file
         const documentUrl = req.file ? req.file.path : null; // Cloudinary URL of the uploaded document
 
-        console.log("Uploaded document:", documentUrl);
-
         // Validate required fields
-        if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date) {
+        if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date || !document_title || !documentUrl) {
             return res.status(400).json({ error: "All fields are required." });
         }
 
@@ -302,7 +301,7 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
 
         const newTenant = result.rows[0];
 
-        await db.query(`INSERT INTO documents (document_url, tenant_id) VALUES ($1, $2)`, [documentUrl, newTenant.id]);
+        await db.query(`INSERT INTO documents (document_title, document_url, tenant_id) VALUES ($1, $2, $3)`, [document_title, documentUrl, newTenant.id]);
 
         res.status(201).json(newTenant); // return created tenant
     } catch (error) {

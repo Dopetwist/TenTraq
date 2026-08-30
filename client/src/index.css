@@ -652,6 +652,37 @@ button.send-email {
     margin: 0.5rem 0;
 }
 
+.document-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.title-box {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    margin-right: 1rem;
+}
+
+#upload-title {
+    width: 100%;
+    padding: 0.3rem 1rem;
+    border-radius: 0.3rem;
+    border: 0.1rem solid var(--sub-text-color);
+    margin-bottom: 0;
+}
+
+#upload-doc {
+    width: 100%;
+    padding: 0.3rem 1rem;
+    border-radius: 0.3rem;
+    border: 0.1rem solid var(--sub-text-color);
+    background-color: var(--background-color);
+    margin-bottom: 0;
+}
+
 .inner-div {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -887,7 +918,8 @@ button#send:hover {
     cursor: pointer;
 }
 
-.confirm-btn:disabled {
+.confirm-btn:disabled,
+#save:disabled {
     cursor: wait;
     opacity: 0.7;
 }
