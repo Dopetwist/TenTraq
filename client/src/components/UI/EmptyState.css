@@ -1,0 +1,43 @@
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state-icon {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #f1f5f9;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon svg {
+  color: #cbd5e1;
+  width: 48px;
+  height: 48px;
+}
+
+.empty-state-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 0.25rem;
+}
+
+.empty-state-description {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.6;
+  max-width: 28rem;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state-action {
+  margin-top: 1rem;
+}

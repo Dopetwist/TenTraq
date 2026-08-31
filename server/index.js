@@ -63,19 +63,6 @@ db.connect()
     .then(() => console.log("Connected to PostgreSQL database"))
     .catch((err) => console.error("Database connection error:", err.stack));
 
-/* const createLandlordsTable = async () => {
-    await db.query(`
-        CREATE TABLE IF NOT EXISTS landlords (
-            id SERIAL PRIMARY KEY,
-            full_name VARCHAR(120) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            secret_word VARCHAR(120) NOT NULL DEFAULT '',
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        )
-    `);
-    await db.query("ALTER TABLE landlords ADD COLUMN IF NOT EXISTS secret_word VARCHAR(120) NOT NULL DEFAULT ''");
-}; */
 
 // Authentication Utilities
 const hashPassword = async (password) => {
@@ -463,11 +450,6 @@ app.post("/api/upload-document", async (req, res) => {
 
 
 // Server listener
-/* createLandlordsTable()
-    .then(() => console.log("Landlords table is ready"))
-    .catch((error) => console.error("Unable to initialize landlords table:", error.message));
-*/
-
 app.listen(port, () => {
     console.log(`Backend server running on http://localhost:${port}`);
 });

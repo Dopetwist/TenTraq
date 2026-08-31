@@ -1,0 +1,60 @@
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.input-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1E293B;
+  display: block;
+}
+
+.input-field,
+.select-field {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background-color: #f8fafc;
+  color: #1E293B;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.input-field::placeholder {
+  color: #555;
+}
+
+.input-field:focus,
+.select-field:focus {
+  outline: none;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  background-color: white;
+}
+
+.input-field.input-error {
+  border-color: #EF4444;
+}
+
+.input-field.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  border-color: #EF4444;
+}
+
+.input-error-text {
+  font-size: 0.75rem;
+  color: #EF4444;
+}
+
+.input-help-text {
+  font-size: 0.75rem;
+  color: #555;
+}
+
+.select-field {
+  background-color: white;
+  cursor: pointer;
+}
