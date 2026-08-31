@@ -1,0 +1,51 @@
+.stat-card {
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1E293B;
+  line-height: 1.2;
+}
+
+.stat-trend {
+  font-size: 0.75rem;
+  color: #555;
+  margin-top: 0.5rem;
+}
+
+.stat-icon {
+  margin-left: 1rem;
+  padding: 0.75rem;
+  background-color: #f1f5f9;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  color: #2563EB;
+  width: 24px;
+  height: 24px;
+}

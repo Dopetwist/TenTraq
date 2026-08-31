@@ -1,0 +1,98 @@
+.dashboard {
+  padding: 2rem 1.5rem;
+}
+
+.dashboard-header {
+  margin-bottom: 2rem;
+}
+
+.dashboard-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0 0 0.25rem 0;
+}
+
+.dashboard-subtitle {
+  color: #555;
+  margin: 0;
+}
+
+.dashboard-error {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 0.5rem;
+  color: #991b1b;
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.dashboard-recent {
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.dashboard-section-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1E293B;
+  margin: 0 0 1rem 0;
+}
+
+.recent-tenants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tenant-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.tenant-item:last-child {
+  border-bottom: none;
+}
+
+.tenant-name {
+  font-weight: 500;
+  color: #1E293B;
+  margin: 0;
+}
+
+.tenant-email {
+  font-size: 0.875rem;
+  color: #555;
+  margin: 0;
+}
+
+.tenant-badge {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #10B981;
+}

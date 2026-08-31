@@ -1,18 +1,43 @@
 import { Link } from "react-router";
 
 function Footer() {
+    const currentYear = new Date().getFullYear();
+
     return (
         <footer id="footer">
-            <h3>Links</h3>
+            <div className="footer-content">
+                <div>
+                    <h3>Product</h3>
+                    <Link to={"/"} className="footer-link">Features</Link>
+                    <Link to={"/"} className="footer-link">Pricing</Link>
+                    <Link to={"/"} className="footer-link">Security</Link>
+                </div>
 
-            <Link to={"/about"} className="footer-link">About</Link>
-            <Link to={"/contact"} className="footer-link">Contact</Link>
-            <Link to={"/privacy"} className="footer-link">Privacy</Link>
-            <Link to={"/terms"} className="footer-link">Terms</Link>
+                <div>
+                    <h3>Company</h3>
+                    <Link to={"/"} className="footer-link">About Us</Link>
+                    <Link to={"/"} className="footer-link">Blog</Link>
+                    <Link to={"/"} className="footer-link">Contact</Link>
+                </div>
+
+                <div>
+                    <h3>Legal</h3>
+                    <Link to={"/"} className="footer-link">Privacy Policy</Link>
+                    <Link to={"/"} className="footer-link">Terms of Service</Link>
+                    <Link to={"/"} className="footer-link">Cookie Policy</Link>
+                </div>
+
+                <div>
+                    <h3>TenTraq</h3>
+                    <p className="footer-description">
+                        Smart property management for modern landlords.
+                    </p>
+                </div>
+            </div>
 
             <div className="copyright-container">
                 <p className="copyright">
-                    &copy; {new Date().getFullYear()} TenTraq. All rights reserved.
+                    &copy; {currentYear} TenTraq. All rights reserved.
                 </p>
             </div>
         </footer>

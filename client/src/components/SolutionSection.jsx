@@ -1,41 +1,52 @@
-import { BookText, House, FileUp, Mail, Search } from "lucide-react";
+import { Users, Building2, FileUp, Mail, Search } from "lucide-react";
 
 function SolutionSection() {
+    const features = [
+        {
+            icon: Users,
+            title: "Tenant Registry",
+            description: "Store and manage all tenant records in one secure place"
+        },
+        {
+            icon: Building2,
+            title: "Property Grouping",
+            description: "Organize tenants by property for better management"
+        },
+        {
+            icon: FileUp,
+            title: "Document Upload",
+            description: "Save tenant documents, IDs, and agreements"
+        },
+        {
+            icon: Mail,
+            title: "Email Tenants",
+            description: "Send emails to individual tenants or all at once"
+        },
+        {
+            icon: Search,
+            title: "Smart Search",
+            description: "Find any tenant or document in seconds"
+        }
+    ];
+
     return (
         <div id="solution-section">
             <h1>One Dashboard For Everything</h1>
+            <p>Powerful features to streamline tenant management</p>
 
             <div className="solution-section-cards">
-                <div className="card1 solution-card">
-                    <span><BookText size={34} /></span>
-                    <h2 className="title">Tenant Registry</h2>
-
-                    <p>Store tenants records in one place</p>
-                </div>
-                <div className="card2 solution-card">
-                    <span><House size={34} /></span>
-                    <h2 className="title">Property Grouping</h2>
-                    
-                    <p>Organize tenants by property</p>
-                </div>
-                <div className="card3 solution-card">
-                    <span><FileUp size={34} /></span>
-                    <h2 className="title">Document Upload</h2>
-
-                    <p>Save tenants documents and IDs</p>
-                </div>
-                <div className="card4 solution-card">
-                    <span><Mail size={34} /></span>
-                    <h2 className="title">Email Tenants</h2>
-
-                    <p>Send email to one tenant or all</p>
-                </div>
-                <div className="card5 solution-card">
-                    <span><Search size={34} /></span>
-                    <h2 className="title">Smart Search</h2>
-
-                    <p>Find tenants instantly</p>
-                </div>
+                {features.map((feature, idx) => {
+                    const Icon = feature.icon;
+                    return (
+                        <div key={idx} className="solution-card">
+                            <div className="solution-icon">
+                                <Icon size={32} />
+                            </div>
+                            <h3 className="title">{feature.title}</h3>
+                            <p>{feature.description}</p>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     )
