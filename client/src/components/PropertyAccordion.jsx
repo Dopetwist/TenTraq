@@ -136,7 +136,7 @@ function PropertyAccordion() {
                             <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleProperty(property.id)}>
                                 <div>
                                     <h3>{property.property_name}</h3>
-                                    <p className="text-sm text-[#555] mt-1">{property.address || "No address provided"}</p>
+                                    <p className="text-sm text-[#555] mt-1">{property.property_address || "No address provided"}</p>
                                 </div>
                                 <ChevronDown 
                                     size={20} 

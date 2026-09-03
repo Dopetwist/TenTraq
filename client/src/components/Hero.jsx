@@ -23,10 +23,6 @@ function Hero() {
                     </button>
                 </div>
             </div>
-
-            <div className="hero-image">
-                <img src="/images/hero-image.jpg" className="hero-img" alt="TenTraq Property Management Dashboard" />
-            </div>
         </section>
     )
 }
