@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Navbar from "./Navbar";
+import GetStartedButton from "../components/GetStartedButton";
 
 function Header() {
     return (
@@ -12,10 +13,11 @@ function Header() {
 
             <Navbar />
 
-            <div>
+            <div className="header-action-btns">
                 <Link to={"/login"}>
-                    <button className="sign-in">Sign in</button>
+                    <p className="login">Login</p>
                 </Link>
+                <GetStartedButton />
             </div>
         </div>
     )

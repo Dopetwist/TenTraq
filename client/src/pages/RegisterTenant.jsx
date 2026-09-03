@@ -241,8 +241,10 @@ function RegisterTenant() {
                         </div>
                     </div>
 
-                    <label htmlFor="upload-doc">Upload Document:</label>
-                    <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
+                    <div id="upload-box">
+                        <label htmlFor="upload-doc" >Upload Document:</label>
+                        <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
+                    </div>
                     <div className="document-box">
                         <div className="title-box">
                             <input 
@@ -273,17 +275,18 @@ function RegisterTenant() {
 
                     <div className="register-btns">
                         <button 
+                        id="cancel"
+                        onClick={() => navigate("/dashboard")}
+                        >
+                            Cancel
+                        </button>
+                        
+                        <button 
                         type="submit" 
                         id="save"
                         disabled={isSubmitting}
                         >
                             {isSubmitting ? "Registering..." : "Register Tenant"}
-                        </button>
-                        <button 
-                        id="cancel"
-                        onClick={() => navigate("/dashboard")}
-                        >
-                            Cancel
                         </button>
                     </div>
                 </form>

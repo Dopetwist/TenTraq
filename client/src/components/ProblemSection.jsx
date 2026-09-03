@@ -33,7 +33,7 @@ function ProblemSection() {
                                 <Icon size={32} />
                             </div>
                             <h3 className="title">{problem.title}</h3>
-                            <p>{problem.description}</p>
+                            <p className="problem-card-text">{problem.description}</p>
                         </div>
                     );
                 })}

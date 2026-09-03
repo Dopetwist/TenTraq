@@ -27,7 +27,7 @@ function LandlordRegister() {
             signIn(data);
             navigate("/dashboard", { replace: true });
         } catch (requestError) {
-            setError(requestError.message);
+            setError("Something went wrong. Please try again!" || requestError.message);
         } finally {
             setIsSubmitting(false);
         }
