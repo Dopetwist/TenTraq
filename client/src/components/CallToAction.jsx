@@ -7,7 +7,7 @@ function CallToAction() {
             <h2>Start Managing Tenants Smarter Today</h2>
             <p>Join landlords and property managers who are saving time and staying organized</p>
 
-            <Link to={"/register-landlord"}>
+            <Link to={"/register-landlord"} className="cta-container">
                 <button 
                     className="cta-btn"
                     onClick={() => {

@@ -242,18 +242,18 @@ function EditTenant() {
 
                 <div className="edit-form-btns">
                     <button 
-                    type="submit" 
-                    id="saveButton"
-                    >
-                        Save
-                    </button>
-
-                    <button 
                     type="button"
                     id="cancelButton"
                     onClick={() => navigate(`/tenants/${id}`)}
                     >
                         Cancel
+                    </button>
+
+                    <button 
+                    type="submit" 
+                    id="saveButton"
+                    >
+                        Save
                     </button>
                 </div>
             </form>
