@@ -14,6 +14,13 @@ function Topbar() {
     navigate("/login", { replace: true });
   };
 
+  // Close the profile menu when clicking outside of it
+  window.addEventListener("click", (event) => {
+    if (!event.target.closest(".topbar-profile")) {
+      setShowProfileMenu(false);
+    }
+  });
+
   return (
     <header className="topbar">
       <div className="topbar-content">
