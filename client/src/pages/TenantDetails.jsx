@@ -43,16 +43,16 @@ function TenantDetails() {
         fetchTenant();
     }, [id]);
 
-    useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
-                setTenantDocs(response.data);  
-            } catch (error) {
-                console.error(error);
-            }
-        };
+    const fetchDocuments = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
+            setTenantDocs(response.data);  
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
+    useEffect(() => {
         fetchDocuments();
     }, [id]);
 
@@ -176,6 +176,7 @@ function TenantDetails() {
             <DocumentModal
                 isOpen={showDocumentModal}
                 tenantId={id}
+                onCreated={fetchDocuments}
                 onClose={() => setShowDocumentModal(false)}
             />
         </div>

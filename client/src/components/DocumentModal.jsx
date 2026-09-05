@@ -7,7 +7,7 @@ const initialData = {
     document: null
 }
 
-function DocumentModal({ isOpen, onClose, tenantId }) {
+function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
     const [formData, setFormData] = useState(initialData);
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +45,7 @@ function DocumentModal({ isOpen, onClose, tenantId }) {
             });
 
             setFormData(initialData);
+            onCreated();
             onClose();
         } catch (requestError) {
             setError("Something went wrong. Please try again!");
