@@ -7,9 +7,10 @@ import Modal from "../components/Modal";
 function TenantDetails() {
     const { id } = useParams();
 
-    const [tenant, setTenant] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const [selectedTenantId, setSelectedTenantId] = useState(null);
+    const [ tenant, setTenant ] = useState(null);
+    const [ tenantDocs, setTenantDocs ] = useState(null);
+    const [ showModal, setShowModal ] = useState(false);
+    const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
     const navigate = useNavigate();
@@ -44,12 +45,7 @@ function TenantDetails() {
         const fetchDocuments = async () => {
             try {
                 const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
-                setTenant(prevTenant => ({
-                    ...prevTenant,
-                    documents: response.data
-                }));
-
-                console.log("Fetched documents:", response.data);
+                setTenantDocs(response.data);  
             } catch (error) {
                 console.error(error);
             }
@@ -132,8 +128,8 @@ function TenantDetails() {
                     <p className="docs-header"> Uploaded Documents: </p>
 
                     <div className="documents-list">
-                        {tenant.documents && tenant.documents.length > 0 ? (
-                            tenant.documents.map((doc) => (
+                        {tenantDocs && tenantDocs.length > 0 ? (
+                            tenantDocs.map((doc) => (
                                 <div key={doc.id} className="document-item">
                                     <div className="single-doc">
                                         <p>{doc.document_title}</p>
