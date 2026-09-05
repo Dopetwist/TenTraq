@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { Plus } from "lucide-react";
 import axios from "axios";
 import Modal from "../components/Modal";
+import DocumentModal from "../components/DocumentModal";
 
 function TenantDetails() {
     const { id } = useParams();
@@ -10,6 +11,7 @@ function TenantDetails() {
     const [ tenant, setTenant ] = useState(null);
     const [ tenantDocs, setTenantDocs ] = useState(null);
     const [ showModal, setShowModal ] = useState(false);
+    const [ showDocumentModal, setShowDocumentModal ] = useState(false);
     const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
@@ -125,7 +127,18 @@ function TenantDetails() {
 
             <div className="document-section">
                 <div className="uploaded">
-                    <p className="docs-header"> Uploaded Documents: </p>
+                    <div className="upload-header-container">
+                        <p className="docs-header"> Uploaded Documents: </p>
+
+                        <button
+                        className="add-doc-btn"
+                        type="submit"
+                        onClick={() => setShowDocumentModal(true)}
+                        >
+                            <Plus size={18} />
+                            Add Document
+                        </button>
+                    </div>
 
                     <div className="documents-list">
                         {tenantDocs && tenantDocs.length > 0 ? (
@@ -158,6 +171,11 @@ function TenantDetails() {
                 confirmText="Delete"
                 cancelText="Cancel"
                 isLoading={isDeleting}
+            />
+
+            <DocumentModal
+                isOpen={showDocumentModal}
+                onClose={() => setShowDocumentModal(false)}
             />
         </div>
     )

@@ -456,8 +456,30 @@ app.get("/api/documents/:tenantId", async (req, res) => {
 });
 
 
-app.post("/api/upload-document", async (req, res) => {
+app.post("/api/documents/upload", upload.single("document"), async (req, res) => {
+    try {
+        const token = getAuthToken(req);
+        const claims = token && readToken(token);
+        if (!claims) return res.status(401).json({ error: "Authentication required." });
 
+        const { document_title } = req.body;
+        if (!document_title?.trim()) {
+            return res.status(400).json({ error: "Document name is required." });
+        }
+
+        // Access the uploaded file
+        const documentUrl = req.file ? req.file.path : null; // Cloudinary URL of the uploaded document
+
+
+        const result = await db.query(
+            "INSERT INTO documents (document_title, document_url, tenant_id) VALUES ($1, $2, $3) RETURNING *",
+            [document_title.trim(), documentUrl, claims.id]
+        );
+
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 
