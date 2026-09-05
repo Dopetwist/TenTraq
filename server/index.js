@@ -462,9 +462,13 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
         const claims = token && readToken(token);
         if (!claims) return res.status(401).json({ error: "Authentication required." });
 
-        const { document_title } = req.body;
+        const { document_title, tenant_id } = req.body;
+        
         if (!document_title?.trim()) {
             return res.status(400).json({ error: "Document name is required." });
+        }
+        if (!tenant_id) {
+            return res.status(400).json({ error: "Tenant is required." });
         }
 
         // Access the uploaded file
@@ -473,12 +477,13 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
 
         const result = await db.query(
             "INSERT INTO documents (document_title, document_url, tenant_id) VALUES ($1, $2, $3) RETURNING *",
-            [document_title.trim(), documentUrl, claims.id]
+            [document_title.trim(), documentUrl, tenant_id]
         );
 
         res.status(201).json(result.rows[0]);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error("Document upload error:", error);
+        res.status(500).json({ error: "Something went wrong. Please try again!" });
     }
 });
 

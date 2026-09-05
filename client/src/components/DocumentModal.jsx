@@ -1,9 +1,14 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { apiRequest } from "../services/api.js";
+import axios from "axios";
 
-function DocumentModal({ isOpen, onClose }) {
-    const [formData, setFormData] = useState({ document_title: "", document: null });
+const initialData = {
+    document_title: "",
+    document: null
+}
+
+function DocumentModal({ isOpen, onClose, tenantId }) {
+    const [formData, setFormData] = useState(initialData);
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,6 +25,7 @@ function DocumentModal({ isOpen, onClose }) {
         setIsSubmitting(true);
 
         const payload = new FormData(); // Create a FormData object to handle file upload
+        payload.append("tenant_id", tenantId); // Append tenant ID to FormData
 
         // Append form data to FormData object
         Object.entries(formData).forEach(([key, value]) => {
@@ -30,30 +36,41 @@ function DocumentModal({ isOpen, onClose }) {
 
         try {
             // Send POST request to backend API to add document
-            const res = await axios.post("http://localhost:5000/api/documents/upload", payload, {
+            const token = localStorage.getItem("tentraq-token");
+            await axios.post("http://localhost:5000/api/documents/upload", payload, {
                 headers: {
-                    "Content-Type": "multipart/form-data"
+                    ...(token && { Authorization: `Bearer ${token}` }),
+                    "Content-Type": "multipart/form-data" // Set content type for file upload
                 }
             });
 
-            setFormData({ document_title: "", document: null });
+            setFormData(initialData);
             onClose();
         } catch (requestError) {
-            setError(requestError.message);
+            setError("Something went wrong. Please try again!");
         } finally {
             setIsSubmitting(false);
         }
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <div className="modal-overlay" onClick={() => {onClose(); setFormData(initialData); setError("");}}>
             <div className="modal document-modal" onClick={(event) => event.stopPropagation()}>
                 <div className="modal-heading">
                     <div>
                         <p className="modal-eyebrow">Document details</p>
                         <h2>Add Document</h2>
                     </div>
-                    <button type="button" className="modal-close-btn" onClick={onClose} aria-label="Close modal">
+                    <button 
+                    type="button" 
+                    className="modal-close-btn" 
+                    onClick={() => {
+                        onClose();
+                        setFormData(initialData);
+                        setError("");
+                    }} 
+                    aria-label="Close modal"
+                    >
                         <X size={18} aria-hidden="true" />
                     </button>
                 </div>

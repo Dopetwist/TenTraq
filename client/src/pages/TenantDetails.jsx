@@ -175,6 +175,7 @@ function TenantDetails() {
 
             <DocumentModal
                 isOpen={showDocumentModal}
+                tenantId={id}
                 onClose={() => setShowDocumentModal(false)}
             />
         </div>

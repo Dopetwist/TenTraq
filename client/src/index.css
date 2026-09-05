@@ -1503,6 +1503,7 @@ button#send:disabled {
 .form-error {
     color: var(--delete-color);
     font-size: 0.85rem;
+    margin-top: 1rem;
 }
 
 .modal h3 {
