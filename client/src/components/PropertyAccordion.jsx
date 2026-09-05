@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
-import { apiRequest } from "../services/api.js";
 import axios from "axios";
 import { ChevronDown, Plus, Trash2, Eye } from "lucide-react";
 import Modal from "./Modal";
@@ -133,46 +132,44 @@ function PropertyAccordion() {
             ) : (
                     properties.map(property => (
                         <div key={property.id} className="property-item">
-                            <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleProperty(property.id)}>
-                                <div>
+                            <div className="property-topbar" onClick={() => toggleProperty(property.id)}>
+                                <div className="property-summary">
                                     <h3>{property.property_name}</h3>
-                                    <p className="text-sm text-[#555] mt-1">{property.property_address || "No address provided"}</p>
+                                    <p className="property-address">{property.property_address || "No address provided"}</p>
                                 </div>
                                 <ChevronDown 
                                     size={20} 
-                                    className={`text-[#555] transition-transform duration-200 ${
-                                        expandedProperty === property.id ? 'rotate-180' : ''
-                                    }`}
+                                    className={`property-chevron ${expandedProperty === property.id ? 'expanded' : ''}`}
                                 />
                             </div>
 
                             {expandedProperty === property.id && (
-                                <div className="mt-4 pt-4 border-t border-[#e2e8f0]">
+                                <div className="property-details">
                                     {tenants.filter(t => t.property_id === property.id).length === 0 ? (
-                                        <p className="text-sm text-[#555] py-4 text-center">No tenants in this property</p>
+                                        <p className="property-empty-state">No tenants in this property</p>
                                     ) : (
-                                        <div className="space-y-3">
+                                        <div className="tenant-list">
                                             {tenants
                                                 .filter(t => t.property_id === property.id)
                                                 .map(tenant => (
-                                                    <div key={tenant.id} className="bg-[#f8fafc] p-3 rounded-lg border border-[#e2e8f0] flex items-center justify-between gap-3 flex-wrap">
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-medium text-[#1E293B]">{tenant.full_name}</p>
-                                                            <p className="text-sm text-[#555]">{tenant.email}</p>
-                                                            <p className="text-xs text-[#555] mt-1">📞 {tenant.phone}</p>
+                                                    <div key={tenant.id} className="tenant-card">
+                                                        <div className="tenant-meta">
+                                                            <p className="tenant-name">{tenant.full_name}</p>
+                                                            <p className="tenant-email">{tenant.email}</p>
+                                                            <p className="tenant-phone">📞 {tenant.phone}</p>
                                                         </div>
 
-                                                        <div className="flex items-center gap-2">
+                                                        <div className="tenant-actions">
                                                             {getStatusBadge(tenant.status)}
                                                             <button 
-                                                                className="p-2 hover:bg-[#e2e8f0] rounded-lg transition-colors text-[#2563EB]"
+                                                                className="property-action-button view-button"
                                                                 onClick={() => navigate(`/tenants/${tenant.id}`)}
                                                                 title="View details"
                                                             >
                                                                 <Eye size={18} />
                                                             </button>
                                                             <button 
-                                                                className="p-2 hover:bg-[#fee2e2] rounded-lg transition-colors text-[#EF4444]"
+                                                                className="property-action-button delete-button"
                                                                 onClick={() => {
                                                                     setSelectedTenantId(tenant.id);
                                                                     setShowModal(true);

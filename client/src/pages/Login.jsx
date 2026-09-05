@@ -44,16 +44,39 @@ function Login() {
                 <p className="auth-copy">Sign in to keep your properties and tenants moving smoothly.</p>
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <label htmlFor="login-email">Email address</label>
-                    <input id="login-email" type="email" name="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
+                    <input 
+                        id="login-email" 
+                        type="email" 
+                        name="email"
+                        placeholder="e.g. user@example.com"
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="email" 
+                    />
                     
                     <label htmlFor="login-password">Password</label>
-                    <PasswordInput id="login-password" name="password" value={formData.password} onChange={handleChange} required autoComplete="current-password" />
+                    <PasswordInput 
+                        id="login-password" 
+                        name="password"
+                        placeholder="Enter your password"
+                        value={formData.password} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="current-password" 
+                    />
                     <Link to="/forgot-password" className="auth-link">
                         Forgot your password?
                     </Link>
                     
                     {error && <p className="auth-error" role="alert">{error}</p>}
-                    <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? "Signing in..." : "Sign in"}</button>
+                    <button 
+                    className="auth-submit" 
+                    type="submit" 
+                    disabled={isSubmitting}
+                    >
+                        {isSubmitting ? "Signing in..." : "Sign in"}
+                    </button>
                 </form>
                 <p className="auth-switch">New to TenTraq? <Link to="/register-landlord">Create an account</Link></p>
             </div>

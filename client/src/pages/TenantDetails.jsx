@@ -40,6 +40,24 @@ function TenantDetails() {
         fetchTenant();
     }, [id]);
 
+    useEffect(() => {
+        const fetchDocuments = async () => {
+            try {
+                const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
+                setTenant(prevTenant => ({
+                    ...prevTenant,
+                    documents: response.data
+                }));
+
+                console.log("Fetched documents:", response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchDocuments();
+    }, [id]);
+
     if (!tenant) return <p className="ten-details-loading">Loading...</p>;
 
     // Map currency code to symbol
@@ -111,11 +129,27 @@ function TenantDetails() {
 
             <div className="document-section">
                 <div className="uploaded">
-                    <p className="docs-header"> Uploaded Documents </p>
+                    <p className="docs-header"> Uploaded Documents: </p>
 
-                    <p>- ID Card</p>
-                    <p>- Lease Agreement</p>
-                    <p>- Payment Receipt</p>
+                    <div className="documents-list">
+                        {tenant.documents && tenant.documents.length > 0 ? (
+                            tenant.documents.map((doc) => (
+                                <div key={doc.id} className="document-item">
+                                    <div className="single-doc">
+                                        <p>{doc.document_title}</p>
+                                        <button 
+                                        className="document-view-btn" 
+                                        onClick={() => window.open(doc.document_url, "_blank")}
+                                        >
+                                            View Document
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No documents uploaded.</p>
+                        )}
+                    </div>
                 </div>
             </div>
 
