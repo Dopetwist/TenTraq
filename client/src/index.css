@@ -603,7 +603,7 @@ section {
     font-weight: 700;
 }
 
-.add-property-btn {
+.add-property-btn, .add-doc-btn {
     background-color: var(--accent-color);
     color: white;
     padding: 0.5rem 1.5rem;
@@ -618,7 +618,8 @@ section {
     gap: 0.5rem;
 }
 
-.add-property-btn:hover {
+.add-property-btn:hover,
+.add-doc-btn:hover {
     background-color: #059669;
 }
 
@@ -1183,6 +1184,13 @@ section {
     background-color: #eff6ff;
 }
 
+.upload-header-container {
+    display: flex;
+    align-items: center;
+    gap: 10rem;
+    margin-bottom: 2rem;
+}
+
 .inner-div {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1495,6 +1503,7 @@ button#send:disabled {
 .form-error {
     color: var(--delete-color);
     font-size: 0.85rem;
+    margin-top: 1rem;
 }
 
 .modal h3 {

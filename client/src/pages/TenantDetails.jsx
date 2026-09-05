@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+import { Plus } from "lucide-react";
 import axios from "axios";
 import Modal from "../components/Modal";
+import DocumentModal from "../components/DocumentModal";
 
 function TenantDetails() {
     const { id } = useParams();
 
-    const [tenant, setTenant] = useState(null);
-    const [showModal, setShowModal] = useState(false);
-    const [selectedTenantId, setSelectedTenantId] = useState(null);
+    const [ tenant, setTenant ] = useState(null);
+    const [ tenantDocs, setTenantDocs ] = useState(null);
+    const [ showModal, setShowModal ] = useState(false);
+    const [ showDocumentModal, setShowDocumentModal ] = useState(false);
+    const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
     const navigate = useNavigate();
@@ -40,21 +43,16 @@ function TenantDetails() {
         fetchTenant();
     }, [id]);
 
+    const fetchDocuments = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
+            setTenantDocs(response.data);  
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
-        const fetchDocuments = async () => {
-            try {
-                const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
-                setTenant(prevTenant => ({
-                    ...prevTenant,
-                    documents: response.data
-                }));
-
-                console.log("Fetched documents:", response.data);
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
         fetchDocuments();
     }, [id]);
 
@@ -129,11 +127,22 @@ function TenantDetails() {
 
             <div className="document-section">
                 <div className="uploaded">
-                    <p className="docs-header"> Uploaded Documents: </p>
+                    <div className="upload-header-container">
+                        <p className="docs-header"> Uploaded Documents: </p>
+
+                        <button
+                        className="add-doc-btn"
+                        type="submit"
+                        onClick={() => setShowDocumentModal(true)}
+                        >
+                            <Plus size={18} />
+                            Add Document
+                        </button>
+                    </div>
 
                     <div className="documents-list">
-                        {tenant.documents && tenant.documents.length > 0 ? (
-                            tenant.documents.map((doc) => (
+                        {tenantDocs && tenantDocs.length > 0 ? (
+                            tenantDocs.map((doc) => (
                                 <div key={doc.id} className="document-item">
                                     <div className="single-doc">
                                         <p>{doc.document_title}</p>
@@ -162,6 +171,13 @@ function TenantDetails() {
                 confirmText="Delete"
                 cancelText="Cancel"
                 isLoading={isDeleting}
+            />
+
+            <DocumentModal
+                isOpen={showDocumentModal}
+                tenantId={id}
+                onCreated={fetchDocuments}
+                onClose={() => setShowDocumentModal(false)}
             />
         </div>
     )
