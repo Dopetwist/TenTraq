@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-function PasswordInput({ id, name, value, onChange, minLength, autoComplete, required }) {
+function PasswordInput({ id, name, value, onChange, minLength, placeholder, autoComplete, required }) {
     const [isVisible, setIsVisible] = useState(false);
 
     return (
@@ -11,6 +11,7 @@ function PasswordInput({ id, name, value, onChange, minLength, autoComplete, req
                 type={isVisible ? "text" : "password"}
                 name={name}
                 minLength={minLength}
+                placeholder={placeholder}
                 value={value}
                 onChange={onChange}
                 required={required}

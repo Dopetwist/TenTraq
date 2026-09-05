@@ -444,6 +444,18 @@ app.post("/api/send-email", async (req, res) => {
 
 
 // Document endpoint
+app.get("/api/documents/:tenantId", async (req, res) => {
+    try {
+        const { tenantId } = req.params;
+        
+        const result = await db.query("SELECT * FROM documents WHERE tenant_id = $1", [tenantId]);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 app.post("/api/upload-document", async (req, res) => {
 
 });

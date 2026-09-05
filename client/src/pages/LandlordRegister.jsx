@@ -47,23 +47,73 @@ function LandlordRegister() {
                 <p className="auth-copy">Create your landlord account and bring your properties, tenants, and records into one calm workspace.</p>
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <label htmlFor="register-name">Full name</label>
-                    <input id="register-name" type="text" name="full_name" value={formData.full_name} onChange={handleChange} required autoComplete="name" />
+                    <input 
+                        id="register-name" 
+                        type="text" 
+                        name="full_name"
+                        placeholder="e.g. John Doe"
+                        value={formData.full_name} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="name" 
+                    />
                     
                     <label htmlFor="register-email">Email address</label>
-                    <input id="register-email" type="email" name="email" value={formData.email} onChange={handleChange} required autoComplete="email" />
+                    <input 
+                        id="register-email" 
+                        type="email" 
+                        name="email"
+                        placeholder="e.g. john.doe@example.com"
+                        value={formData.email} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="email" 
+                    />
                     
                     <label htmlFor="register-password">Password</label>
-                    <PasswordInput id="register-password" name="password" minLength="8" value={formData.password} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput 
+                        id="register-password" 
+                        name="password" 
+                        placeholder="At least 8 characters"
+                        minLength="8" 
+                        value={formData.password} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="new-password" 
+                    />
                     
                     <label htmlFor="register-confirm-password">Confirm password</label>
-                    <PasswordInput id="register-confirm-password" name="confirmPassword" minLength="8" value={formData.confirmPassword} onChange={handleChange} required autoComplete="new-password" />
+                    <PasswordInput 
+                        id="register-confirm-password" 
+                        name="confirmPassword" 
+                        placeholder="Confirm your password"
+                        minLength="8" 
+                        value={formData.confirmPassword} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="new-password" 
+                    />
                     
                     <label htmlFor="register-secret-word">Secret word (for account recovery)</label>
                     <p className="auth-copy-text">This word will help you recover your account if you ever forget your password. Do not share it with anyone.</p>
-                    <input id="register-secret-word" type="text" name="secret_word" value={formData.secret_word} onChange={handleChange} required autoComplete="off" />
+                    <input 
+                        id="register-secret-word" 
+                        type="text" 
+                        name="secret_word" 
+                        placeholder="e.g. MyFirstPet"
+                        value={formData.secret_word} 
+                        onChange={handleChange} 
+                        required 
+                        autoComplete="off" 
+                    />
                     
                     {error && <p className="auth-error" role="alert">{error}</p>}
-                    <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? "Creating account..." : "Create landlord account"}</button>
+                    <button 
+                    className="auth-submit" 
+                    type="submit" 
+                    disabled={isSubmitting}>
+                        {isSubmitting ? "Creating account..." : "Create landlord account"}
+                    </button>
                 </form>
                 <p className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></p>
             </div>
