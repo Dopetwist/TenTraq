@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import axios from "axios";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
@@ -12,10 +12,15 @@ function TenantDetails() {
     const [ tenantDocs, setTenantDocs ] = useState(null);
     const [ showModal, setShowModal ] = useState(false);
     const [ showDocumentModal, setShowDocumentModal ] = useState(false);
+    const [ documentDelete, setDocumentDelete ] = useState(false);
     const [ selectedTenantId, setSelectedTenantId ] = useState(null);
+    const [ selectedDocumentId, setSelectedDocumentId ] = useState(null);
     const [ isDeleting, setIsDeleting ] = useState(false);
 
     const navigate = useNavigate();
+
+    const message = documentDelete ? "Are you sure you want to delete this document?" : "Are you sure you want to delete this tenant?";
+    const title = documentDelete ? "Delete Document" : "Delete Tenant";
 
     const handleEdit = () => {
         navigate(`/tenants/edit/${id}`, { state: tenant });
@@ -28,6 +33,12 @@ function TenantDetails() {
                 month: "long",
                 day: "numeric" 
             });
+    };
+
+    const resetDocumentDelete = () => {
+        if (documentDelete) {
+            setDocumentDelete(false);
+        }
     };
 
     useEffect(() => {
@@ -46,7 +57,7 @@ function TenantDetails() {
     const fetchDocuments = async () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
-            setTenantDocs(response.data);  
+            setTenantDocs(response.data);
         } catch (error) {
             console.error(error);
         }
@@ -71,9 +82,9 @@ function TenantDetails() {
 
     // Delete tenant from database
     const handleDelete = async () => {
-        setIsDeleting(true);
-
         try {
+            setIsDeleting(true);
+
             await axios.delete(`http://localhost:5000/api/tenants/${selectedTenantId}`);
 
             navigate("/properties");
@@ -82,6 +93,23 @@ function TenantDetails() {
             setSelectedTenantId(null);
         } catch (error) {
             console.error("Error deleting tenant:", error.response?.data || error.message);
+        } finally {
+            setIsDeleting(false);
+        }
+    };
+
+    // Delete document from database
+    const handleDocumentDelete = async () => {
+        try {
+            setIsDeleting(true);
+
+            await axios.delete(`http://localhost:5000/api/documents/delete/${selectedDocumentId}`);
+
+            setShowModal(false);
+            fetchDocuments();
+            setSelectedDocumentId(null);
+        } catch (error) {
+            console.error("Error deleting document:", error.response?.data || error.message);
         } finally {
             setIsDeleting(false);
         }
@@ -146,12 +174,26 @@ function TenantDetails() {
                                 <div key={doc.id} className="document-item">
                                     <div className="single-doc">
                                         <p>{doc.document_title}</p>
-                                        <button 
-                                        className="document-view-btn" 
-                                        onClick={() => window.open(doc.document_url, "_blank")}
-                                        >
-                                            View Document
-                                        </button>
+                                        <div className="document-action-btns">
+                                            <button 
+                                            className="document-view-btn" 
+                                            onClick={() => window.open(doc.document_url, "_blank")}
+                                            >
+                                                View Document
+                                            </button>
+
+                                            <button
+                                            className="document-delete-btn"
+                                            title="Delete Document"
+                                            onClick={() => {
+                                                setShowModal(true);
+                                                setDocumentDelete(true);
+                                                setSelectedDocumentId(doc.id);
+                                            }}
+                                            >
+                                                <Trash2 size={18} />
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))
@@ -164,10 +206,13 @@ function TenantDetails() {
 
             <Modal
                 isOpen={showModal}
-                title="Delete Tenant"
-                message="Are you sure you want to delete this tenant?"
-                onConfirm={handleDelete}
-                onCancel={() => setShowModal(false)}
+                title={title}
+                message={message}
+                onConfirm={documentDelete ? handleDocumentDelete : handleDelete}
+                onCancel={() => {
+                    setShowModal(false);
+                    resetDocumentDelete();
+                }}
                 confirmText="Delete"
                 cancelText="Cancel"
                 isLoading={isDeleting}
