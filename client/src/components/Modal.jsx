@@ -20,7 +20,7 @@ function Modal({ isOpen, title, message, onConfirm, onCancel, confirmText = "Con
                         className="delete-btn"
                         disabled={isLoading}
                     >
-                        {isLoading ? "Processing..." : confirmText}
+                        {isLoading ? "Deleting..." : confirmText}
                     </button>
                 </div>
             </div>

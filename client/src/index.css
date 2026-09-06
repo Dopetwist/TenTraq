@@ -747,7 +747,7 @@ section {
     gap: 0.5rem;
 }
 
-.property-action-button {
+.property-action-button, .document-delete-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -770,11 +770,12 @@ section {
     transform: translateY(-1px);
 }
 
-.delete-button {
+.delete-button, .document-delete-btn {
     color: #ef4444;
 }
 
-.delete-button:hover {
+.delete-button:hover,
+.document-delete-btn:hover {
     background-color: #fee2e2;
     border-color: rgba(239, 68, 68, 0.12);
     transform: translateY(-1px);
@@ -1126,12 +1127,18 @@ section {
     margin-top: 1rem;
 }
 
-.single-doc {
-    width: fit-content;
+.document-action-btns {
     display: flex;
-    gap: 20rem;
+    align-items: center;
+    gap: 1rem;
+}
+
+.single-doc {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
     border-radius: 0.4rem;
     background-color: #f1f5f9;
     border: 1px solid #e2e8f0;
@@ -1186,8 +1193,8 @@ section {
 
 .upload-header-container {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 10rem;
     margin-bottom: 2rem;
 }
 

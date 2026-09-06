@@ -109,6 +109,8 @@ const getAuthToken = (req) => {
 };
 
 // Authentication Endpoints
+
+// register user
 app.post("/api/auth/register", async (req, res) => {
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
@@ -137,6 +139,7 @@ app.post("/api/auth/register", async (req, res) => {
     }
 });
 
+// login user
 app.post("/api/auth/login", async (req, res) => {
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
@@ -167,6 +170,7 @@ app.post("/api/auth/login", async (req, res) => {
     }
 });
 
+// reset password
 app.post("/api/auth/reset-password", async (req, res) => {
     const email = req.body.email?.trim().toLowerCase();
     const secretWord = req.body.secret_word?.trim();
@@ -198,6 +202,7 @@ app.post("/api/auth/reset-password", async (req, res) => {
     }
 });
 
+// authenticated user
 app.get("/api/auth/me", async (req, res) => {
     try {
         const token = getAuthToken(req);
@@ -437,13 +442,10 @@ app.get("/api/landlords/:id", async (req, res) => {
     }
 });
 
-// Email endpoint
-app.post("/api/send-email", async (req, res) => {
-
-});
-
 
 // Document endpoint
+
+// get a selected tenant's documents
 app.get("/api/documents/:tenantId", async (req, res) => {
     try {
         const { tenantId } = req.params;
@@ -455,7 +457,7 @@ app.get("/api/documents/:tenantId", async (req, res) => {
     }
 });
 
-
+// upload a new document
 app.post("/api/documents/upload", upload.single("document"), async (req, res) => {
     try {
         const token = getAuthToken(req);
@@ -485,6 +487,28 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
         console.error("Document upload error:", error);
         res.status(500).json({ error: "Something went wrong. Please try again!" });
     }
+});
+
+// delete a document
+app.delete("/api/documents/delete/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const result = await db.query("DELETE FROM documents WHERE documents.id = $1", [id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ message: "Document not found!" });
+        }
+
+        res.status(200).json({ message: "Document deleted successfully!" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Email endpoint
+app.post("/api/send-email", async (req, res) => {
+
 });
 
 
