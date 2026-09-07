@@ -1399,6 +1399,50 @@ button#send:disabled {
     transition: all 0.2s;
 }
 
+.settings-details {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.settings-details button.settings-edit-btn {
+    background-color: transparent;
+    color: var(--primary-color);
+    padding: 0.3rem;
+    border-radius: 0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.settings-details button.settings-edit-btn:hover {
+    cursor: pointer;
+    background-color: #2564eb0f;
+    border-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+
+.input-btns {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.edit-action-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.3rem !important;
+}
+
+.user-name {
+    border: 0.1rem solid var(--primary-color);
+    border-radius: 0.3rem;
+    padding: 0.2rem 0.5rem;
+}
+
 /* ===== MODAL STYLES ===== */
 
 .modal-overlay {

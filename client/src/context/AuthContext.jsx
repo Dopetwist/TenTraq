@@ -4,23 +4,24 @@ import { apiRequest } from "../services/api.js";
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState(() => {
-        const storedUser = localStorage.getItem("tentraq-user");
-        return storedUser ? JSON.parse(storedUser) : null;
-    });
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    // Fetch current user data on component mount
-    /* useEffect(() => {
-
+    useEffect(() => {
         const getCurrentUser = async () => {
+            const token = localStorage.getItem("tentraq-token");
+
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
             try {
-                const data = await apiRequest("/api/auth/me", {
-                    method: "GET"
-                });
+                const data = await apiRequest("/api/auth/me");
                 setUser(data.landlord);
-                console.log(user);
             } catch (error) {
                 console.error("Error fetching current user:", error);
+                localStorage.removeItem("tentraq-token");
                 setUser(null);
             } finally {
                 setLoading(false);
@@ -28,22 +29,20 @@ export function AuthProvider({ children }) {
         };
 
         getCurrentUser();
-    }, []); */
+    }, []);
 
     const signIn = ({ landlord, token }) => {
         localStorage.setItem("tentraq-token", token);
-        localStorage.setItem("tentraq-user", JSON.stringify(landlord));
         setUser(landlord);
     };
 
     const signOut = () => {
         localStorage.removeItem("tentraq-token");
-        localStorage.removeItem("tentraq-user");
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, signIn, signOut }}>
+        <AuthContext.Provider value={{ user, loading, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );
