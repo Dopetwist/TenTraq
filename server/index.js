@@ -442,6 +442,8 @@ app.get("/api/landlords/:id", async (req, res) => {
     }
 });
 
+app.get("/api/user/")
+
 
 // Document endpoint
 
