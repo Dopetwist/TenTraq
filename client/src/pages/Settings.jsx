@@ -1,28 +1,121 @@
-import { useState, useEffect } from "react";
-import { SquarePen, X, Check } from "lucide-react";
+import { useState } from "react";
+import { Check, LockKeyhole, SquarePen, Trash2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import axios from "axios";
+import { apiRequest } from "../services/api.js";
+import { useNavigate } from "react-router";
 
 function Settings() {
 
-    const { user } = useAuth();
+    const { user, updateUser, signOut } = useAuth();
+    const navigate = useNavigate();
+    const [isNameEditing, setIsNameEditing] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
+    const [updatedName, setUpdatedName] = useState(user?.full_name || "");
+    const [activeModal, setActiveModal] = useState(null);
+    const [modalError, setModalError] = useState("");
+    const [formData, setFormData] = useState({
+        email: user?.email || "",
+        secret_word: "",
+        old_password: "",
+        new_password: "",
+        confirm_password: "",
+        password: ""
+    });
+    
+    const handleNameSubmit = async (e) => {
+        e.preventDefault();
 
-    const [ isClicked, setIsClicked ] = useState(false);
-    const [ updatedName, setUpdatedName ] = useState(user?.full_name || "");
-    /* const [ userName, setUserName ] = useState();
-
-    useEffect(() => {
-        const getUserName = async () => {
-            try {
-                const response = await axios.get();
-                console.log(response.data);
-            } catch (error) {
-                console.error(error.message);
-            }
+        if (!updatedName.trim()) {
+            setError("Name cannot be empty.");
+            return;
         }
+        
+        try {
+            setIsSubmitting(true);
+            setError("");
 
-        getUserName();
-    }, []); */
+            const data = await apiRequest(`/api/landlords/edit/${user?.id}`, {
+                method: "PUT",
+                body: JSON.stringify({ full_name: updatedName.trim() })
+            });
+            updateUser(data.landlord);
+            setUpdatedName(data.landlord.full_name);
+            setIsNameEditing(false);
+        } catch (requestError) {
+            console.error("Failed to update landlord name:", requestError);
+            setError(requestError.message);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const openModal = (modal) => {
+        setActiveModal(modal);
+        setModalError("");
+        setFormData({
+            email: user?.email || "",
+            secret_word: "",
+            old_password: "",
+            new_password: "",
+            confirm_password: "",
+            password: ""
+        });
+    };
+
+    const closeModal = () => {
+        if (!isSubmitting) setActiveModal(null);
+    };
+
+    const updateField = (e) => {
+        const { name, value } = e.target;
+        setFormData((current) => ({ ...current, [name]: value }));
+    };
+
+    const handleModalSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setModalError("");
+
+        try {
+            if (activeModal === "email") {
+                const data = await apiRequest("/api/landlords/email", {
+                    method: "PUT",
+                    body: JSON.stringify({ email: formData.email, secret_word: formData.secret_word })
+                });
+                updateUser(data.landlord);
+            } else if (activeModal === "password") {
+                await apiRequest("/api/landlords/password", {
+                    method: "PUT",
+                    body: JSON.stringify({
+                        old_password: formData.old_password,
+                        new_password: formData.new_password,
+                        confirm_password: formData.confirm_password
+                    })
+                });
+            } else {
+                await apiRequest("/api/landlords/account", {
+                    method: "DELETE",
+                    body: JSON.stringify({ secret_word: formData.secret_word, password: formData.password })
+                });
+                signOut();
+                navigate("/login", { replace: true });
+                return;
+            }
+            setActiveModal(null);
+        } catch (requestError) {
+            console.error(`Failed to ${activeModal} update:`, requestError);
+            setModalError(requestError.message || "Something went wrong. Please try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const modalDetails = activeModal ? {
+        email: { eyebrow: "Account security", title: "Change email", confirm: "Update email" },
+        password: { eyebrow: "Account security", title: "Change password", confirm: "Update password" },
+        delete: { eyebrow: "Permanent action", title: "Delete account", confirm: "Delete account" }
+    }[activeModal] : null;
 
     return (
         <div id="settings-section">
@@ -33,18 +126,17 @@ function Settings() {
                     <p className="settings-title">Account name:</p>
                     <div className="settings-details">
                         <div className="settings-modify">
-                            {isClicked ? (
+                            {isNameEditing ? (
                                 <div className="settings-input-container">
-                                    <form>
+                                    {error && <p className="form-error" role="alert">{error}</p>}
+                                    <form onSubmit={handleNameSubmit}>
                                         <input 
                                         type="text"
                                         className="user-name"
                                         name="full_name"
                                         value={updatedName}
                                         placeholder="Enter your name"
-                                        onChange={(e) => {
-                                            setUpdatedName(e.target.value);
-                                        }}
+                                        onChange={(e) => setUpdatedName(e.target.value)}
                                         autoFocus
                                         />
 
@@ -52,7 +144,7 @@ function Settings() {
                                             <button 
                                             type="button"
                                             className="edit-action-btn"
-                                            onClick={() => setIsClicked(false)}
+                                            onClick={() => setIsNameEditing(false)}
                                             >
                                                 <X size={16} color="#EF4444" />
                                             </button>
@@ -60,7 +152,7 @@ function Settings() {
                                             type="submit"
                                             className="edit-action-btn"
                                             >
-                                                <Check size={16} color="#10B981" />
+                                                {isSubmitting ? "..." : <Check size={16} color="#10B981" />}
                                             </button>
                                         </div>
                                     </form>
@@ -68,11 +160,15 @@ function Settings() {
                             ) : <p>{user?.full_name || "John Doe"}</p>
                             }
                         </div> 
-                        {!isClicked && (
+                        {!isNameEditing && (
                             <button
                             type="button"
                             className="settings-edit-btn"
-                            onClick={() => setIsClicked(true)}
+                            onClick={() => {
+                                setIsNameEditing(true);
+                                setUpdatedName(user?.full_name || "");
+                                setError("");
+                            }}
                             >
                                 <SquarePen size={18} />
                             </button>
@@ -83,23 +179,70 @@ function Settings() {
                     <p className="settings-title">Email:</p>
                     <div className="settings-details">
                         <div className="settings-modify">
-                            <p>john@gmail.com</p>
+                            <p>{user?.email || "No email available"}</p>
                         </div> 
                         <button
                         type="button"
                         className="settings-edit-btn"
+                        onClick={() => openModal("email")}
+                        aria-label="Change email"
                         >
                             <SquarePen size={18} />
                         </button>
                     </div>
                 </div>
-                <div className="settings-box">
-                    <p className="settings-title">Change Password</p>
-                </div>
-                <div className="settings-box">
-                    <p className="settings-title">Delete Account</p>
-                </div>
+                <button type="button" className="settings-box settings-option" onClick={() => openModal("password")}>
+                    <span className="settings-title">Change Password</span>
+                    <LockKeyhole size={18} />
+                </button>
+                <button type="button" className="settings-box settings-option settings-danger" onClick={() => openModal("delete")}>
+                    <span className="settings-title">Delete Account</span>
+                    <Trash2 size={18} />
+                </button>
             </div>
+
+            {activeModal && (
+                <div className="modal-overlay" onClick={closeModal}>
+                    <div className="modal settings-modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-heading">
+                            <div>
+                                <p className="modal-eyebrow">{modalDetails.eyebrow}</p>
+                                <h2>{modalDetails.title}</h2>
+                            </div>
+                            <button type="button" className="modal-close-btn" onClick={closeModal} aria-label="Close modal">
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        {activeModal === "email" && <p className="modal-description">Verify your secret word before changing the email connected to your account.</p>}
+                        {activeModal === "delete" && <p className="modal-description">This permanently deletes your account and all associated properties and tenant records.</p>}
+
+                        <form className="settings-form" onSubmit={handleModalSubmit}>
+                            {activeModal === "email" && <>
+                                <label>Email<input type="email" name="email" value={formData.email} onChange={updateField} required autoFocus /></label>
+                                <label>Secret word<input type="password" name="secret_word" value={formData.secret_word} onChange={updateField} required /></label>
+                            </>}
+                            {activeModal === "password" && <>
+                                <label>Old password<input type="password" name="old_password" value={formData.old_password} onChange={updateField} required autoFocus /></label>
+                                <label>New password<input type="password" name="new_password" value={formData.new_password} onChange={updateField} minLength={8} required /></label>
+                                <label>Confirm new password<input type="password" name="confirm_password" value={formData.confirm_password} onChange={updateField} minLength={8} required /></label>
+                            </>}
+                            {activeModal === "delete" && <>
+                                <label>Secret word<input type="password" name="secret_word" value={formData.secret_word} onChange={updateField} required autoFocus /></label>
+                                <label>Password<input type="password" name="password" value={formData.password} onChange={updateField} required /></label>
+                            </>}
+
+                            {modalError && <p className="form-error" role="alert">{modalError}</p>}
+                            <div className="modal-actions">
+                                <button type="button" className="cancel-btn" onClick={closeModal} disabled={isSubmitting}>Cancel</button>
+                                <button type="submit" className={activeModal === "delete" ? "delete-btn" : "confirm-btn"} disabled={isSubmitting}>
+                                    {isSubmitting ? "Please wait..." : modalDetails.confirm}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

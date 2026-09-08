@@ -108,6 +108,16 @@ const getAuthToken = (req) => {
     return header.startsWith("Bearer ") ? header.slice(7) : null;
 };
 
+const getAuthenticatedClaims = (req) => {
+    const token = getAuthToken(req);
+    if (!token) return null;
+    try {
+        return readToken(token);
+    } catch {
+        return null;
+    }
+};
+
 // Authentication Endpoints
 
 // register user
@@ -217,6 +227,160 @@ app.get("/api/auth/me", async (req, res) => {
         res.json({ landlord: result.rows[0] });
     } catch (error) {
         res.status(401).json({ error: "Invalid authentication token." });
+    }
+});
+
+// edit landlord name
+app.put("/api/landlords/edit/:id", async (req, res) => {
+
+    const { id } = req.params;
+    const claims = getAuthenticatedClaims(req);
+    const fullName = req.body.full_name?.trim();
+
+    if (!claims || String(claims.id) !== String(id)) {
+        return res.status(401).json({ error: "Authentication required." });
+    }
+    if (!fullName) {
+        return res.status(400).json({ error: "Name cannot be empty." });
+    }
+
+    try {
+        const result = await db.query(
+            "UPDATE landlords SET full_name = $1 WHERE id = $2 RETURNING id, full_name, email",
+            [fullName, id]
+        );
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Landlord not found." });
+        }
+
+        res.json({ landlord: result.rows[0] });
+    } catch (error) {
+        console.error("Error updating landlord name", error.message);
+        res.status(500).json({ error: "Failed to update landlord name!" });
+    }
+});
+
+// update landlord email after secret-word verification
+app.put("/api/landlords/email", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    const email = req.body.email?.trim().toLowerCase();
+    const secretWord = req.body.secret_word?.trim();
+
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!email || !secretWord) {
+        return res.status(400).json({ error: "Email and secret word are required." });
+    }
+
+    try {
+        const landlordResult = await db.query(
+            "SELECT secret_word FROM landlords WHERE id = $1",
+            [claims.id]
+        );
+        const landlord = landlordResult.rows[0];
+        if (!landlord) return res.status(404).json({ error: "Landlord not found." });
+        if (landlord.secret_word !== secretWord) {
+            return res.status(401).json({ error: "Wrong secret word." });
+        }
+
+        const result = await db.query(
+            "UPDATE landlords SET email = $1 WHERE id = $2 RETURNING id, full_name, email",
+            [email, claims.id]
+        );
+        res.json({ landlord: result.rows[0] });
+    } catch (error) {
+        if (error.code === "23505") {
+            return res.status(409).json({ error: "An account with that email already exists." });
+        }
+        console.error("Error updating landlord email", error.message);
+        res.status(500).json({ error: "Failed to update email." });
+    }
+});
+
+// change landlord password after verifying the current password
+app.put("/api/landlords/password", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    const { old_password: oldPassword, new_password: newPassword, confirm_password: confirmPassword } = req.body;
+
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        return res.status(400).json({ error: "All password fields are required." });
+    }
+    if (newPassword.length < 8) {
+        return res.status(400).json({ error: "New password must be at least 8 characters." });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ error: "New passwords do not match." });
+    }
+
+    try {
+        const result = await db.query(
+            "SELECT password_hash FROM landlords WHERE id = $1",
+            [claims.id]
+        );
+        const landlord = result.rows[0];
+        if (!landlord) return res.status(404).json({ error: "Landlord not found." });
+        if (!(await verifyPassword(oldPassword, landlord.password_hash))) {
+            return res.status(401).json({ error: "Old password is incorrect." });
+        }
+
+        await db.query("UPDATE landlords SET password_hash = $1 WHERE id = $2", [
+            await hashPassword(newPassword),
+            claims.id
+        ]);
+        res.json({ message: "Password updated successfully." });
+    } catch (error) {
+        console.error("Error updating landlord password", error.message);
+        res.status(500).json({ error: "Failed to update password." });
+    }
+});
+
+// permanently delete a landlord after verifying both credentials
+app.delete("/api/landlords/account", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    const secretWord = req.body.secret_word?.trim();
+    const password = req.body.password;
+
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!secretWord || !password) {
+        return res.status(400).json({ error: "Secret word and password are required." });
+    }
+
+    const client = await db.connect();
+    try {
+        const landlordResult = await client.query(
+            "SELECT secret_word, password_hash FROM landlords WHERE id = $1",
+            [claims.id]
+        );
+        const landlord = landlordResult.rows[0];
+        if (!landlord) return res.status(404).json({ error: "Landlord not found." });
+        if (landlord.secret_word !== secretWord) {
+            return res.status(401).json({ error: "Wrong secret word." });
+        }
+        if (!(await verifyPassword(password, landlord.password_hash))) {
+            return res.status(401).json({ error: "Password is incorrect." });
+        }
+
+        await client.query("BEGIN");
+        await client.query(
+            "DELETE FROM documents WHERE tenant_id IN (SELECT tenants.id FROM tenants JOIN properties ON properties.id = tenants.property_id WHERE properties.landlord_id = $1)",
+            [claims.id]
+        );
+        await client.query(
+            "DELETE FROM tenants WHERE property_id IN (SELECT id FROM properties WHERE landlord_id = $1)",
+            [claims.id]
+        );
+        await client.query("DELETE FROM properties WHERE landlord_id = $1", [claims.id]);
+        const result = await client.query("DELETE FROM landlords WHERE id = $1", [claims.id]);
+        await client.query("COMMIT");
+
+        if (result.rowCount === 0) return res.status(404).json({ error: "Landlord not found." });
+        res.json({ message: "Account deleted successfully." });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error("Error deleting landlord account", error.message);
+        res.status(500).json({ error: "Failed to delete account." });
+    } finally {
+        client.release();
     }
 });
 

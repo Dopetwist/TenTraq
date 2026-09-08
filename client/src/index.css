@@ -1441,6 +1441,27 @@ button#send:disabled {
     border: 0.1rem solid var(--primary-color);
     border-radius: 0.3rem;
     padding: 0.2rem 0.5rem;
+    margin-top: 0.2rem;
+}
+
+.settings-option {
+    width: 100%;
+    background: transparent;
+    color: var(--secondary-color);
+    text-align: left;
+}
+
+.settings-option svg {
+    color: var(--primary-color);
+}
+
+.settings-option:hover {
+    background: #f8fafc;
+}
+
+.settings-danger .settings-title,
+.settings-danger svg {
+    color: var(--delete-color);
 }
 
 /* ===== MODAL STYLES ===== */
@@ -1507,6 +1528,42 @@ button#send:disabled {
     color: var(--secondary-color);
     font-size: 1.5rem;
     font-weight: 700;
+}
+
+.modal-description {
+    color: var(--sub-text-color);
+    line-height: 1.5;
+    margin: -0.5rem 0 1.25rem;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.settings-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.settings-form input {
+    width: 100%;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.4rem;
+    font: inherit;
+    font-weight: 400;
+}
+
+.settings-form input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px #2563eb1c;
 }
 
 .modal-close-btn {
