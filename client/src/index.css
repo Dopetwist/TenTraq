@@ -1373,8 +1373,7 @@ button#send:disabled {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1.5rem;
-    margin-bottom: 1.5rem;
+    padding: 1.5rem 0;
     border-bottom: 1px solid #e2e8f0;
 }
 
@@ -1421,27 +1420,6 @@ button#send:disabled {
     background-color: #2564eb0f;
     border-color: var(--primary-color);
     transform: translateY(-1px);
-}
-
-.input-btns {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-
-.edit-action-btn {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0.3rem !important;
-}
-
-.user-name {
-    border: 0.1rem solid var(--primary-color);
-    border-radius: 0.3rem;
-    padding: 0.2rem 0.5rem;
-    margin-top: 0.2rem;
 }
 
 .settings-option {
