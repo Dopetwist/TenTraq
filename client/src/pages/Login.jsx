@@ -24,7 +24,7 @@ function Login() {
             signIn(data);
             navigate(location.state?.from || "/dashboard", { replace: true });
         } catch (requestError) {
-            setError("Something went wrong. Please try again!" || requestError.message);
+            setError(requestError.message || "Something went wrong. Please try again!");
         } finally {
             setIsSubmitting(false);
         }
