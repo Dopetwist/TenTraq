@@ -567,11 +567,15 @@ app.get("/api/landlords/:id", async (req, res) => {
                        landlord_properties.property_name
                 FROM tenants
                 INNER JOIN landlord_properties ON landlord_properties.id = tenants.property_id
-            )
-            SELECT
+            ), tenants_documents AS (
+                SELECT documents.id, documents.document_title, documents.document_url, documents.tenant_id,
+                landlord_tenants.id
+                FROM documents
+                INNER JOIN landlord_tenants ON landlord_tenants.id = documents.tenant_id
+            ) SELECT
                 (SELECT COUNT(*)::int FROM landlord_properties) AS total_properties,
                 (SELECT COUNT(*)::int FROM landlord_tenants) AS total_tenants,
-                0::int AS documents_uploaded,
+                (SELECT COUNT(*)::int FROM tenants_documents) AS total_documents,
                 COALESCE(
                     (SELECT json_agg(
                         json_build_object(
@@ -598,7 +602,7 @@ app.get("/api/landlords/:id", async (req, res) => {
         res.json({
             totalTenants: dashboard.total_tenants,
             totalProperties: dashboard.total_properties,
-            documentsUploaded: dashboard.documents_uploaded,
+            totalDocuments: dashboard.total_documents,
             recentTenants: dashboard.recent_tenants
         });
     } catch (error) {

@@ -81,7 +81,7 @@ function Dashboard() {
                         <StatCard
                             icon={FileText}
                             label="Documents Uploaded"
-                            value={dashboardData?.documentsUploaded ?? 0}
+                            value={dashboardData?.totalDocuments ?? 0}
                         />
                         <StatCard
                             icon={Clock}
