@@ -1,8 +1,6 @@
 import express from "express";
 import env from "dotenv";
 import cors from "cors";
-import pkg from "pg";
-import pg from "pg";
 import {
     createHmac,
     randomBytes,
@@ -13,8 +11,8 @@ import { promisify } from "node:util";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-
-const { Pool } = pkg;
+import db from "./config/db.js";
+import { processRentReminders, startRentReminderScheduler } from "./services/rentReminderService.js";
 
 env.config();
 
@@ -41,27 +39,10 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage }); // Multer middleware for handling file uploads
 
-// Prevent backend date timezone shifts
-pg.types.setTypeParser(1082, (val) => val);
-
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.static("client/dist")); // server serves react for deployment
-
-
-// Database Connection
-const db = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT,
-});
-
-db.connect()
-    .then(() => console.log("Connected to PostgreSQL database"))
-    .catch((err) => console.error("Database connection error:", err.stack));
 
 
 // Authentication Utilities
@@ -681,6 +662,19 @@ app.post("/api/send-email", async (req, res) => {
 
 });
 
+// Rent Reminder endpoint
+app.post("/api/rent-reminders/run", async (req, res) => {
+    try {
+        const result = await processRentReminders();
+        res.json(result);
+    } catch (error) {
+        console.error("Manual rent reminder run failed:", error.message);
+        res.status(500).json({ error: "Failed to process rent reminders." });
+    }
+});
+
+// Start the rent reminder scheduler when the server starts
+startRentReminderScheduler();
 
 // Server listener
 app.listen(port, () => {
