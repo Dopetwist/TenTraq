@@ -1278,6 +1278,24 @@ section {
     gap: 1rem;
 }
 
+.checkbox-container {
+    width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkbox-container label.checkbox-label {
+    font-size: 0.8rem;
+}
+
+#upload-checkbox {
+    cursor: pointer;
+    width: 0.9rem;
+    height: 0.9rem;
+    padding: 0;
+}
+
 .single-doc {
     display: flex;
     justify-content: space-between;
