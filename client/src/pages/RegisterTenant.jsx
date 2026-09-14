@@ -10,6 +10,7 @@ function RegisterTenant() {
     const [ error, setError ] = useState(""); // error state
 
     const [ toast, setToast ] = useState(null); // toast state
+    const [ isChecked, setIsChecked ] = useState(false); // checkbox state
 
     const navigate = useNavigate();
 
@@ -50,7 +51,7 @@ function RegisterTenant() {
         // Append form data to FormData object
         Object.entries(formData).forEach(([key, value]) => {
             if (value !== null && value !== undefined && value !== "") {
-            payload.append(key, value);
+                payload.append(key, value);
             }
         });
 
@@ -241,35 +242,49 @@ function RegisterTenant() {
                         </div>
                     </div>
 
-                    <div id="upload-box">
-                        <label htmlFor="upload-doc" >Upload Document:</label>
-                        <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
-                    </div>
-                    <div className="document-box">
-                        <div className="title-box">
-                            <input 
-                                type="text" 
-                                id="upload-title" 
-                                name="document_title" 
-                                placeholder="Enter document title"
-                                value={formData.document_title}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                    <div className="checkbox-container">
                         <input 
-                            type="file" 
-                            id="upload-doc" 
-                            name="document" 
-                            accept=".pdf,.doc,.docx"
-                            onChange={(e) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    document: e.target.files[0]
-                                }))
-                            } 
+                            type="checkbox" 
+                            id="upload-checkbox" 
+                            checked={isChecked}
+                            onChange={() => setIsChecked(!isChecked)}
                         />
+                        <label htmlFor="upload-checkbox" className="checkbox-label">Upload a document for this tenant</label>
                     </div>
+
+                    {isChecked && (
+                        <>
+                            <div id="upload-box">
+                                <label htmlFor="upload-doc" >Upload Document:</label>
+                                <p className="form-text">Please upload a document (PDF, DOC, or DOCX) related to the tenant. This could include the signed lease agreement, identification documents, or any other relevant paperwork.</p>
+                            </div>
+                            <div className="document-box">
+                                <div className="title-box">
+                                    <input 
+                                        type="text" 
+                                        id="upload-title" 
+                                        name="document_title" 
+                                        placeholder="Enter document title"
+                                        value={formData.document_title}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                                <input 
+                                    type="file" 
+                                    id="upload-doc" 
+                                    name="document" 
+                                    accept=".pdf,.doc,.docx"
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            document: e.target.files[0]
+                                        }))
+                                    } 
+                                />
+                            </div>
+                        </>
+                    )}
 
                     {error && <p className="form-error" role="alert">{error}</p>}
 
