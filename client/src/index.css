@@ -70,6 +70,23 @@ section {
     gap: 1rem;
 }
 
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+}
+
+.header-logo-link .logo-text {
+    font-size: 0.9rem;
+}
+
+.app-name h1 {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
 #navbar {
     display: flex;
     justify-content: space-between;
@@ -128,12 +145,6 @@ section {
 
 .view-demo:hover {
     background-color: #f1f5f9;
-}
-
-.app-name h1 {
-    color: var(--primary-color);
-    font-size: 1.5rem;
-    font-weight: 800;
 }
 
 #hero {

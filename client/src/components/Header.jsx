@@ -12,7 +12,10 @@ function Header() {
     return (
         <div className="header">
             <div className="app-name">
-                <Link to={"/"}>
+                <Link to={"/"} className="header-logo-link">
+                    <div className="logo-box">
+                        <span className="logo-text">TR</span>
+                    </div>
                     <h1>TenTraq</h1>
                 </Link>
             </div>
