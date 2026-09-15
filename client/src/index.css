@@ -1246,10 +1246,20 @@ section {
 
 .amount-con {
     display: flex;
+    min-width: 0;
 }
 
 .small-input input, #currency {
     margin-top: 0.5rem;
+}
+
+.small-input {
+    min-width: 0;
+}
+
+.amount-con input {
+    min-width: 0;
+    width: 100%;
 }
 
 .form-text {
