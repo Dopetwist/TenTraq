@@ -48,9 +48,11 @@ function RegisterTenant() {
 
         const payload = new FormData(); // Create a FormData object to handle file upload
 
-        // Append form data to FormData object
+        // Append document fields only when document upload is enabled.
         Object.entries(formData).forEach(([key, value]) => {
-            if (value !== null && value !== undefined && value !== "") {
+            const isDocumentField = ["document_title", "document"].includes(key);
+
+            if ((!isDocumentField || isChecked) && value !== null && value !== undefined && value !== "") {
                 payload.append(key, value);
             }
         });
