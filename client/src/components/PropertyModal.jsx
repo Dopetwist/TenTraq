@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { apiRequest } from "../services/api.js";
+import { useToast } from "../context/ToastContext.jsx";
 
 function PropertyModal({ isOpen, onClose, onCreated }) {
     const [formData, setFormData] = useState({ property_name: "", address: "" });
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showToast } = useToast();
 
     if (!isOpen) return null;
 
@@ -30,8 +32,10 @@ function PropertyModal({ isOpen, onClose, onCreated }) {
             setFormData({ property_name: "", address: "" });
             onCreated(property);
             onClose();
+            showToast("Property added successfully.");
         } catch (requestError) {
             setError(requestError.message);
+            showToast(requestError.message || "Unable to add property.", "error");
         } finally {
             setIsSubmitting(false);
         }

@@ -6,6 +6,7 @@ import { ChevronDown, Plus, Trash2, Eye } from "lucide-react";
 import Modal from "./Modal";
 import PropertyModal from "./PropertyModal";
 import Badge from "./UI/Badge.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 function PropertyAccordion() {
 
@@ -19,6 +20,7 @@ function PropertyAccordion() {
     const [ loading, setLoading ] = useState(true);
 
     const { user } = useAuth();
+    const { showToast } = useToast();
 
     const navigate = useNavigate();
 
@@ -85,8 +87,10 @@ function PropertyAccordion() {
 
             setShowModal(false);
             setSelectedTenantId(null);
+            showToast("Tenant deleted successfully.");
         } catch (error) {
             console.error("Error deleting tenant:", error.response?.data || error.message);
+            showToast(error.response?.data?.error || "Unable to delete tenant.", "error");
         } finally {
             setIsDeleting(false);
         }

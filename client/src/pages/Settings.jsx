@@ -3,10 +3,12 @@ import { LockKeyhole, SquarePen, Trash2, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { apiRequest } from "../services/api.js";
 import { useNavigate } from "react-router";
+import { useToast } from "../context/ToastContext.jsx";
 
 function Settings() {
 
     const { user, updateUser, signOut } = useAuth();
+    const { showToast } = useToast();
     const navigate = useNavigate();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,12 +64,14 @@ function Settings() {
                     body: JSON.stringify({ full_name: formData.full_name.trim() })
                 });
                 updateUser(data.landlord);
+                showToast("Name updated successfully.");
             } else if (activeModal === "email") {
                 const data = await apiRequest("/api/landlords/email", {
                     method: "PUT",
                     body: JSON.stringify({ email: formData.email, secret_word: formData.secret_word })
                 });
                 updateUser(data.landlord);
+                showToast("Email updated successfully.");
             } else if (activeModal === "password") {
                 await apiRequest("/api/landlords/password", {
                     method: "PUT",
@@ -77,19 +81,23 @@ function Settings() {
                         confirm_password: formData.confirm_password
                     })
                 });
+                showToast("Password updated successfully.");
             } else {
                 await apiRequest("/api/landlords/account", {
                     method: "DELETE",
                     body: JSON.stringify({ secret_word: formData.secret_word, password: formData.password })
                 });
                 signOut();
+                showToast("Account deleted successfully.");
                 navigate("/login", { replace: true });
                 return;
             }
             setActiveModal(null);
         } catch (requestError) {
             console.error(`Failed to update ${activeModal}:`, requestError);
-            setModalError(requestError.message || "Something went wrong. Please try again.");
+            const message = requestError.message || "Something went wrong. Please try again.";
+            setModalError(message);
+            showToast(message, "error");
         } finally {
             setIsSubmitting(false);
         }

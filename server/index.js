@@ -378,6 +378,29 @@ app.get("/api/tenants", async (req, res) => {
     }
 });
 
+// search tenants by name or email
+app.get("/api/tenants/search", async (req, res) => {
+    const searchTerm = req.query.q?.trim();
+
+    if (!searchTerm) {
+        return res.status(400).json({ error: "A search term is required." });
+    }
+
+    try {
+        const result = await db.query(
+            `SELECT * FROM tenants
+             WHERE full_name ILIKE $1 OR email ILIKE $1
+             ORDER BY full_name ASC
+             LIMIT 10`,
+            [`%${searchTerm}%`]
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to search tenants." });
+    }
+});
+
 // get a single tenant details
 app.get("/api/tenants/:id", async (req, res) => {
     try {

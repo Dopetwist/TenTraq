@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router";
 import { apiRequest } from "../services/api.js";
 import PasswordInput from "../components/PasswordInput.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 function ForgotPassword() {
     const [formData, setFormData] = useState({ email: "", secret_word: "", password: "", confirmPassword: "" });
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showToast } = useToast();
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -35,9 +37,11 @@ function ForgotPassword() {
                 })
             });
             setSuccess(data.message);
+            showToast(data.message || "Password reset successfully.");
             setFormData({ email: "", secret_word: "", password: "", confirmPassword: "" });
         } catch (requestError) {
             setError(requestError.message);
+            showToast(requestError.message || "Unable to reset password.", "error");
         } finally {
             setIsSubmitting(false);
         }

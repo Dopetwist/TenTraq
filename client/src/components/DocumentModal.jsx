@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import axios from "axios";
+import { useToast } from "../context/ToastContext.jsx";
 
 const initialData = {
     document_title: "",
@@ -11,6 +12,7 @@ function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
     const [formData, setFormData] = useState(initialData);
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { showToast } = useToast();
 
     if (!isOpen) return null;
 
@@ -47,8 +49,11 @@ function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
             setFormData(initialData);
             onCreated();
             onClose();
+            showToast("Document added successfully.");
         } catch (requestError) {
-            setError("Something went wrong. Please try again!");
+            const message = requestError.response?.data?.error || "Unable to add document.";
+            setError(message);
+            showToast(message, "error");
         } finally {
             setIsSubmitting(false);
         }

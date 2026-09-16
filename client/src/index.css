@@ -670,6 +670,7 @@ section {
 .search-con {
     width: 100%;
     max-width: 400px;
+    position: relative;
     background-color: white;
     display: flex;
     align-items: center;
@@ -684,6 +685,48 @@ section {
     padding: 0.5rem;
     background: transparent;
     outline: none;
+}
+
+.tenant-search-results {
+    position: absolute;
+    top: calc(100% + 0.35rem);
+    left: 0;
+    right: 0;
+    z-index: 10;
+    overflow: hidden;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 12%);
+}
+
+.tenant-search-result {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.75rem 1rem;
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+.tenant-search-result:hover {
+    background-color: #f8fafc;
+}
+
+.tenant-search-result span {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.tenant-search-message {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.tenant-search-message.error {
+    color: #b91c1c;
 }
 
 .tenants-btns {
