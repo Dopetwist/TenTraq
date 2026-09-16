@@ -3,11 +3,13 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { apiRequest } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import PasswordInput from "../components/PasswordInput.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 function Login() {
     const navigate = useNavigate();
     const location = useLocation();
     const { signIn } = useAuth();
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -22,9 +24,12 @@ function Login() {
                 body: JSON.stringify(formData)
             });
             signIn(data);
+            showToast("Signed in successfully.");
             navigate(location.state?.from || "/dashboard", { replace: true });
         } catch (requestError) {
-            setError(requestError.message || "Something went wrong. Please try again!");
+            const message = requestError.message || "Something went wrong. Please try again!";
+            setError(message);
+            showToast(message, "error");
         } finally {
             setIsSubmitting(false);
         }

@@ -2,19 +2,19 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
-import Toast from "../components/Toast";
+import { useToast } from "../context/ToastContext.jsx";
 
 function EditTenant() {
     const { id } = useParams();
 
     const [ properties, setProperties ] = useState([]);
-    const [ toast, setToast ] = useState(null); // toast state
     const [ clicked, setClicked ] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
 
     const { user } = useAuth();
+    const { showToast } = useToast();
 
     const landlordId = user ? user.id : null; // Get landlord ID from user context
 
@@ -40,11 +40,7 @@ function EditTenant() {
 
             await axios.put(`http://localhost:5000/api/tenants/edit/${id}`, formData);
 
-            // Show success toast
-            setToast({
-                message: "Tenant updated successfully",
-                type: "success"
-            });
+            showToast("Tenant updated successfully.");
 
             // Clear form on success
             setFormData({ 
@@ -69,11 +65,7 @@ function EditTenant() {
             // Deactivate 'Please wait...' modal
             setClicked(false);
 
-            // Show error toast
-            setToast({
-                message: err.response?.data?.error || "Something went wrong",
-                type: "error"
-            });
+            showToast(err.response?.data?.error || "Something went wrong", "error");
             console.error(err.response?.data || err.message);
         }
     };
@@ -258,14 +250,6 @@ function EditTenant() {
                 </div>
             </form>
 
-            {/* Render Toast */}
-            {toast && (
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => setToast(null)}
-                />
-            )}
         </div>
     )
 }

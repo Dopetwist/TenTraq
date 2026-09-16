@@ -2,19 +2,19 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
-import Toast from "../components/Toast";
+import { useToast } from "../context/ToastContext.jsx";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
     const [ isSubmitting, setIsSubmitting ] = useState(false); // submission state
     const [ error, setError ] = useState(""); // error state
 
-    const [ toast, setToast ] = useState(null); // toast state
     const [ isChecked, setIsChecked ] = useState(false); // checkbox state
 
     const navigate = useNavigate();
 
     const { user } = useAuth();
+    const { showToast } = useToast();
 
     const landlordId = user ? user.id : null; // Get landlord ID from user context
 
@@ -65,11 +65,7 @@ function RegisterTenant() {
                 }
             });
 
-            // Show success toast
-            setToast({
-                message: "Tenant registered successfully!",
-                type: "success"
-            });
+            showToast("Tenant registered successfully!");
 
             // Clear form on success
             setFormData({ 
@@ -92,12 +88,9 @@ function RegisterTenant() {
             }, 2000);
 
         } catch (err) {
-            // Show error toast
-            setToast({
-                message: err.response?.data?.error || "Something went wrong",
-                type: "error"
-            });
-            setError(err.response?.data?.error || "Something went wrong");
+            const message = err.response?.data?.error || "Something went wrong";
+            showToast(message, "error");
+            setError(message);
             console.error(err.response?.data || err.message);
         } finally {
             setIsSubmitting(false); // Reset submission state
@@ -308,14 +301,6 @@ function RegisterTenant() {
                     </div>
                 </form>
 
-                {/* Render Toast */}
-                {toast && (
-                    <Toast
-                        message={toast.message}
-                        type={toast.type}
-                        onClose={() => setToast(null)}
-                    />
-                )}
             </div>
         </div>
     )

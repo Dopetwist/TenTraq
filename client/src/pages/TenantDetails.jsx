@@ -4,6 +4,7 @@ import { Plus, Trash2 } from "lucide-react";
 import axios from "axios";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
+import { useToast } from "../context/ToastContext.jsx";
 
 function TenantDetails() {
     const { id } = useParams();
@@ -18,6 +19,7 @@ function TenantDetails() {
     const [ isDeleting, setIsDeleting ] = useState(false);
 
     const navigate = useNavigate();
+    const { showToast } = useToast();
 
     const message = documentDelete ? "Are you sure you want to delete this document?" : "Are you sure you want to delete this tenant?";
     const title = documentDelete ? "Delete Document" : "Delete Tenant";
@@ -91,8 +93,10 @@ function TenantDetails() {
 
             setShowModal(false);
             setSelectedTenantId(null);
+            showToast("Tenant deleted successfully.");
         } catch (error) {
             console.error("Error deleting tenant:", error.response?.data || error.message);
+            showToast(error.response?.data?.error || "Unable to delete tenant.", "error");
         } finally {
             setIsDeleting(false);
         }
@@ -108,8 +112,10 @@ function TenantDetails() {
             setShowModal(false);
             fetchDocuments();
             setSelectedDocumentId(null);
+            showToast("Document deleted successfully.");
         } catch (error) {
             console.error("Error deleting document:", error.response?.data || error.message);
+            showToast(error.response?.data?.error || "Unable to delete document.", "error");
         } finally {
             setIsDeleting(false);
         }

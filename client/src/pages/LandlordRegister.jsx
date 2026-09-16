@@ -3,10 +3,12 @@ import { Link, useNavigate } from "react-router";
 import { apiRequest } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import PasswordInput from "../components/PasswordInput.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 function LandlordRegister() {
     const navigate = useNavigate();
     const { signIn } = useAuth();
+    const { showToast } = useToast();
     const [formData, setFormData] = useState({ full_name: "", email: "", password: "", confirmPassword: "", secret_word: "" });
     const [error, setError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,9 +27,12 @@ function LandlordRegister() {
                 body: JSON.stringify({ full_name: formData.full_name, email: formData.email, password: formData.password, secret_word: formData.secret_word })
             });
             signIn(data);
+            showToast("Account created successfully.");
             navigate("/dashboard", { replace: true });
         } catch (requestError) {
-            setError(requestError.message || "Something went wrong. Please try again!");
+            const message = requestError.message || "Something went wrong. Please try again!";
+            setError(message);
+            showToast(message, "error");
         } finally {
             setIsSubmitting(false);
         }
