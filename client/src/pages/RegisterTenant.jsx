@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
 import { useToast } from "../context/ToastContext.jsx";
+import { formatRentInput, sanitizeRentInput } from "../utils/formatCurrency.js";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
@@ -34,10 +35,10 @@ function RegisterTenant() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        
+
         setFormData({
             ...formData,
-            [name]: value
+            [name]: name === "rent" ? sanitizeRentInput(value) : value
         });
     };
 
@@ -201,11 +202,12 @@ function RegisterTenant() {
                                     <option value={"NGN"}>₦</option>
                                 </select>
                                 <input 
-                                    type="number" 
+                                    type="text"
+                                    inputMode="decimal"
                                     name="rent" 
                                     id="rent-amount" 
                                     placeholder="Enter rent amount"
-                                    value={formData.rent}
+                                    value={formatRentInput(formData.rent)}
                                     onChange={handleChange}
                                     required
                                 />
