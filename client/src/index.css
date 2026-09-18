@@ -19,6 +19,7 @@
     --warning-color: #F59E0B;
     --sub-text-color: #555;
     --delete-color: #EF4444;
+    --navbar-height: 4rem;
 }
 
 html {
@@ -28,6 +29,10 @@ html {
 body {
     background-color: var(--background-color);
     color: var(--secondary-color);
+}
+
+[id] {
+    scroll-margin-top: var(--navbar-height);
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -232,7 +237,7 @@ section {
 }
 
 #solution-section {
-    padding-bottom: 5rem;
+    padding: 5rem 0;
 }
 
 .problem-section-cards,
