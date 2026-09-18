@@ -1,11 +1,11 @@
-import { Link } from "react-router";
+import { HashLink } from "react-router-hash-link";
 
 function Navbar() {
     return (
         <nav id="navbar">
-            <Link className="nav-link" to="/features">Features</Link>
-            <Link className="nav-link" to="/howitworks">How it Works</Link>
-            <Link className="nav-link" to="/faq">FAQs</Link>
+            <HashLink className="nav-link" to="/#solution-section">Features</HashLink>
+            <HashLink className="nav-link" to="/#how-section">How it Works</HashLink>
+            <HashLink className="nav-link" to="/#faq-section">FAQs</HashLink>
         </nav>
     )
 }

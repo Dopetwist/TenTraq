@@ -5,6 +5,7 @@ import axios from "axios";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
 import { useToast } from "../context/ToastContext.jsx";
+import { formatCurrencyAmount } from "../utils/formatCurrency.js";
 
 function TenantDetails() {
     const { id } = useParams();
@@ -71,16 +72,7 @@ function TenantDetails() {
 
     if (!tenant) return <p className="ten-details-loading">Loading...</p>;
 
-    // Map currency code to symbol
-    const currencyMap = {
-        NGN: "₦",
-        USD: "$",
-        EUR: "€",
-        GBP: "£"
-    };
-
-    // Get symbol for tenant's currency, fallback to code if symbol not found
-    const symbol = currencyMap[tenant.currency] || tenant.currency;
+    const formattedRent = formatCurrencyAmount(tenant.rent_amount, tenant.currency);
 
     // Delete tenant from database
     const handleDelete = async () => {
@@ -153,7 +145,7 @@ function TenantDetails() {
                 <p><strong>Room:</strong> <span>{tenant.room_number}</span></p>
                 <p><strong>Email:</strong> <span>{tenant.email}</span></p>
                 <p><strong>Phone:</strong> <span>{tenant.phone}</span></p>
-                <p><strong>Rent:</strong> <span>{tenant.rent_amount ? symbol : ""}{tenant.rent_amount}</span></p>
+                <p><strong>Rent:</strong> <span>{formattedRent}</span></p>
                 <p><strong>Status:</strong> <span className={`status ${tenant.status}`}>{tenant.status}</span></p>
                 <p><strong>Lease Start Date:</strong> <span>{formatDate(tenant.lease_start_date)}</span></p>
                 <p><strong>Lease End Date:</strong> <span>{formatDate(tenant.lease_end_date)}</span></p>
