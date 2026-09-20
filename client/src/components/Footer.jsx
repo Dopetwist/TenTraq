@@ -26,9 +26,9 @@ function Footer() {
                 <div>
                     <h3>Company</h3>
                     <div className="footer-link-box">
-                        <Link to={"/"} className="footer-link">About Us</Link>
+                        <Link to={"/about"} className="footer-link">About Us</Link>
                         <Link to={"/"} className="footer-link">Blog</Link>
-                        <Link to={"/"} className="footer-link">Contact</Link>
+                        <Link to={"/contact"} className="footer-link">Contact</Link>
                     </div>
                 </div>
 

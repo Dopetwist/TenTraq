@@ -2112,11 +2112,436 @@ button#send:disabled {
     text-decoration: underline;
 }
 
+/* ===== ABOUT AND CONTACT PAGES ===== */
+
+.public-page section {
+    min-height: 0;
+}
+
+.about-hero,
+.contact-intro {
+    min-height: 37rem !important;
+    padding: 9rem 8% 5rem;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+    align-items: center;
+    gap: 5rem;
+    background: linear-gradient(120deg, #eff6ff 0%, #ffffff 62%, #ecfdf5 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.about-hero::after,
+.contact-intro::after {
+    content: '';
+    position: absolute;
+    width: 24rem;
+    height: 24rem;
+    right: -8rem;
+    top: -8rem;
+    border: 1px solid rgba(37, 99, 235, 0.12);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2.5rem rgba(37, 99, 235, 0.03), 0 0 0 5rem rgba(16, 185, 129, 0.04);
+}
+
+.about-hero-content,
+.contact-intro > div,
+.about-hero-note,
+.contact-response-note {
+    position: relative;
+    z-index: 1;
+}
+
+.about-hero h1,
+.contact-intro h1 {
+    max-width: 46rem;
+    margin: 0.75rem 0 1.5rem;
+    color: var(--secondary-color);
+    font-size: clamp(2.6rem, 5vw, 4.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+}
+
+.page-kicker {
+    color: var(--primary-color);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+}
+
+.page-lede {
+    max-width: 38rem;
+    color: #475569;
+    font-size: 1.1rem;
+    line-height: 1.75;
+}
+
+.page-primary-link,
+.form-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    padding: 0.85rem 1.2rem;
+    border-radius: 0.45rem;
+    background: var(--primary-color);
+    color: white;
+    font-size: 0.92rem;
+    font-weight: 700;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.page-primary-link:hover,
+.form-submit:hover {
+    background: #1d4ed8;
+    transform: translateY(-2px);
+}
+
+.about-hero-note {
+    justify-self: end;
+    max-width: 18rem;
+    padding: 2rem;
+    border-left: 3px solid var(--accent-color);
+}
+
+.note-line {
+    display: block;
+    width: 2.5rem;
+    height: 0.25rem;
+    margin-bottom: 1.5rem;
+    background: var(--accent-color);
+}
+
+.about-hero-note p {
+    color: var(--secondary-color);
+    font-size: 1.35rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.note-caption {
+    display: block;
+    margin-top: 1.25rem;
+    color: #64748b;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.page-section {
+    padding: 6rem 8%;
+}
+
+.about-story {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 6rem;
+    background: white;
+}
+
+.section-heading h2,
+.contact-details h2,
+.form-heading h2,
+.about-promise h2 {
+    margin-top: 0.65rem;
+    color: var(--secondary-color);
+    font-size: clamp(1.8rem, 3vw, 2.65rem);
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+}
+
+.story-copy {
+    display: grid;
+    gap: 1.25rem;
+    color: #475569;
+    font-size: 1.05rem;
+    line-height: 1.8;
+}
+
+.about-principles {
+    background: #f8fafc;
+}
+
+.centered-heading {
+    max-width: 40rem;
+    margin: 0 auto 3rem;
+    text-align: center;
+}
+
+.principles-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    max-width: 72rem;
+    margin: auto;
+}
+
+.principle-card {
+    padding: 1.75rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.65rem;
+}
+
+.principle-icon,
+.contact-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--primary-color);
+    background: #eff6ff;
+    border-radius: 0.6rem;
+}
+
+.principle-card h3 {
+    margin: 1.5rem 0 0.6rem;
+    color: var(--secondary-color);
+    font-size: 1.08rem;
+}
+
+.principle-card p {
+    color: #64748b;
+    line-height: 1.65;
+}
+
+.about-promise {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    padding: 4.5rem 8%;
+    background: var(--secondary-color);
+}
+
+.about-promise h2 {
+    color: white;
+}
+
+.about-promise .page-kicker {
+    color: #6ee7b7;
+}
+
+.about-promise ul {
+    display: grid;
+    gap: 1rem;
+    list-style: none;
+    color: #e2e8f0;
+    line-height: 1.5;
+}
+
+.about-promise li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.about-promise li svg {
+    flex-shrink: 0;
+    color: #6ee7b7;
+}
+
+.contact-intro {
+    min-height: 31rem !important;
+}
+
+.contact-response-note {
+    justify-self: end;
+    display: grid;
+    gap: 0.4rem;
+    padding: 1.5rem 0 1.5rem 1.5rem;
+    border-left: 3px solid var(--accent-color);
+}
+
+.contact-response-note span {
+    color: #64748b;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.contact-response-note strong {
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 6rem;
+    align-items: start;
+    background: white;
+}
+
+.contact-details > p {
+    max-width: 27rem;
+    margin: 1.25rem 0 2.25rem;
+    color: #64748b;
+    line-height: 1.7;
+}
+
+.contact-detail {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+    color: var(--secondary-color);
+}
+
+.contact-detail strong,
+.contact-detail small {
+    display: block;
+}
+
+.contact-detail small {
+    margin-top: 0.25rem;
+    color: #64748b;
+    line-height: 1.4;
+}
+
+.contact-signoff {
+    margin-top: 2.5rem !important;
+    font-size: 0.88rem;
+}
+
+.contact-signoff a {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.contact-form {
+    padding: 2.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    box-shadow: 0 14px 35px rgba(15, 23, 42, 0.06);
+}
+
+.form-heading {
+    margin-bottom: 2rem;
+}
+
+.contact-form label {
+    display: block;
+    margin-top: 1.25rem;
+    color: var(--secondary-color);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.contact-form input,
+.contact-form select,
+.contact-form textarea {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.4rem;
+    background: #f8fafc;
+    color: var(--secondary-color);
+    font: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+}
+
+.contact-form input:focus,
+.contact-form select:focus,
+.contact-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px #2563eb1c;
+    background: white;
+}
+
+.contact-form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-submit {
+    border: 0;
+    cursor: pointer;
+}
+
+.contact-success {
+    padding: 1.75rem 0;
+    text-align: center;
+}
+
+.success-mark {
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: 0 auto 1.25rem;
+    border-radius: 50%;
+    background: #d1fae5;
+    color: #047857;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.contact-success h3 {
+    color: var(--secondary-color);
+    font-size: 1.25rem;
+}
+
+.contact-success p {
+    margin: 0.75rem auto 0;
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.form-reset {
+    margin-top: 1.5rem;
+    color: var(--primary-color);
+    background: transparent;
+    cursor: pointer;
+    font-weight: 700;
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 
 @media (max-width: 768px) {
     section {
         padding: 6rem 4% 2rem;
+    }
+
+    .about-hero,
+    .contact-intro {
+        min-height: auto !important;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding: 8rem 6% 4rem;
+    }
+
+    .about-hero h1,
+    .contact-intro h1 {
+        font-size: clamp(2.4rem, 8vw, 3.5rem);
+    }
+
+    .about-hero-note,
+    .contact-response-note {
+        justify-self: start;
+    }
+
+    .page-section,
+    .about-promise {
+        padding: 4.5rem 6%;
+    }
+
+    .about-story,
+    .contact-grid,
+    .about-promise {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+    }
+
+    .principles-grid {
+        grid-template-columns: 1fr;
     }
 
     .header {
@@ -2212,6 +2637,30 @@ button#send:disabled {
 
     section {
         padding: 5rem 3% 1.5rem;
+    }
+
+    .about-hero,
+    .contact-intro {
+        padding: 7rem 5% 3.5rem;
+    }
+
+    .about-hero h1,
+    .contact-intro h1 {
+        font-size: 2.35rem;
+    }
+
+    .page-section,
+    .about-promise {
+        padding: 3.5rem 5%;
+    }
+
+    .contact-form {
+        padding: 1.5rem;
+    }
+
+    .contact-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
     }
 
     .hero-texts h2 {
