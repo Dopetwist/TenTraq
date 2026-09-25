@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Payments from "./pages/Payments";
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path='/dashboard' element={<Dashboard />} />
+              <Route path='/payments' element={<Payments />} />
               <Route path='/tenants' element={<Tenants />} />
               <Route path='/tenants/:id' element={<TenantDetails />} />
               <Route path='/tenants/edit/:id' element={<EditTenant />} />

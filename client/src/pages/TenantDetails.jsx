@@ -6,6 +6,7 @@ import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatCurrencyAmount } from "../utils/formatCurrency.js";
+import TenantPaymentHistory from "../components/TenantPaymentHistory.jsx";
 
 function TenantDetails() {
     const { id } = useParams();
@@ -201,6 +202,8 @@ function TenantDetails() {
                     </div>
                 </div>
             </div>
+
+            <TenantPaymentHistory tenantId={id} />
 
             <Modal
                 isOpen={showModal}

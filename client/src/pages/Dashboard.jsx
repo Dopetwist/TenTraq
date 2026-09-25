@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { apiRequest } from "../services/api.js";
+import { getPaymentSummary } from "../services/paymentService.js";
 import StatCard from "../components/UI/StatCard.jsx";
 import LoadingState from "../components/UI/LoadingState.jsx";
-import { Users, Building2, FileText, Clock } from "lucide-react";
+import { Users, Building2, FileText, Clock, CircleDollarSign, TrendingUp, AlertCircle } from "lucide-react";
 import "./Dashboard.css";
 
 function Dashboard() {
     const [dashboardData, setDashboardData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [paymentSummary, setPaymentSummary] = useState(null);
 
     const { user } = useAuth();
 
@@ -42,6 +44,11 @@ function Dashboard() {
         return () => {
             isCurrentRequest = false;
         };
+    }, [landlordId]);
+
+    useEffect(() => {
+        if (!landlordId) return;
+        getPaymentSummary().then(setPaymentSummary).catch((requestError) => console.error("Unable to load payment summary:", requestError));
     }, [landlordId]);
 
     return (
@@ -88,6 +95,15 @@ function Dashboard() {
                             label="Recent Tenants"
                             value={dashboardData?.recentTenants?.length ?? 0}
                         />
+                    </div>
+
+                    <div className="dashboard-payment-overview">
+                        <div className="dashboard-payment-heading"><div><p className="dashboard-payment-eyebrow">Rent ledger</p><h2 className="dashboard-section-title">Payment overview</h2></div></div>
+                        <div className="dashboard-payment-grid">
+                            <StatCard icon={CircleDollarSign} label="Total Expected" value={paymentSummary ? `₦${Number(paymentSummary.totalExpected).toLocaleString("en-NG")}` : "-"} />
+                            <StatCard icon={TrendingUp} label="Total Collected" value={paymentSummary ? `₦${Number(paymentSummary.totalCollected).toLocaleString("en-NG")}` : "-"} />
+                            <StatCard icon={AlertCircle} label="Outstanding" value={paymentSummary ? `₦${Number(paymentSummary.totalOutstanding).toLocaleString("en-NG")}` : "-"} />
+                        </div>
                     </div>
 
                     {/* Recent Activity */}

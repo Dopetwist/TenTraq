@@ -1,0 +1,15 @@
+.tenant-payment-history { margin: 2rem 0; padding: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: .5rem; }
+.payment-history-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: 1.2rem; }
+.payment-history-heading h2 { color: #1e293b; margin-bottom: .25rem; }
+.payment-history-heading p, .tenant-payment-history p { color: #64748b; }
+.payment-history-actions { display: flex; gap: .6rem; }
+.tenant-obligations { display: grid; gap: .7rem; }
+.tenant-obligation { display: flex; justify-content: space-between; gap: 1rem; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: .4rem; }
+.tenant-obligation strong { color: #1e293b; }
+.tenant-obligation p { margin-top: .25rem; font-size: .85rem; }
+.obligation-numbers { display: flex; gap: 1rem; align-items: center; color: #475569; font-size: .85rem; }
+.history-subheading { color: #1e293b; margin: 1.5rem 0 .75rem; }
+.tenant-payment-list { border-top: 1px solid #e2e8f0; }
+.tenant-payment-row { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1.4fr auto; gap: .75rem; align-items: center; padding: .8rem 0; border-bottom: 1px solid #f1f5f9; color: #475569; font-size: .875rem; }
+.tenant-payment-row strong { color: #1e293b; }
+@media (max-width: 760px) { .payment-history-heading, .tenant-obligation { align-items: flex-start; flex-direction: column; } .obligation-numbers { flex-wrap: wrap; gap: .6rem; } .tenant-payment-list { overflow-x: auto; } .tenant-payment-row { min-width: 600px; } }

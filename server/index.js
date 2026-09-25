@@ -99,6 +99,422 @@ const getAuthenticatedClaims = (req) => {
     }
 };
 
+const paymentMethods = new Set(["cash", "bank_transfer", "pos", "online", "other"]);
+
+const isValidId = (value) => /^\d+$/.test(String(value || ""));
+
+const isValidDate = (value) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ""))) return false;
+    const date = new Date(`${value}T00:00:00Z`);
+    return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+};
+
+const isValidAmount = (value) => /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(String(value || "")) && value !== "0" && value !== "0.00";
+
+const serializeObligation = (row) => ({
+    id: row.id,
+    tenantId: row.tenant_id,
+    tenantName: row.tenant_name,
+    propertyName: row.property_name,
+    amountDue: row.amount_due,
+    amountPaid: row.amount_paid || "0",
+    outstanding: row.outstanding,
+    dueDate: row.due_date,
+    periodStart: row.period_start,
+    periodEnd: row.period_end,
+    status: row.status,
+    notes: row.notes,
+    createdAt: row.created_at
+});
+
+const serializePayment = (row) => ({
+    id: row.id,
+    rentObligationId: row.rent_obligation_id,
+    tenantId: row.tenant_id,
+    tenantName: row.tenant_name,
+    propertyName: row.property_name,
+    amount: row.amount,
+    paymentDate: row.payment_date,
+    paymentMethod: row.payment_method,
+    reference: row.reference,
+    notes: row.notes,
+    status: row.status,
+    recordedBy: row.recorded_by_name,
+    createdAt: row.created_at
+});
+
+const obligationSelect = `
+    SELECT 
+        ros.id, 
+        ros.tenant_id, 
+        t.full_name AS tenant_name,
+        p.property_name, 
+        ros.amount_due, 
+        ros.amount_paid,
+        (ros.amount_due - ros.amount_paid) AS outstanding,
+        ros.due_date, 
+        ros.period_start, 
+        ros.period_end,
+           CASE WHEN ros.amount_paid >= ros.amount_due THEN 'paid'
+                WHEN ros.amount_paid > 0 THEN CASE WHEN ros.due_date < CURRENT_DATE THEN 'overdue' ELSE 'partial' END
+                WHEN ros.due_date < CURRENT_DATE THEN 'overdue'
+                ELSE 'unpaid' END AS status,
+           ros.notes, ros.created_at
+    FROM rent_obligation_summary ros
+    INNER JOIN tenants t ON t.id = ros.tenant_id
+    INNER JOIN properties p ON p.id = t.property_id
+    WHERE p.landlord_id = $1`;
+
+const paymentSelect = `
+    SELECT pay.id, pay.rent_obligation_id, pay.tenant_id, t.full_name AS tenant_name,
+           p.property_name, pay.amount, pay.payment_date, pay.payment_method,
+           pay.reference, pay.notes, pay.status, pay.created_at,
+           recorder.full_name AS recorded_by_name
+    FROM payments pay
+    INNER JOIN tenants t ON t.id = pay.tenant_id
+    INNER JOIN properties p ON p.id = t.property_id
+    LEFT JOIN landlords recorder ON recorder.id = pay.recorded_by
+    WHERE p.landlord_id = $1`;
+
+const refreshObligationStatus = async (client, obligationId) => {
+    const result = await client.query(
+        `UPDATE rent_obligations ro
+         SET status = CASE
+             WHEN COALESCE((SELECT SUM(amount) FROM payments WHERE rent_obligation_id = ro.id AND status = 'completed'), 0) >= ro.amount_due THEN 'paid'
+             WHEN COALESCE((SELECT SUM(amount) FROM payments WHERE rent_obligation_id = ro.id AND status = 'completed'), 0) > 0
+                 AND ro.due_date < CURRENT_DATE THEN 'overdue'
+             WHEN COALESCE((SELECT SUM(amount) FROM payments WHERE rent_obligation_id = ro.id AND status = 'completed'), 0) > 0 THEN 'partial'
+             WHEN ro.due_date < CURRENT_DATE THEN 'overdue'
+             ELSE 'unpaid'
+         END,
+         updated_at = CURRENT_TIMESTAMP
+         WHERE ro.id = $1
+         RETURNING ro.id`,
+        [obligationId]
+    );
+    return result.rowCount > 0;
+};
+
+const getObligationForLandlord = async (client, obligationId, landlordId, lock = false) => {
+    const result = await client.query(
+        `SELECT ro.id, ro.tenant_id, ro.amount_due, ro.due_date, ro.period_start,
+                ro.period_end, ro.status, ro.notes
+         FROM rent_obligations ro
+         INNER JOIN tenants t ON t.id = ro.tenant_id
+         INNER JOIN properties p ON p.id = t.property_id
+         WHERE ro.id = $1 AND p.landlord_id = $2
+         ${lock ? "FOR UPDATE OF ro" : ""}`,
+        [obligationId, landlordId]
+    );
+    return result.rows[0] || null;
+};
+
+// Payment ledger endpoints
+app.get("/api/payment-tenants", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    try {
+        const result = await db.query(
+            `SELECT t.id, t.full_name, t.property_id, p.property_name
+             FROM tenants t 
+             INNER JOIN properties p ON p.id = t.property_id
+             WHERE p.landlord_id = $1 ORDER BY t.full_name ASC`,
+            [claims.id]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching payment tenants:", error.message);
+        res.status(500).json({ error: "Unable to load tenants." });
+    }
+});
+
+app.get("/api/rent-obligations", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
+    const tenantId = req.query.tenantId;
+    if (tenantId && !isValidId(tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
+
+    try {
+        const params = [claims.id];
+        let query = obligationSelect;
+        if (tenantId) {
+            params.push(tenantId);
+            query += ` AND ros.tenant_id = $${params.length}`;
+        }
+        query += " ORDER BY ros.due_date DESC, ros.id DESC";
+        const result = await db.query(query, params);
+        res.json(result.rows.map(serializeObligation));
+    } catch (error) {
+        console.error("Error fetching rent obligations:", error.message);
+        res.status(500).json({ error: "Unable to load rent obligations." });
+    }
+});
+
+app.post("/api/rent-obligations", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
+    const { tenant_id: tenantId, amount_due: amountDue, due_date: dueDate,
+        period_start: periodStart, period_end: periodEnd, notes } = req.body;
+    if (!isValidId(tenantId) || !isValidAmount(amountDue) || !isValidDate(dueDate) ||
+        !isValidDate(periodStart) || !isValidDate(periodEnd)) {
+        return res.status(400).json({ error: "Tenant, amount, and valid dates are required." });
+    }
+    if (periodEnd < periodStart) return res.status(400).json({ error: "Period end must be on or after period start." });
+    if (notes !== undefined && notes !== null && typeof notes !== "string") {
+        return res.status(400).json({ error: "Notes must be text." });
+    }
+
+    try {
+        const ownership = await db.query(
+            `SELECT t.id FROM tenants t
+             INNER JOIN properties p ON p.id = t.property_id
+             WHERE t.id = $1 AND p.landlord_id = $2`,
+            [tenantId, claims.id]
+        );
+        if (ownership.rowCount === 0) return res.status(404).json({ error: "Tenant not found." });
+
+        const result = await db.query(
+            `INSERT INTO rent_obligations (tenant_id, amount_due, due_date, period_start, period_end, status, notes)
+             VALUES ($1, $2::numeric, $3, $4, $5,
+                 CASE WHEN $3::date < CURRENT_DATE THEN 'overdue' ELSE 'unpaid' END, $6)
+             RETURNING id`,
+            [tenantId, amountDue, dueDate, periodStart, periodEnd, notes?.trim() || null]
+        );
+        const obligation = await db.query(`${obligationSelect} AND ros.id = $2`, [claims.id, result.rows[0].id]);
+        res.status(201).json(serializeObligation(obligation.rows[0]));
+    } catch (error) {
+        console.error("Error creating rent obligation:", error.message);
+        res.status(500).json({ error: "Unable to create rent obligation." });
+    }
+});
+
+app.get("/api/rent-obligations/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid rent obligation ID." });
+
+    try {
+        const result = await db.query(`${obligationSelect} AND ros.id = $2`, [claims.id, req.params.id]);
+        if (result.rowCount === 0) return res.status(404).json({ error: "Rent obligation not found." });
+        res.json(serializeObligation(result.rows[0]));
+    } catch (error) {
+        console.error("Error fetching rent obligation:", error.message);
+        res.status(500).json({ error: "Unable to load rent obligation." });
+    }
+});
+
+app.get("/api/payments", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    const { tenantId, propertyId, status, paymentMethod, from, to, search } = req.query;
+    if (tenantId && !isValidId(tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
+    if (propertyId && !isValidId(propertyId)) return res.status(400).json({ error: "Invalid property ID." });
+    if (from && !isValidDate(from) || to && !isValidDate(to)) return res.status(400).json({ error: "Invalid payment date range." });
+    if (status && !["completed", "pending", "failed", "reversed"].includes(status)) return res.status(400).json({ error: "Invalid payment status." });
+    if (paymentMethod && !paymentMethods.has(paymentMethod)) return res.status(400).json({ error: "Invalid payment method." });
+
+    try {
+        const params = [claims.id];
+        let query = paymentSelect;
+        const filters = [];
+        const addFilter = (sql, value) => { params.push(value); filters.push(sql.replace("$value", `$${params.length}`)); };
+        if (tenantId) addFilter("pay.tenant_id = $value", tenantId);
+        if (propertyId) addFilter("p.id = $value", propertyId);
+        if (status) addFilter("pay.status = $value", status);
+        if (paymentMethod) addFilter("pay.payment_method = $value", paymentMethod);
+        if (from) addFilter("pay.payment_date >= $value", from);
+        if (to) addFilter("pay.payment_date <= $value", to);
+        if (search) addFilter("t.full_name ILIKE $value", `%${String(search).trim()}%`);
+        if (filters.length) query += ` AND ${filters.join(" AND ")}`;
+        query += " ORDER BY pay.payment_date DESC, pay.id DESC";
+        const result = await db.query(query, params);
+        res.json(result.rows.map(serializePayment));
+    } catch (error) {
+        console.error("Error fetching payments:", error.message);
+        res.status(500).json({ error: "Unable to load payments." });
+    }
+});
+
+app.get("/api/payments/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
+    try {
+        const result = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, req.params.id]);
+        if (result.rowCount === 0) return res.status(404).json({ error: "Payment not found." });
+        res.json(serializePayment(result.rows[0]));
+    } catch (error) {
+        console.error("Error fetching payment:", error.message);
+        res.status(500).json({ error: "Unable to load payment." });
+    }
+});
+
+app.get("/api/tenants/:tenantId/payments", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!isValidId(req.params.tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
+    try {
+        const result = await db.query(`${paymentSelect} AND pay.tenant_id = $2 ORDER BY pay.payment_date DESC, pay.id DESC`, [claims.id, req.params.tenantId]);
+        if (result.rowCount === 0) {
+            const tenant = await db.query(`SELECT t.id FROM tenants t INNER JOIN properties p ON p.id = t.property_id WHERE t.id = $1 AND p.landlord_id = $2`, [req.params.tenantId, claims.id]);
+            if (tenant.rowCount === 0) return res.status(404).json({ error: "Tenant not found." });
+        }
+        res.json(result.rows.map(serializePayment));
+    } catch (error) {
+        console.error("Error fetching tenant payments:", error.message);
+        res.status(500).json({ error: "Unable to load tenant payments." });
+    }
+});
+
+app.post("/api/payments", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    const { rent_obligation_id: obligationId, amount, payment_date: paymentDate,
+        payment_method: paymentMethod, reference, notes } = req.body;
+    if (!isValidId(obligationId) || !isValidAmount(amount) || !isValidDate(paymentDate) || !paymentMethods.has(paymentMethod)) {
+        return res.status(400).json({ error: "Rent obligation, amount, payment date, and payment method are required." });
+    }
+    if (reference !== undefined && reference !== null && typeof reference !== "string") return res.status(400).json({ error: "Reference must be text." });
+    if (notes !== undefined && notes !== null && typeof notes !== "string") return res.status(400).json({ error: "Notes must be text." });
+
+    const client = await db.connect();
+    try {
+        await client.query("BEGIN");
+        const obligation = await getObligationForLandlord(client, obligationId, claims.id, true);
+        if (!obligation) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ error: "Rent obligation not found." });
+        }
+        const balance = await client.query(
+            `SELECT COALESCE(SUM(amount), 0)::numeric AS amount_paid,
+                    ($1::numeric - COALESCE(SUM(amount), 0))::numeric AS outstanding
+             FROM payments WHERE rent_obligation_id = $2 AND status = 'completed'`,
+            [obligation.amount_due, obligation.id]
+        );
+        const outstanding = balance.rows[0].outstanding;
+        const exceedsBalance = await client.query("SELECT $1::numeric > $2::numeric AS exceeds", [amount, outstanding]);
+        if (exceedsBalance.rows[0].exceeds) {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: `Payment exceeds the outstanding balance of ${outstanding}.` });
+        }
+        const inserted = await client.query(
+            `INSERT INTO payments (rent_obligation_id, tenant_id, amount, payment_date, payment_method, reference, notes, status, recorded_by)
+             VALUES ($1, $2, $3::numeric, $4, $5, $6, $7, 'completed', $8)
+             RETURNING id`,
+            [obligation.id, obligation.tenant_id, amount, paymentDate, paymentMethod, reference?.trim() || null, notes?.trim() || null, claims.id]
+        );
+        await refreshObligationStatus(client, obligation.id);
+        await client.query("COMMIT");
+        const payment = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, inserted.rows[0].id]);
+        const updatedObligation = await db.query(`${obligationSelect} AND ros.id = $2`, [claims.id, obligation.id]);
+        res.status(201).json({ payment: serializePayment(payment.rows[0]), obligation: serializeObligation(updatedObligation.rows[0]) });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error("Error recording payment:", error.message);
+        res.status(500).json({ error: "Unable to record payment." });
+    } finally {
+        client.release();
+    }
+});
+
+app.patch("/api/payments/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
+    const allowed = ["payment_date", "payment_method", "reference", "notes"];
+    const fields = Object.keys(req.body).filter((field) => allowed.includes(field));
+    if (fields.length === 0 || fields.some((field) => field === "payment_date" && !isValidDate(req.body[field])) || fields.some((field) => field === "payment_method" && !paymentMethods.has(req.body[field]))) {
+        return res.status(400).json({ error: "Only valid payment date, method, reference, or notes may be updated." });
+    }
+    if (["reference", "notes"].some((field) => field in req.body && req.body[field] !== null && typeof req.body[field] !== "string")) return res.status(400).json({ error: "Reference and notes must be text." });
+    try {
+        const values = [];
+        const updates = fields.map((field) => {
+            values.push(req.body[field] === "" ? null : req.body[field]);
+            return `${field} = $${values.length}`;
+        });
+        values.push(req.params.id, claims.id);
+        const result = await db.query(`UPDATE payments pay SET ${updates.join(", ")}, updated_at = CURRENT_TIMESTAMP FROM tenants t INNER JOIN properties p ON p.id = t.property_id WHERE pay.tenant_id = t.id AND pay.id = $${values.length - 1} AND p.landlord_id = $${values.length} RETURNING pay.id`, values);
+        if (result.rowCount === 0) return res.status(404).json({ error: "Payment not found." });
+        const payment = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, req.params.id]);
+        res.json(serializePayment(payment.rows[0]));
+    } catch (error) {
+        console.error("Error updating payment:", error.message);
+        res.status(500).json({ error: "Unable to update payment." });
+    }
+});
+
+app.patch("/api/payments/:id/reverse", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
+    const client = await db.connect();
+    try {
+        await client.query("BEGIN");
+        const payment = await client.query(
+            `SELECT pay.id, pay.rent_obligation_id, pay.status
+             FROM payments pay INNER JOIN tenants t ON t.id = pay.tenant_id
+             INNER JOIN properties p ON p.id = t.property_id
+             WHERE pay.id = $1 AND p.landlord_id = $2 FOR UPDATE`,
+            [req.params.id, claims.id]
+        );
+        if (payment.rowCount === 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({ error: "Payment not found." });
+        }
+        if (payment.rows[0].status === "reversed") {
+            await client.query("ROLLBACK");
+            return res.status(400).json({ error: "Payment is already reversed." });
+        }
+        await client.query("UPDATE payments SET status = 'reversed', updated_at = CURRENT_TIMESTAMP WHERE id = $1", [req.params.id]);
+        await refreshObligationStatus(client, payment.rows[0].rent_obligation_id);
+        await client.query("COMMIT");
+        const updated = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, req.params.id]);
+        const obligation = await db.query(`${obligationSelect} AND ros.id = $2`, [claims.id, payment.rows[0].rent_obligation_id]);
+        res.json({ payment: serializePayment(updated.rows[0]), obligation: serializeObligation(obligation.rows[0]) });
+    } catch (error) {
+        await client.query("ROLLBACK");
+        console.error("Error reversing payment:", error.message);
+        res.status(500).json({ error: "Unable to reverse payment." });
+    } finally {
+        client.release();
+    }
+});
+
+app.get("/api/dashboard/payment-summary", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+    try {
+        const summary = await db.query(
+            `WITH ledger AS (
+                SELECT ros.*, CASE WHEN ros.amount_paid >= ros.amount_due THEN 'paid'
+                    WHEN ros.amount_paid > 0 AND ros.due_date < CURRENT_DATE THEN 'overdue'
+                    WHEN ros.amount_paid > 0 THEN 'partial'
+                    WHEN ros.due_date < CURRENT_DATE THEN 'overdue' ELSE 'unpaid' END AS calculated_status
+                FROM rent_obligation_summary ros
+                INNER JOIN tenants t ON t.id = ros.tenant_id
+                INNER JOIN properties p ON p.id = t.property_id
+                WHERE p.landlord_id = $1
+            ) SELECT COALESCE(SUM(amount_due), 0)::numeric AS total_expected,
+                     COALESCE(SUM(amount_paid), 0)::numeric AS total_collected,
+                     COALESCE(SUM(amount_due - amount_paid), 0)::numeric AS total_outstanding,
+                     COUNT(*) FILTER (WHERE calculated_status = 'paid')::int AS paid_count,
+                     COUNT(*) FILTER (WHERE calculated_status = 'partial')::int AS partial_count,
+                     COUNT(*) FILTER (WHERE calculated_status = 'overdue')::int AS overdue_count
+              FROM ledger`,
+            [claims.id]
+        );
+        const recent = await db.query(`${paymentSelect} AND pay.status = 'completed' ORDER BY pay.payment_date DESC, pay.id DESC LIMIT 5`, [claims.id]);
+        const row = summary.rows[0];
+        res.json({ totalExpected: row.total_expected, totalCollected: row.total_collected, totalOutstanding: row.total_outstanding, paidCount: row.paid_count, partialCount: row.partial_count, overdueCount: row.overdue_count, recentPayments: recent.rows.map(serializePayment) });
+    } catch (error) {
+        console.error("Error fetching payment summary:", error.message);
+        res.status(500).json({ error: "Unable to load payment summary." });
+    }
+});
+
 // Authentication Endpoints
 
 // register user

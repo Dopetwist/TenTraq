@@ -7,6 +7,7 @@ import {
   UserPlus,
   Mail,
   Settings,
+  WalletCards,
   LogOut,
   Menu,
   X
@@ -22,6 +23,7 @@ function Sidebar() {
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/payments", label: "Payments", icon: WalletCards },
     { path: "/tenants", label: "Tenants", icon: Users },
     { path: "/properties", label: "Properties", icon: Building2 },
     { path: "/register", label: "Register Tenant", icon: UserPlus },
