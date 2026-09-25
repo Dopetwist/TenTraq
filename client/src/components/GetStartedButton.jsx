@@ -4,7 +4,7 @@ function GetStartedButton() {
     return (
         <div>
             <Link to={"/register-landlord"}>
-                <button className="get-started">Get Started</button>
+                <button className="get-started">Sign Up</button>
             </Link>
         </div>
     )
