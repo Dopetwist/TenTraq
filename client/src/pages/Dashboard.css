@@ -54,6 +54,35 @@
   padding: 1.5rem;
 }
 
+.dashboard-payment-overview {
+  margin-bottom: 2rem;
+}
+
+.dashboard-payment-heading {
+  margin-bottom: 1rem;
+}
+
+.dashboard-payment-eyebrow {
+  color: #2563eb;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin: 0 0 .25rem;
+}
+
+.dashboard-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 767px) {
+  .dashboard-payment-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-section-title {
   font-size: 1.125rem;
   font-weight: 600;
