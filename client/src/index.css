@@ -111,6 +111,26 @@ section {
     color: var(--primary-color);
 }
 
+.mobile-nav-icons-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mobile-nav-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex: 0 0 auto;
+    color: var(--secondary-color);
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    cursor: pointer;
+}
+
 .get-started {
     background-color: var(--primary-color);
     color: white;
@@ -130,26 +150,6 @@ section {
 .login {
     color: var(--secondary-color);
     font-weight: 500;
-}
-
-.view-demo {
-    background-color: white;
-    color: var(--secondary-color);
-    font-size: 0.95rem;
-    padding: 0.625rem 1.5rem;
-    border-radius: 0.5rem;
-    border: 1px solid #e2e8f0;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-weight: 600;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.view-demo:hover {
-    background-color: #f1f5f9;
 }
 
 #hero {
@@ -198,6 +198,13 @@ section {
     display: flex;
     gap: 1rem;
     flex-wrap: wrap;
+}
+
+.hero-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 #problem-section {
@@ -657,12 +664,10 @@ section {
 /* ===== DASHBOARD LAYOUT ===== */
 
 .tenants {
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 2rem;
-    padding-top: 5rem;
 }
 
 .tenants h2 {
@@ -1466,7 +1471,6 @@ section {
     display: flex;
     justify-content: center;
     padding: 2rem;
-    padding-top: 4rem;
 }
 
 #email-section h2 {
@@ -1570,7 +1574,6 @@ button#send:disabled {
     display: flex;
     align-items: center;
     padding: 2rem;
-    padding-top: 6rem;
     flex-direction: column;
 }
 
@@ -2548,11 +2551,37 @@ button#send:disabled {
         padding: 1rem 4%;
     }
 
-    #navbar {
+    .header {
         gap: 1rem;
     }
 
+    .mobile-nav-toggle {
+        display: inline-flex;
+    }
+
+    #navbar {
+        display: none;
+        margin-left: 0;
+    }
+
+    .header #navbar.mobile-nav-open {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        margin: 0;
+        padding: 0.5rem 4%;
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+    }
+
     .nav-link {
+        padding: 0.75rem 0;
         font-size: 0.85rem;
     }
 
@@ -2568,10 +2597,6 @@ button#send:disabled {
         grid-template-columns: 1fr;
     }
 
-    .tenants {
-        padding-top: 5rem;
-    }
-
     .search-con {
         width: 100%;
     }
@@ -2579,22 +2604,6 @@ button#send:disabled {
     .property-header {
         flex-direction: column;
         align-items: flex-start;
-    }
-
-    .edit-container {
-        padding-top: 6rem;
-    }
-
-    #register-section {
-        padding-top: 6rem;
-    }
-
-    #email-section {
-        padding-top: 6rem;
-    }
-
-    #settings-section {
-        padding-top: 6rem;
     }
 
     .modal {
@@ -2619,11 +2628,6 @@ button#send:disabled {
 @media (max-width: 480px) {
     .header {
         padding: 0.75rem 3%;
-    }
-
-    #navbar {
-        gap: 0.5rem;
-        display: none;
     }
 
     .sign-in {
@@ -2658,6 +2662,25 @@ button#send:disabled {
         padding: 1.5rem;
     }
 
+    #solution-section {
+        padding: 5rem 1.5rem;
+    }
+
+    .edit-container,
+    #register-section,
+    #email-section,
+    #settings-section {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    .edit-form,
+    .register-container form,
+    #email-section form,
+    .settings-container {
+        padding: 1.25rem;
+    }
+
     .contact-form-row {
         grid-template-columns: 1fr;
         gap: 0;
@@ -2668,6 +2691,7 @@ button#send:disabled {
     }
 
     .hero-texts p {
+        max-width: 80%;
         font-size: 0.9rem;
     }
 

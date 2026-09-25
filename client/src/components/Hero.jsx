@@ -1,4 +1,4 @@
-import GetStartedButton from "./GetStartedButton";
+import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 
 function Hero() {
@@ -16,11 +16,14 @@ function Hero() {
                 </p>
 
                 <div className="hero-btns">
-                    <GetStartedButton /> 
-                    <button className="view-demo">
-                        View Demo
-                        <ArrowRight size={18} />
-                    </button>
+                    <div>
+                        <Link to={"/register-landlord"}>
+                            <button className="get-started hero-button">
+                                Start Managing Smarter
+                                <ArrowRight size={18} />
+                            </button>
+                        </Link>
+                    </div>
                 </div>
             </div>
         </section>
