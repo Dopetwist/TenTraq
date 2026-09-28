@@ -17,11 +17,13 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Payments from "./pages/Payments";
+import PageScrollToTop from "./components/PageScrollToTop";
 
 function App() {
 
   return (
     <>
+      <PageScrollToTop />
       <div id="main">
         <Routes>
           {/* Public route to display homepage */}

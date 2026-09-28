@@ -131,6 +131,10 @@ section {
     cursor: pointer;
 }
 
+.get-started-button.mobile {
+    margin-top: 1rem;
+}
+
 .get-started {
     background-color: var(--primary-color);
     color: white;
@@ -150,6 +154,21 @@ section {
 .login {
     color: var(--secondary-color);
     font-weight: 500;
+}
+
+#demo-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 5%;
+    background-color: #f8fafc;
+}
+
+.demo-video {
+    width: 100%;
+    max-width: 1000px;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 #hero {
@@ -2583,6 +2602,7 @@ button#send:disabled {
     .nav-link {
         padding: 0.75rem 0;
         font-size: 0.85rem;
+        border-bottom: 1px solid #e2e8f0;
     }
 
     #hero {
@@ -2643,6 +2663,11 @@ button#send:disabled {
         padding: 5rem 3% 1.5rem;
     }
 
+    #hero {
+        min-height: 70vh;
+        padding: 50% 0 4rem;
+    }
+
     .about-hero,
     .contact-intro {
         padding: 7rem 5% 3.5rem;
@@ -2684,6 +2709,10 @@ button#send:disabled {
     .contact-form-row {
         grid-template-columns: 1fr;
         gap: 0;
+    }
+
+    .tenants {
+        padding: 2rem 1rem;
     }
 
     .hero-texts h2 {
