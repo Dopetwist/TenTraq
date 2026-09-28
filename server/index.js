@@ -859,7 +859,9 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
         } = req.body;
 
         // Access the uploaded file
-        const documentUrl = req.file ? req.file.path : null; // Cloudinary URL of the uploaded document
+        const documentUrl = req.file ? req.file.path : null;
+        const cloudinaryPublicId = req.file ? req.file.filename : null;
+        const resourceType = req.file ? req.file.resource_type : null;
 
         // Validate tenant fields; documents are optional.
         if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date) {
@@ -882,7 +884,17 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
         const newTenant = result.rows[0];
 
         if (document_title && documentUrl) {
-            await db.query(`INSERT INTO documents (document_title, document_url, tenant_id) VALUES ($1, $2, $3)`, [document_title, documentUrl, newTenant.id]);
+            await db.query(`
+                INSERT INTO documents 
+                (
+                    document_title, 
+                    document_url, 
+                    tenant_id,
+                    cloudinary_public_id,
+                    resource_type
+                ) 
+                VALUES ($1, $2, $3, $4, $5)`, 
+                [document_title, documentUrl, newTenant.id, cloudinaryPublicId, resourceType]);
         }
 
         res.status(201).json(newTenant); // return created tenant
@@ -1070,18 +1082,46 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
         }
 
         // Access the uploaded file
-        const documentUrl = req.file ? req.file.path : null; // Cloudinary URL of the uploaded document
+        const documentUrl = req.file ? req.file.path : null;
+        const cloudinaryPublicId = req.file ? req.file.filename : null;
+        const resourceType = req.file ? req.file.resource_type : null;
 
 
-        const result = await db.query(
-            "INSERT INTO documents (document_title, document_url, tenant_id) VALUES ($1, $2, $3) RETURNING *",
-            [document_title.trim(), documentUrl, tenant_id]
-        );
+        if (!documentUrl) {
+            return res.status(400).json({ error: "File is required." });
+        }
+
+        const result = await db.query(`
+            INSERT INTO documents 
+            (
+                document_title, 
+                document_url, 
+                tenant_id,
+                cloudinary_public_id,
+                resource_type
+            ) 
+            VALUES ($1, $2, $3, $4, $5) RETURNING *`, 
+            [document_title.trim(), documentUrl, tenant_id, cloudinaryPublicId, resourceType]);
+        
 
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error("Document upload error:", error);
         res.status(500).json({ error: "Something went wrong. Please try again!" });
+    }
+});
+
+// view a single document
+app.get("/api/documents/:id/view", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await db.query("SELECT * FROM documents WHERE id = $1", [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Document not found." });
+        }
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

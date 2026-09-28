@@ -176,7 +176,7 @@ function TenantDetails() {
                                         <div className="document-action-btns">
                                             <button 
                                             className="document-view-btn" 
-                                            onClick={() => window.open(doc.document_url, "_blank")}
+                                            onClick={() => window.open(`/api/documents/${doc.id}/view`, "_blank")}
                                             >
                                                 View Document
                                             </button>
