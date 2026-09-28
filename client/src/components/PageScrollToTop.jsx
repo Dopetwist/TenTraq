@@ -2,20 +2,24 @@ import { useEffect } from "react";
 import { useLocation } from "react-router";
 
 function PageScrollToTop() {
-    const { pathname } = useLocation();
+    const { hash, key } = useLocation();
 
     useEffect(() => {
-        if (window.location.hash) {
-            const element = document.querySelector(window.location.hash);
+        if (hash) {
+            const element = document.querySelector(hash);
             if (element) {
-            element.scrollIntoView();
+                element.scrollIntoView();
+                return;
             }
-        } else {
-            window.scrollTo(0, 0);
         }
-    }, [pathname]);
 
-   return null;
+        window.scrollTo(0, 0);
+        document.querySelectorAll(".app-content").forEach((scrollContainer) => {
+            scrollContainer.scrollTop = 0;
+        });
+    }, [hash, key]);
+
+    return null;
 }
 
 export default PageScrollToTop;
