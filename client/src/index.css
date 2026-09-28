@@ -2711,6 +2711,10 @@ button#send:disabled {
         gap: 0;
     }
 
+    .tenants {
+        padding: 2rem 1rem;
+    }
+
     .hero-texts h2 {
         font-size: 1.75rem;
     }

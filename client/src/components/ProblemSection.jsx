@@ -1,6 +1,13 @@
+import { useEffect } from "react";
 import { FileX, FileText, Mail } from "lucide-react";
+import { revealCards } from "../utils/reveal";
 
 function ProblemSection() {
+
+    useEffect(() => {
+        revealCards(".problem-card");
+    }, []);
+
     const problems = [
         {
             icon: FileX,

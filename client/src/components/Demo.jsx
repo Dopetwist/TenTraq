@@ -1,4 +1,12 @@
+import { useEffect } from "react";
+import { revealBottom } from "../utils/reveal";
+
 function Demo() {
+
+    useEffect(() => {
+        revealBottom("#demo-container");
+    }, []);
+
     return (
         <div id="demo-container">
             <video 

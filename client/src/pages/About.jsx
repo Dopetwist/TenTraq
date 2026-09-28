@@ -1,5 +1,7 @@
+import { useEffect } from "react";
 import { ArrowRight, Check, ClipboardList, HeartHandshake, ShieldCheck } from "lucide-react";
 import { Link } from "react-router";
+import { revealCards } from "../utils/reveal";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -10,6 +12,11 @@ const principles = [
 ];
 
 function About() {
+
+    useEffect(() => {
+        revealCards(".principle-card");
+    }, []);
+
     return (
         <div className="public-page">
             <Header />
