@@ -34,6 +34,7 @@ const storage = new CloudinaryStorage({
     params: {
         folder: "document_uploads",
         resource_type: "auto", // allows images, PDFs, etc.
+        type: "authenticated",
     },
 });
 
@@ -1055,10 +1056,20 @@ app.get("/api/user/")
 
 // get a selected tenant's documents
 app.get("/api/documents/:tenantId", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const { tenantId } = req.params;
-        
-        const result = await db.query("SELECT * FROM documents WHERE tenant_id = $1", [tenantId]);
+
+        const result = await db.query(
+            `SELECT documents.id, documents.document_title, documents.tenant_id
+             FROM documents
+             INNER JOIN tenants ON tenants.id = documents.tenant_id
+             INNER JOIN properties ON properties.id = tenants.property_id
+             WHERE documents.tenant_id = $1 AND properties.landlord_id = $2`,
+            [tenantId, claims.id]
+        );
         res.json(result.rows);
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -1113,13 +1124,39 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
 
 // view a single document
 app.get("/api/documents/:id/view", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const { id } = req.params;
-        const result = await db.query("SELECT * FROM documents WHERE id = $1", [id]);
+        const result = await db.query(
+            `SELECT documents.*
+             FROM documents
+             INNER JOIN tenants ON tenants.id = documents.tenant_id
+             INNER JOIN properties ON properties.id = tenants.property_id
+             WHERE documents.id = $1 AND properties.landlord_id = $2`,
+            [id, claims.id]
+        );
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Document not found." });
         }
-        res.json(result.rows[0]);
+
+        const document = result.rows[0];
+        if (!document.cloudinary_public_id || !document.resource_type) {
+            return res.status(404).json({ error: "Document file not found." });
+        }
+
+        const accessType = document.document_url?.includes("/authenticated/")
+            ? "authenticated"
+            : "upload";
+        const documentUrl = cloudinary.url(document.cloudinary_public_id, {
+            resource_type: document.resource_type,
+            type: accessType,
+            sign_url: true,
+            secure: true,
+        });
+
+        res.json({ url: documentUrl });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
