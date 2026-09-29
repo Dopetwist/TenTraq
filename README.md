@@ -88,13 +88,13 @@ Tenants-Web-App/
 ## 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/Dopetwist/TenTrackr.git
+git clone https://github.com/Dopetwist/TenTraq.git
 ```
 
 ## 2️⃣ Navigate Into the Project Directory
 
 ```bash
-cd TenTrackr
+cd TenTraq
 ```
 
 ## 3️⃣ Install Dependencies
