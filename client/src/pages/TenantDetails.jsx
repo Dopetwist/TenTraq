@@ -60,7 +60,10 @@ function TenantDetails() {
 
     const fetchDocuments = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/documents/${id}`);
+            const token = localStorage.getItem("tentraq-token");
+            const response = await axios.get(`http://localhost:5000/api/documents/${id}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
             setTenantDocs(response.data);
         } catch (error) {
             console.error(error);
@@ -111,6 +114,25 @@ function TenantDetails() {
             showToast(error.response?.data?.error || "Unable to delete document.", "error");
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleDocumentView = async (documentId) => {
+        const documentWindow = window.open("about:blank", "_blank");
+        if (!documentWindow) {
+            showToast("Allow pop-ups to view this document.", "error");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("tentraq-token");
+            const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/view`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {}
+            });
+            documentWindow.location = response.data.url;
+        } catch (error) {
+            documentWindow.close();
+            showToast(error.response?.data?.error || "Unable to open document.", "error");
         }
     };
 
@@ -176,7 +198,7 @@ function TenantDetails() {
                                         <div className="document-action-btns">
                                             <button 
                                             className="document-view-btn" 
-                                            onClick={() => window.open(`/api/documents/${doc.id}/view`, "_blank")}
+                                            onClick={() => handleDocumentView(doc.id)}
                                             >
                                                 View Document
                                             </button>
