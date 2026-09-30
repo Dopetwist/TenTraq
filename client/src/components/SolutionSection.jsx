@@ -1,6 +1,13 @@
+import { useEffect } from "react";
 import { Users, Building2, FileUp, Mail, Search } from "lucide-react";
+import { revealCards } from "../utils/reveal";
 
 function SolutionSection() {
+
+    useEffect(() => {
+        revealCards(".solution-card");
+    }, []);
+    
     const features = [
         {
             icon: Users,
