@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Plus, Trash2 } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
 import { useToast } from "../context/ToastContext.jsx";
@@ -48,7 +49,7 @@ function TenantDetails() {
     useEffect(() => {
         const fetchTenant = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/tenants/${id}`);
+                const response = await axios.get(`${API_BASE_URL}/api/tenants/${id}`);
                 setTenant(response.data);
             } catch (error) {
                 console.error(error);
@@ -61,7 +62,7 @@ function TenantDetails() {
     const fetchDocuments = async () => {
         try {
             const token = localStorage.getItem("tentraq-token");
-            const response = await axios.get(`http://localhost:5000/api/documents/${id}`, {
+            const response = await axios.get(`${API_BASE_URL}/api/documents/${id}`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             });
             setTenantDocs(response.data);
@@ -83,7 +84,7 @@ function TenantDetails() {
         try {
             setIsDeleting(true);
 
-            await axios.delete(`http://localhost:5000/api/tenants/${selectedTenantId}`);
+            await axios.delete(`${API_BASE_URL}/api/tenants/${selectedTenantId}`);
 
             navigate("/properties");
 
@@ -103,7 +104,7 @@ function TenantDetails() {
         try {
             setIsDeleting(true);
 
-            await axios.delete(`http://localhost:5000/api/documents/delete/${selectedDocumentId}`);
+            await axios.delete(`${API_BASE_URL}/api/documents/delete/${selectedDocumentId}`);
 
             setShowModal(false);
             fetchDocuments();
@@ -126,7 +127,7 @@ function TenantDetails() {
 
         try {
             const token = localStorage.getItem("tentraq-token");
-            const response = await axios.get(`http://localhost:5000/api/documents/${documentId}/view`, {
+            const response = await axios.get(`${API_BASE_URL}/api/documents/${documentId}/view`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {}
             });
             documentWindow.location = response.data.url;

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Search, UserPlus, Mail } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import PropertyAccordion from "../components/PropertyAccordion";
 import Button from "../components/UI/Button.jsx";
 
@@ -26,7 +27,7 @@ function Tenants() {
             setSearchError("");
 
             try {
-                const response = await axios.get("http://localhost:5000/api/tenants/search", {
+                const response = await axios.get(`${API_BASE_URL}/api/tenants/search`, {
                     params: { q: trimmedSearchTerm }
                 });
 

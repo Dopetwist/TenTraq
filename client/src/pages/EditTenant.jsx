@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatRentInput, sanitizeRentInput } from "../utils/formatCurrency.js";
 
@@ -39,7 +40,7 @@ function EditTenant() {
             // Activate 'Please wait...' modal
             setClicked(true);
 
-            await axios.put(`http://localhost:5000/api/tenants/edit/${id}`, formData);
+            await axios.put(`${API_BASE_URL}/api/tenants/edit/${id}`, formData);
 
             showToast("Tenant updated successfully.");
 
@@ -100,7 +101,7 @@ function EditTenant() {
     useEffect(() => {
         const fetchProperties = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/properties");
+                const res = await axios.get(`${API_BASE_URL}/api/properties`);
                 const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
                 setProperties(filteredProperties);
             } catch (error) {
