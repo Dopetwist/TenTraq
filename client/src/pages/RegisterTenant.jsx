@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatRentInput, sanitizeRentInput } from "../utils/formatCurrency.js";
 
@@ -60,7 +61,7 @@ function RegisterTenant() {
 
         try {
             // Send POST request to backend API to register tenant
-            const res = await axios.post("http://localhost:5000/api/tenants", payload, {
+            const res = await axios.post(`${API_BASE_URL}/api/tenants`, payload, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
@@ -102,7 +103,7 @@ function RegisterTenant() {
     useEffect(() => {
         const fetchProperties = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/properties");
+                const res = await axios.get(`${API_BASE_URL}/api/properties`);
                 const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
                 setProperties(filteredProperties);
             } catch (error) {

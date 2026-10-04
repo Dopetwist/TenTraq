@@ -1,8 +1,8 @@
-const API_URL = "http://localhost:5000";
+export const API_BASE_URL = "https://tentraq-api.onrender.com";
 
 export const apiRequest = async (path, options = {}) => {
 	const token = localStorage.getItem("tentraq-token");
-	const response = await fetch(`${API_URL}${path}`, {
+	const response = await fetch(`${API_BASE_URL}${path}`, {
 		...options,
 		headers: {
 			"Content-Type": "application/json",

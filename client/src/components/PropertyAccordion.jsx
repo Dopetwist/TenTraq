@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import { ChevronDown, Plus, Trash2, Eye } from "lucide-react";
 import Modal from "./Modal";
 import PropertyModal from "./PropertyModal";
@@ -41,7 +42,7 @@ function PropertyAccordion() {
     const fetchProperties = async () => {
             try {
                 setLoading(true);
-                const res = await axios.get("http://localhost:5000/api/properties");
+                const res = await axios.get(`${API_BASE_URL}/api/properties`);
 
                 const filteredProperties = res.data.filter(property => property.landlord_id === landlordId);
                 setProperties(filteredProperties);
@@ -63,7 +64,7 @@ function PropertyAccordion() {
     useEffect(() => {
         const fetchTenants = async () => {
             try {
-                const res = await axios.get("http://localhost:5000/api/tenants");
+                const res = await axios.get(`${API_BASE_URL}/api/tenants`);
                 setTenants(res.data);
             } catch (error) {
                 console.error("Error fetching tenants:", error);
@@ -78,7 +79,7 @@ function PropertyAccordion() {
         setIsDeleting(true);
 
         try {
-            await axios.delete(`http://localhost:5000/api/tenants/${selectedTenantId}`);
+            await axios.delete(`${API_BASE_URL}/api/tenants/${selectedTenantId}`);
 
             // Remove from UI immediately
             setTenants((prev) => 

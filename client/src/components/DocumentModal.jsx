@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import axios from "axios";
+import { API_BASE_URL } from "../services/api.js";
 import { useToast } from "../context/ToastContext.jsx";
 
 const initialData = {
@@ -39,7 +40,7 @@ function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
         try {
             // Send POST request to backend API to add document
             const token = localStorage.getItem("tentraq-token");
-            await axios.post("http://localhost:5000/api/documents/upload", payload, {
+            await axios.post(`${API_BASE_URL}/api/documents/upload`, payload, {
                 headers: {
                     ...(token && { Authorization: `Bearer ${token}` }),
                     "Content-Type": "multipart/form-data" // Set content type for file upload
