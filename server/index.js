@@ -1195,6 +1195,34 @@ app.post("/api/rent-reminders/run", async (req, res) => {
     }
 });
 
+// Health Check Endpoints
+app.get("/api/health", (req, res) => {
+    try {
+        res.json({ success: true, message: "Server is running." });
+    } catch (error) {
+        console.error("Server health check failed:", error.message);
+        res.status(500).json({ success: false, message: "Server health check failed." });
+    }
+});
+
+app.get("/api/health/db", async (req, res) => {
+  try {
+    const result = await db.query("SELECT NOW() AS server_time");
+
+    res.json({
+      success: true,
+      serverTime: result.rows[0].server_time,
+    });
+  } catch (error) {
+    console.error("Database health check failed:", error.message);
+
+    res.status(500).json({
+      success: false,
+      message: "Database connection failed",
+    });
+  }
+});
+
 // Start the rent reminder scheduler when the server starts
 startRentReminderScheduler();
 
