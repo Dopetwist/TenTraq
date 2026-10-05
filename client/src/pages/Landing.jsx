@@ -1,5 +1,6 @@
 import Header from "../components/Header";
 import Hero from "../components/Hero";
+import Stats from "../components/Stats";
 import Demo from "../components/Demo";
 import ProblemSection from "../components/ProblemSection";
 import SolutionSection from "../components/SolutionSection";
@@ -13,6 +14,7 @@ function Landing() {
         <div>
             <Header />
             <Hero />
+            <Stats />
             <Demo />
             <ProblemSection />
             <SolutionSection />
