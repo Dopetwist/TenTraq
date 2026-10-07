@@ -75,6 +75,10 @@
   .sidebar.sidebar-open {
     transform: translateX(0);
   }
+
+  .sidebar-footer {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 /* Sidebar Logo */
