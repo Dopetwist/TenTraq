@@ -13,7 +13,7 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import db from "./config/db.js";
 import {
-    createReminderTransporter,
+    createMailTransporter,
     processRentReminders,
     startRentReminderScheduler
 } from "./services/rentReminderService.js";
@@ -1301,7 +1301,7 @@ app.post("/api/send-email", async (req, res) => {
             return res.status(400).json({ error: "No email addresses were found for the selected recipients." });
         }
 
-        const transporter = createReminderTransporter();
+        const transporter = createMailTransporter();
         if (!transporter) {
             return res.status(503).json({ error: "Email delivery is not configured on the server." });
         }
@@ -1330,6 +1330,34 @@ app.post("/api/rent-reminders/run", async (req, res) => {
     } catch (error) {
         console.error("Manual rent reminder run failed:", error.message);
         res.status(500).json({ error: "Failed to process rent reminders." });
+    }
+});
+
+// Contact Form endpoint
+app.post("/api/contact", async (req, res) => {
+    const { name, email, topic, message } = req.body;
+
+    // Basic validation
+    if (!name || !email || !topic || !message) {
+        return res.status(400).json({ error: "All fields are required." });
+    }
+
+    try {
+        const transporter = createMailTransporter();
+        if (!transporter) {
+            return res.status(503).json({ error: "Email delivery is not configured on the server." });
+        }
+
+        await transporter.sendMail({
+            from: email, // Sender's email address
+            to: process.env.EMAIL_USER, // Send to the configured email address
+            subject: `TenTraq Contact Form Submission: ${topic}`,
+            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nMessage:\n\n${message}`
+        });
+        res.json({ message: "Your message has been received. We'll get back to you soon." });
+    } catch (error) {
+        console.error("Error sending contact form email:", error.message);
+        res.status(500).json({ error: "Failed to send contact form email." });
     }
 });
 

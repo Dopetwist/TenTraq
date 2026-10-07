@@ -1,12 +1,58 @@
 import { useState } from "react";
 import { ArrowRight, Clock3, Mail, MessageSquare } from "lucide-react";
 import { Link } from "react-router";
+import { apiRequest } from "../services/api.js";
+import { useToast } from "../context/ToastContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 function Contact() {
-    const [submitted, setSubmitted] = useState(false);
-    const handleSubmit = (event) => { event.preventDefault(); setSubmitted(true); };
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formSubmitted, setFormSubmitted] = useState(false);
+
+    const { showToast } = useToast();
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        topic: "general",
+        message: ""
+    });
+
+    const handleInputChange = (event) => {
+        const { name, value } = event.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (event) => { 
+        event.preventDefault(); 
+        setIsSubmitting(true); 
+
+        try {
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            await apiRequest("/api/contact", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(data)
+            });
+
+            setFormSubmitted(true);
+            showToast("Your message has been sent. We'll get back to you soon.", "success");
+        } catch (error) {
+            console.error("Error submitting contact form:", error.message);
+            setFormSubmitted(false);
+            showToast("Failed to send your message. Please try again.", "error");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="public-page">
@@ -40,14 +86,14 @@ function Contact() {
 
                     <form className="contact-form" onSubmit={handleSubmit}>
                         <div className="form-heading"><p className="page-kicker">Send a message</p><h2>How can we help?</h2></div>
-                        {submitted ? 
+                        {formSubmitted ? 
                             <div className="contact-success" role="status">
                                 <div className="success-mark">✓</div><h3>Thanks for reaching out.</h3>
                                 <p>Your message is on its way. We’ll be in touch within one business day.</p>
                                 <button 
                                 type="button" 
                                 className="form-reset" 
-                                onClick={() => setSubmitted(false)}
+                                onClick={() => setFormSubmitted(false)}
                                 >
                                     Send another message
                                 </button>
@@ -58,7 +104,9 @@ function Contact() {
                                         <input 
                                             type="text" 
                                             name="name" 
-                                            placeholder="Your name" 
+                                            placeholder="Your name"
+                                            value={formData.name}
+                                            onChange={handleInputChange}
                                             required 
                                         />
                                     </label>
@@ -67,14 +115,17 @@ function Contact() {
                                             type="email" 
                                             name="email" 
                                             placeholder="you@example.com" 
+                                            value={formData.email}
+                                            onChange={handleInputChange}
                                             required 
                                         />
                                     </label>
                                 </div>
                                 <label>What can we help with?
                                     <select 
-                                    name="topic" 
-                                    defaultValue="general"
+                                    name="topic"
+                                    value={formData.topic}
+                                    onChange={handleInputChange}
                                     >
                                         <option value="general">General question</option>
                                         <option value="support">Account support</option>
@@ -87,6 +138,8 @@ function Contact() {
                                         name="message" 
                                         placeholder="Tell us a little more..." 
                                         rows="6" 
+                                        value={formData.message}
+                                        onChange={handleInputChange}
                                         required 
                                     />
                                 </label>
@@ -94,7 +147,8 @@ function Contact() {
                                 className="form-submit" 
                                 type="submit"
                                 >
-                                    Send message <ArrowRight size={17} />
+                                    {isSubmitting ? "Sending..." : "Send message"}
+                                    <ArrowRight size={17} />
                                 </button>
                             </>
                         }
