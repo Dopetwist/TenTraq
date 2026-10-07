@@ -218,6 +218,7 @@ const getObligationForLandlord = async (client, obligationId, landlordId, lock =
 app.get("/api/payment-tenants", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query(
             `SELECT t.id, t.full_name, t.property_id, p.property_name
@@ -298,6 +299,7 @@ app.post("/api/rent-obligations", async (req, res) => {
 app.get("/api/rent-obligations/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid rent obligation ID." });
 
     try {
@@ -313,6 +315,7 @@ app.get("/api/rent-obligations/:id", async (req, res) => {
 app.get("/api/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { tenantId, propertyId, status, paymentMethod, from, to, search } = req.query;
     if (tenantId && !isValidId(tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
     if (propertyId && !isValidId(propertyId)) return res.status(400).json({ error: "Invalid property ID." });
@@ -345,6 +348,7 @@ app.get("/api/payments", async (req, res) => {
 app.get("/api/payments/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
     try {
         const result = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, req.params.id]);
@@ -359,6 +363,7 @@ app.get("/api/payments/:id", async (req, res) => {
 app.get("/api/tenants/:tenantId/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
     try {
         const result = await db.query(`${paymentSelect} AND pay.tenant_id = $2 ORDER BY pay.payment_date DESC, pay.id DESC`, [claims.id, req.params.tenantId]);
@@ -376,6 +381,7 @@ app.get("/api/tenants/:tenantId/payments", async (req, res) => {
 app.post("/api/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { rent_obligation_id: obligationId, amount, payment_date: paymentDate,
         payment_method: paymentMethod, reference, notes } = req.body;
     if (!isValidId(obligationId) || !isValidAmount(amount) || !isValidDate(paymentDate) || !paymentMethods.has(paymentMethod)) {
@@ -427,9 +433,12 @@ app.post("/api/payments", async (req, res) => {
 app.patch("/api/payments/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
+
     const allowed = ["payment_date", "payment_method", "reference", "notes"];
     const fields = Object.keys(req.body).filter((field) => allowed.includes(field));
+    
     if (fields.length === 0 || fields.some((field) => field === "payment_date" && !isValidDate(req.body[field])) || fields.some((field) => field === "payment_method" && !paymentMethods.has(req.body[field]))) {
         return res.status(400).json({ error: "Only valid payment date, method, reference, or notes may be updated." });
     }
@@ -454,6 +463,7 @@ app.patch("/api/payments/:id", async (req, res) => {
 app.patch("/api/payments/:id/reverse", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
     const client = await db.connect();
     try {
@@ -491,6 +501,7 @@ app.patch("/api/payments/:id/reverse", async (req, res) => {
 app.get("/api/dashboard/payment-summary", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const summary = await db.query(
             `WITH ledger AS (
@@ -524,6 +535,9 @@ app.get("/api/dashboard/payment-summary", async (req, res) => {
 
 // register user
 app.post("/api/auth/register", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
@@ -791,6 +805,9 @@ app.delete("/api/landlords/account", async (req, res) => {
 
 // get all tenants details
 app.get("/api/tenants", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query("SELECT * FROM tenants");
         res.json(result.rows);
@@ -824,6 +841,9 @@ app.get("/api/tenants/search", async (req, res) => {
 
 // get a single tenant details
 app.get("/api/tenants/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const { id } = req.params;
 
@@ -910,6 +930,9 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
 
 // edit a tenant
 app.put("/api/tenants/edit/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { id } = req.params;
 
     const {
@@ -941,6 +964,8 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
 
 // delete a tenant
 app.delete("/api/tenants/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
     
     const { id } = req.params;
 
@@ -963,6 +988,9 @@ app.delete("/api/tenants/:id", async (req, res) => {
 
 // get all properties
 app.get("/api/properties", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query("SELECT * FROM properties");
         const properties = result.rows;
@@ -997,6 +1025,8 @@ app.post("/api/properties", async (req, res) => {
 
 // get landlord dashboard data
 app.get("/api/landlords/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
     const { id } = req.params;
 
@@ -1052,8 +1082,6 @@ app.get("/api/landlords/:id", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-app.get("/api/user/")
 
 
 // Document endpoint
