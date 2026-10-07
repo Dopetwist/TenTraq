@@ -12,7 +12,11 @@ import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import db from "./config/db.js";
-import { processRentReminders, startRentReminderScheduler } from "./services/rentReminderService.js";
+import {
+    createReminderTransporter,
+    processRentReminders,
+    startRentReminderScheduler
+} from "./services/rentReminderService.js";
 
 env.config();
 
@@ -1179,9 +1183,115 @@ app.delete("/api/documents/delete/:id", async (req, res) => {
     }
 });
 
-// Email endpoint
-app.post("/api/send-email", async (req, res) => {
+// Email recipient and delivery endpoints
+app.get("/api/email-recipients", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
+    try {
+        const [tenantsResult, propertiesResult] = await Promise.all([
+            db.query(
+                `SELECT t.id, t.full_name, t.email, t.property_id, p.property_name
+                 FROM tenants t
+                 INNER JOIN properties p ON p.id = t.property_id
+                 WHERE p.landlord_id = $1
+                 ORDER BY p.property_name ASC, t.full_name ASC`,
+                [claims.id]
+            ),
+            db.query(
+                `SELECT id, property_name
+                 FROM properties
+                 WHERE landlord_id = $1
+                 ORDER BY property_name ASC`,
+                [claims.id]
+            )
+        ]);
+
+        res.json({
+            tenants: tenantsResult.rows,
+            properties: propertiesResult.rows
+        });
+    } catch (error) {
+        console.error("Error fetching email recipients:", error.message);
+        res.status(500).json({ error: "Unable to load email recipients." });
+    }
+});
+
+app.post("/api/send-email", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
+    const { recipientType, tenantId, propertyId } = req.body || {};
+    const subject = typeof req.body?.subject === "string" ? req.body.subject.trim() : "";
+    const message = typeof req.body?.message === "string" ? req.body.message.trim() : "";
+
+    if (!["single", "all", "property"].includes(recipientType)) {
+        return res.status(400).json({ error: "Select a valid recipient group." });
+    }
+    if (!subject || subject.length > 200 || !message || message.length > 10000) {
+        return res.status(400).json({ error: "Subject and message are required and must be within the allowed length." });
+    }
+    if (recipientType === "single" && !isValidId(tenantId)) {
+        return res.status(400).json({ error: "Select a valid tenant." });
+    }
+    if (recipientType === "property" && !isValidId(propertyId)) {
+        return res.status(400).json({ error: "Select a valid property." });
+    }
+
+    try {
+        let recipientQuery;
+        let queryValues;
+
+        if (recipientType === "single") {
+            recipientQuery = `SELECT t.email
+                              FROM tenants t
+                              INNER JOIN properties p ON p.id = t.property_id
+                              WHERE t.id = $1 AND p.landlord_id = $2`;
+            queryValues = [tenantId, claims.id];
+        } else if (recipientType === "property") {
+            recipientQuery = `SELECT t.email
+                              FROM tenants t
+                              INNER JOIN properties p ON p.id = t.property_id
+                              WHERE p.id = $1 AND p.landlord_id = $2`;
+            queryValues = [propertyId, claims.id];
+        } else {
+            recipientQuery = `SELECT t.email
+                              FROM tenants t
+                              INNER JOIN properties p ON p.id = t.property_id
+                              WHERE p.landlord_id = $1`;
+            queryValues = [claims.id];
+        }
+
+        const recipientResult = await db.query(recipientQuery, queryValues);
+        const recipientEmails = [...new Set(
+            recipientResult.rows
+                .map((row) => row.email?.trim())
+                .filter(Boolean)
+        )];
+
+        if (recipientEmails.length === 0) {
+            return res.status(400).json({ error: "No email addresses were found for the selected recipients." });
+        }
+
+        const transporter = createReminderTransporter();
+        if (!transporter) {
+            return res.status(503).json({ error: "Email delivery is not configured on the server." });
+        }
+
+        const from = process.env.EMAIL_FROM || process.env.EMAIL_USER;
+        await transporter.sendMail({
+            from,
+            to: recipientType === "single" ? recipientEmails[0] : from,
+            ...(recipientType === "single" ? {} : { bcc: recipientEmails }),
+            subject,
+            text: message
+        });
+
+        res.json({ message: "Email sent successfully.", recipientCount: recipientEmails.length });
+    } catch (error) {
+        console.error("Error sending tenant email:", error.message);
+        res.status(500).json({ error: "Failed to send email." });
+    }
 });
 
 // Rent Reminder endpoint
