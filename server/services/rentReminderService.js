@@ -10,7 +10,7 @@ export function buildCronSchedule() {
 }
 
 // Create a nodemailer transporter for sending emails
-export function createReminderTransporter() {
+export function createMailTransporter() {
     const host = process.env.EMAIL_HOST;
     const port = Number(process.env.EMAIL_PORT || 587);
     const user = process.env.EMAIL_USER;
@@ -61,7 +61,7 @@ export async function processRentReminders() {
         return { sent: 0, total: 0 };
     }
 
-    const transporter = createReminderTransporter();
+    const transporter = createMailTransporter();
 
     if (!transporter) {
         console.warn("Email transport is not configured. Skipping rent reminder delivery.");

@@ -13,7 +13,7 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import db from "./config/db.js";
 import {
-    createReminderTransporter,
+    createMailTransporter,
     processRentReminders,
     startRentReminderScheduler
 } from "./services/rentReminderService.js";
@@ -218,6 +218,7 @@ const getObligationForLandlord = async (client, obligationId, landlordId, lock =
 app.get("/api/payment-tenants", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query(
             `SELECT t.id, t.full_name, t.property_id, p.property_name
@@ -298,6 +299,7 @@ app.post("/api/rent-obligations", async (req, res) => {
 app.get("/api/rent-obligations/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid rent obligation ID." });
 
     try {
@@ -313,6 +315,7 @@ app.get("/api/rent-obligations/:id", async (req, res) => {
 app.get("/api/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { tenantId, propertyId, status, paymentMethod, from, to, search } = req.query;
     if (tenantId && !isValidId(tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
     if (propertyId && !isValidId(propertyId)) return res.status(400).json({ error: "Invalid property ID." });
@@ -345,6 +348,7 @@ app.get("/api/payments", async (req, res) => {
 app.get("/api/payments/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
     try {
         const result = await db.query(`${paymentSelect} AND pay.id = $2`, [claims.id, req.params.id]);
@@ -359,6 +363,7 @@ app.get("/api/payments/:id", async (req, res) => {
 app.get("/api/tenants/:tenantId/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.tenantId)) return res.status(400).json({ error: "Invalid tenant ID." });
     try {
         const result = await db.query(`${paymentSelect} AND pay.tenant_id = $2 ORDER BY pay.payment_date DESC, pay.id DESC`, [claims.id, req.params.tenantId]);
@@ -376,6 +381,7 @@ app.get("/api/tenants/:tenantId/payments", async (req, res) => {
 app.post("/api/payments", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { rent_obligation_id: obligationId, amount, payment_date: paymentDate,
         payment_method: paymentMethod, reference, notes } = req.body;
     if (!isValidId(obligationId) || !isValidAmount(amount) || !isValidDate(paymentDate) || !paymentMethods.has(paymentMethod)) {
@@ -427,9 +433,12 @@ app.post("/api/payments", async (req, res) => {
 app.patch("/api/payments/:id", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
+
     const allowed = ["payment_date", "payment_method", "reference", "notes"];
     const fields = Object.keys(req.body).filter((field) => allowed.includes(field));
+    
     if (fields.length === 0 || fields.some((field) => field === "payment_date" && !isValidDate(req.body[field])) || fields.some((field) => field === "payment_method" && !paymentMethods.has(req.body[field]))) {
         return res.status(400).json({ error: "Only valid payment date, method, reference, or notes may be updated." });
     }
@@ -454,6 +463,7 @@ app.patch("/api/payments/:id", async (req, res) => {
 app.patch("/api/payments/:id/reverse", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     if (!isValidId(req.params.id)) return res.status(400).json({ error: "Invalid payment ID." });
     const client = await db.connect();
     try {
@@ -491,6 +501,7 @@ app.patch("/api/payments/:id/reverse", async (req, res) => {
 app.get("/api/dashboard/payment-summary", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const summary = await db.query(
             `WITH ledger AS (
@@ -524,6 +535,9 @@ app.get("/api/dashboard/payment-summary", async (req, res) => {
 
 // register user
 app.post("/api/auth/register", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
@@ -791,6 +805,9 @@ app.delete("/api/landlords/account", async (req, res) => {
 
 // get all tenants details
 app.get("/api/tenants", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query("SELECT * FROM tenants");
         res.json(result.rows);
@@ -824,6 +841,9 @@ app.get("/api/tenants/search", async (req, res) => {
 
 // get a single tenant details
 app.get("/api/tenants/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const { id } = req.params;
 
@@ -910,6 +930,9 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
 
 // edit a tenant
 app.put("/api/tenants/edit/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     const { id } = req.params;
 
     const {
@@ -941,6 +964,8 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
 
 // delete a tenant
 app.delete("/api/tenants/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
     
     const { id } = req.params;
 
@@ -963,6 +988,9 @@ app.delete("/api/tenants/:id", async (req, res) => {
 
 // get all properties
 app.get("/api/properties", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
+
     try {
         const result = await db.query("SELECT * FROM properties");
         const properties = result.rows;
@@ -997,6 +1025,8 @@ app.post("/api/properties", async (req, res) => {
 
 // get landlord dashboard data
 app.get("/api/landlords/:id", async (req, res) => {
+    const claims = getAuthenticatedClaims(req);
+    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
     const { id } = req.params;
 
@@ -1052,8 +1082,6 @@ app.get("/api/landlords/:id", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
-
-app.get("/api/user/")
 
 
 // Document endpoint
@@ -1273,7 +1301,7 @@ app.post("/api/send-email", async (req, res) => {
             return res.status(400).json({ error: "No email addresses were found for the selected recipients." });
         }
 
-        const transporter = createReminderTransporter();
+        const transporter = createMailTransporter();
         if (!transporter) {
             return res.status(503).json({ error: "Email delivery is not configured on the server." });
         }
@@ -1305,10 +1333,41 @@ app.post("/api/rent-reminders/run", async (req, res) => {
     }
 });
 
+// Contact Form endpoint
+app.post("/api/contact", async (req, res) => {
+    const { name, email, topic, message } = req.body;
+
+    // Basic validation
+    if (!name || !email || !topic || !message) {
+        return res.status(400).json({ error: "All fields are required." });
+    }
+
+    try {
+        const transporter = createMailTransporter();
+        if (!transporter) {
+            return res.status(503).json({ error: "Email delivery is not configured on the server." });
+        }
+
+        await transporter.sendMail({
+            from: email, // Sender's email address
+            to: process.env.EMAIL_USER, // Send to the configured email address
+            subject: `TenTraq Contact Form Submission: ${topic}`,
+            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nMessage:\n\n${message}`
+        });
+        res.json({ message: "Your message has been received. We'll get back to you soon." });
+    } catch (error) {
+        console.error("Error sending contact form email:", error.message);
+        res.status(500).json({ error: "Failed to send contact form email." });
+    }
+});
+
 // Health Check Endpoints
 app.get("/api/health", (req, res) => {
     try {
-        res.json({ success: true, message: "Server is running." });
+        res.status(200).json({ 
+                success: true, 
+                message: "Server is running." 
+            });
     } catch (error) {
         console.error("Server health check failed:", error.message);
         res.status(500).json({ success: false, message: "Server health check failed." });
@@ -1319,7 +1378,7 @@ app.get("/api/health/db", async (req, res) => {
   try {
     const result = await db.query("SELECT NOW() AS server_time");
 
-    res.json({
+    res.status(200).json({
       success: true,
       serverTime: result.rows[0].server_time,
     });
