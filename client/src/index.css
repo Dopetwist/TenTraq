@@ -1515,13 +1515,53 @@ section {
     border: 1px solid #e2e8f0;
 }
 
+#email-section .email-recipient-fieldset {
+    border: 0;
+}
+
+#email-section .email-recipient-fieldset legend {
+    font-weight: 600;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+#email-section .radio-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    padding: 1rem 0 0;
+}
+
+#email-section .inner-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#email-section .inner-radio input,
+#email-section .inner-radio label {
+    cursor: pointer;
+}
+
+#email-section .inner-radio label {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+#email-section .email-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 #email-section form label {
     font-weight: 600;
     color: var(--secondary-color);
     font-size: 0.9rem;
 }
 
-#email-section form input,
+#email-section form input:not([type="radio"]),
+#email-section form select,
 #email-section form textarea {
     border: 1px solid #e2e8f0;
     border-radius: 0.4rem;
@@ -1531,10 +1571,21 @@ section {
     font-family: inherit;
 }
 
-#email-section form input:focus,
+#email-section form input:not([type="radio"]):focus,
+#email-section form select:focus,
 #email-section form textarea:focus {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px #2563eb1c;
+}
+
+#email-section form select {
+    background-color: white;
+    cursor: pointer;
+}
+
+#email-section form select:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
 }
 
 #email-section form textarea {
@@ -1542,27 +1593,30 @@ section {
     min-height: 150px;
 }
 
-.radio-section {
-    display: flex;
-    gap: 2rem;
-    padding: 1rem 0;
+.email-field-hint {
+    color: var(--sub-text-color);
+    font-size: 0.85rem;
 }
 
-.inner-radio {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.email-feedback {
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
-.inner-radio input {
+.email-feedback.error {
+    color: #b91c1c;
+}
+
+.email-feedback.success {
+    color: #047857;
+}
+
+.email-retry-button {
+    align-self: flex-start;
+    color: var(--primary-color);
+    background: transparent;
+    font-weight: 600;
     cursor: pointer;
-}
-
-.inner-radio label {
-    cursor: pointer;
-    margin: 0;
-    font-weight: normal;
-    font-size: 0.95rem;
 }
 
 button#send {
