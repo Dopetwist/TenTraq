@@ -535,8 +535,6 @@ app.get("/api/dashboard/payment-summary", async (req, res) => {
 
 // register user
 app.post("/api/auth/register", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
     const fullName = req.body.full_name?.trim();
     const email = req.body.email?.trim().toLowerCase();
@@ -805,9 +803,6 @@ app.delete("/api/landlords/account", async (req, res) => {
 
 // get all tenants details
 app.get("/api/tenants", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
-
     try {
         const result = await db.query("SELECT * FROM tenants");
         res.json(result.rows);
@@ -841,9 +836,6 @@ app.get("/api/tenants/search", async (req, res) => {
 
 // get a single tenant details
 app.get("/api/tenants/:id", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
-
     try {
         const { id } = req.params;
 
@@ -930,8 +922,6 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
 
 // edit a tenant
 app.put("/api/tenants/edit/:id", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
     const { id } = req.params;
 
@@ -964,8 +954,6 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
 
 // delete a tenant
 app.delete("/api/tenants/:id", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
     
     const { id } = req.params;
 
@@ -988,9 +976,6 @@ app.delete("/api/tenants/:id", async (req, res) => {
 
 // get all properties
 app.get("/api/properties", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
-
     try {
         const result = await db.query("SELECT * FROM properties");
         const properties = result.rows;
@@ -1025,8 +1010,6 @@ app.post("/api/properties", async (req, res) => {
 
 // get landlord dashboard data
 app.get("/api/landlords/:id", async (req, res) => {
-    const claims = getAuthenticatedClaims(req);
-    if (!claims) return res.status(401).json({ error: "Authentication required." });
 
     const { id } = req.params;
 
