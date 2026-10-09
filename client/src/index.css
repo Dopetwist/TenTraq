@@ -97,7 +97,7 @@ section {
     justify-content: space-between;
     align-items: center;
     gap: 2rem;
-    margin-left: 6rem;
+    margin-left: 2rem;
 }
 
 .nav-link {
@@ -2583,6 +2583,17 @@ button#send:disabled {
 
 /* ===== RESPONSIVE DESIGN ===== */
 
+@media (max-width: 1024px) {
+    .header {
+        padding: 1.25rem 3%;
+    }
+
+    #navbar {
+        margin-left: 0;
+        gap: 1rem;
+    }
+}
+
 @media (max-width: 768px) {
     section {
         padding: 6rem 4% 2rem;
@@ -2624,9 +2635,6 @@ button#send:disabled {
 
     .header {
         padding: 1rem 4%;
-    }
-
-    .header {
         gap: 1rem;
     }
 
@@ -2698,6 +2706,10 @@ button#send:disabled {
     .action-btns button {
         flex: 1;
         text-align: center;
+    }
+
+    #solution-section {
+        padding: 5rem 5%;
     }
 }
 
@@ -2807,5 +2819,9 @@ button#send:disabled {
     #email-section form,
     .settings-container {
         padding: 1.5rem;
+    }
+
+    #property-container {
+        padding: 2rem 0;
     }
 }

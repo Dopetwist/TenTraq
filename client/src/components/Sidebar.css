@@ -75,9 +75,11 @@
   .sidebar.sidebar-open {
     transform: translateX(0);
   }
+}
 
-  .sidebar-footer {
-    padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+@media (max-width: 480px) {
+  .sidebar {
+    padding-bottom: 4rem;
   }
 }
 
