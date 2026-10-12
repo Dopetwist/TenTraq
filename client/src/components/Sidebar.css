@@ -70,16 +70,11 @@
     transform: translateX(-100%);
     top: 4rem;
     height: calc(100vh - 4rem);
+    display: block;
   }
 
   .sidebar.sidebar-open {
     transform: translateX(0);
-  }
-}
-
-@media (max-width: 480px) {
-  .sidebar {
-    padding-bottom: 4rem;
   }
 }
 
