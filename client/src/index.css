@@ -1214,7 +1214,7 @@ section {
 
 .edit-form-sub input,
 .edit-form-sub select {
-    color: #000;
+    color: var(--secondary-color);
     padding: 0.6rem 0.8rem;
     border-radius: 0.4rem;
     border: 1px solid #e2e8f0;
@@ -1582,6 +1582,7 @@ section {
 
 #email-section form select {
     background-color: white;
+    color: var(--secondary-color);
     cursor: pointer;
 }
 
