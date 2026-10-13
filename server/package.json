@@ -20,6 +20,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "node-cron": "^4.6.0",
     "nodemailer": "^10.0.10",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "resend": "^6.32.1"
   }
 }

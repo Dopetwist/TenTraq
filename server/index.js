@@ -17,6 +17,9 @@ import {
     processRentReminders,
     startRentReminderScheduler
 } from "./services/rentReminderService.js";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 env.config();
 
@@ -1284,7 +1287,7 @@ app.post("/api/send-email", async (req, res) => {
             return res.status(400).json({ error: "No email addresses were found for the selected recipients." });
         }
 
-        const transporter = createMailTransporter();
+        /* const transporter = createMailTransporter();
         if (!transporter) {
             return res.status(503).json({ error: "Email delivery is not configured on the server." });
         }
@@ -1297,8 +1300,43 @@ app.post("/api/send-email", async (req, res) => {
             subject,
             text: message
         });
+        
+        res.json({ message: "Email sent successfully.", recipientCount: recipientEmails.length }); 
+        */
 
-        res.json({ message: "Email sent successfully.", recipientCount: recipientEmails.length });
+        const from = process.env.EMAIL_FROM;
+
+        if (!process.env.RESEND_API_KEY || !from) {
+            return res.status(503).json({
+                error: "Email delivery is not configured on the server.",
+            });
+        }
+
+        const { data, error } = await resend.emails.send({
+            from,
+            to: recipientType === "single"
+                ? [recipientEmails[0]]
+                : [from],
+            ...(recipientType === "single"
+                ? {}
+                : { bcc: recipientEmails }),
+            subject,
+            text: message,
+        });
+
+        if (error) {
+            console.error("Resend email delivery failed:", error);
+
+            return res.status(502).json({
+                error: "Failed to send email. Please try again later.",
+            });
+        }
+
+        return res.json({
+            message: "Email accepted for delivery.",
+            recipientCount: recipientEmails.length,
+            emailId: data?.id,
+        });
     } catch (error) {
         console.error("Error sending tenant email:", error.message);
         res.status(500).json({ error: "Failed to send email." });
@@ -1326,7 +1364,7 @@ app.post("/api/contact", async (req, res) => {
     }
 
     try {
-        const transporter = createMailTransporter();
+        /* const transporter = createMailTransporter();
         if (!transporter) {
             return res.status(503).json({ error: "Email delivery is not configured on the server." });
         }
@@ -1336,7 +1374,24 @@ app.post("/api/contact", async (req, res) => {
             to: process.env.EMAIL_USER, // Send to the configured email address
             subject: `TenTraq Contact Form Submission: ${topic}`,
             text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nMessage:\n\n${message}`
+        }); */
+
+        const from = process.env.EMAIL_FROM;
+
+        if (!process.env.RESEND_API_KEY || !from) {
+            return res.status(503).json({
+                error: "Email delivery is not configured on the server.",
+            });
+        }
+
+        // Resend email test
+        await resend.emails.send({
+            from,
+            to: "jonathanafugwobi1@gmail.com",
+            subject: `TenTraq Contact form email test: ${topic}`,
+            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nTesting email delivery from TenTraq. \n\n ${message}`,
         });
+
         res.json({ message: "Your message has been received. We'll get back to you soon." });
     } catch (error) {
         console.error("Error sending contact form email:", error.message);
