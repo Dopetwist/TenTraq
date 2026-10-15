@@ -12,17 +12,20 @@ function ProblemSection() {
         {
             icon: FileX,
             title: "Lost Tenant Records",
-            description: "Tenant information scattered across notebooks and spreadsheets"
+            description: "Tenant information scattered across notebooks and spreadsheets",
+            image: "/images/lost-tenant-records.png"
         },
         {
             icon: FileText,
             title: "Document Confusion",
-            description: "Hard to track tenant agreements, IDs and uploaded files"
+            description: "Hard to track tenant agreements, IDs and uploaded files",
+            image: "/images/document-confusion.png"
         },
         {
             icon: Mail,
             title: "Communication Problems",
-            description: "Sending messages to tenants manually wastes time"
+            description: "Sending messages to tenants manually wastes time",
+            image: "/images/communication-problems.png"
         }
     ];
 
@@ -36,6 +39,7 @@ function ProblemSection() {
                     const Icon = problem.icon;
                     return (
                         <div key={idx} className="problem-card">
+                            <img src={problem.image} alt={problem.title} className="problem-image" />
                             <div className="problem-icon">
                                 <Icon size={32} />
                             </div>

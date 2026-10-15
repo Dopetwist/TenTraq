@@ -1287,23 +1287,6 @@ app.post("/api/send-email", async (req, res) => {
             return res.status(400).json({ error: "No email addresses were found for the selected recipients." });
         }
 
-        /* const transporter = createMailTransporter();
-        if (!transporter) {
-            return res.status(503).json({ error: "Email delivery is not configured on the server." });
-        }
-
-        const from = process.env.EMAIL_FROM || process.env.EMAIL_USER;
-        await transporter.sendMail({
-            from,
-            to: recipientType === "single" ? recipientEmails[0] : from,
-            ...(recipientType === "single" ? {} : { bcc: recipientEmails }),
-            subject,
-            text: message
-        });
-        
-        res.json({ message: "Email sent successfully.", recipientCount: recipientEmails.length }); 
-        */
-
         const from = process.env.EMAIL_FROM;
 
         if (!process.env.RESEND_API_KEY || !from) {
@@ -1333,13 +1316,13 @@ app.post("/api/send-email", async (req, res) => {
         }
 
         return res.json({
-            message: "Email accepted for delivery.",
+            message: "Email sent successfully.",
             recipientCount: recipientEmails.length,
             emailId: data?.id,
         });
     } catch (error) {
         console.error("Error sending tenant email:", error.message);
-        res.status(500).json({ error: "Failed to send email." });
+        res.status(500).json({ error: "Failed to send email. Please try again later." });
     }
 });
 
@@ -1364,17 +1347,6 @@ app.post("/api/contact", async (req, res) => {
     }
 
     try {
-        /* const transporter = createMailTransporter();
-        if (!transporter) {
-            return res.status(503).json({ error: "Email delivery is not configured on the server." });
-        }
-
-        await transporter.sendMail({
-            from: email, // Sender's email address
-            to: process.env.EMAIL_USER, // Send to the configured email address
-            subject: `TenTraq Contact Form Submission: ${topic}`,
-            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nMessage:\n\n${message}`
-        }); */
 
         const from = process.env.EMAIL_FROM;
 
@@ -1395,7 +1367,7 @@ app.post("/api/contact", async (req, res) => {
         res.json({ message: "Your message has been received. We'll get back to you soon." });
     } catch (error) {
         console.error("Error sending contact form email:", error.message);
-        res.status(500).json({ error: "Failed to send contact form email." });
+        res.status(500).json({ error: "Failed to send contact form email. Please try again later." });
     }
 });
 

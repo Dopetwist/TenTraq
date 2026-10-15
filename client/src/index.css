@@ -325,6 +325,13 @@ section {
     color: #2563EB;
 }
 
+.problem-card .problem-image {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+}
+
 .solution-card {
     align-items: center;
     text-align: center;
