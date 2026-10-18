@@ -129,17 +129,14 @@ DB_NAME=your_database_name
 SESSION_SECRET=your_secret_key
 ```
 
-Configure the outgoing mail account on the server to enable landlord emails and rent reminders:
+Configure Resend on the server to enable landlord emails and rent reminders:
 
 ```env
-EMAIL_HOST=smtp.example.com
-EMAIL_PORT=587
-EMAIL_USER=your_email@example.com
-EMAIL_PASS=your_email_password
-EMAIL_FROM=your_email@example.com
+RESEND_API_KEY=your_resend_api_key
+EMAIL_FROM=your_verified_sender@example.com
 ```
 
-`EMAIL_FROM` is optional and defaults to `EMAIL_USER`.
+`EMAIL_FROM` must be a sender address configured and verified in Resend.
 
 ---
 

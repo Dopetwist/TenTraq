@@ -1,5 +1,5 @@
 import cron from "node-cron";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import db from "../config/db.js";
 
 // Define the cron schedule for daily rent reminders at 8 AM
@@ -9,26 +9,16 @@ export function buildCronSchedule() {
     return DAILY_REMINDER_SCHEDULE;
 }
 
-// Create a nodemailer transporter for sending emails
-export function createMailTransporter() {
-    const host = process.env.EMAIL_HOST;
-    const port = Number(process.env.EMAIL_PORT || 587);
-    const user = process.env.EMAIL_USER;
-    const pass = process.env.EMAIL_PASS;
+// Create a Resend client when email delivery is configured.
+export function createResendClient() {
+    const apiKey = process.env.RESEND_API_KEY;
+    const from = process.env.EMAIL_FROM;
 
-    if (!host || !user || !pass) {
+    if (!apiKey || !from) {
         return null;
     }
 
-    return nodemailer.createTransport({
-        host,
-        port,
-        secure: Number(port) === 465,
-        auth: {
-            user,
-            pass,
-        },
-    });
+    return new Resend(apiKey);
 }
 
 // Fetch due rent reminders from the database
@@ -61,10 +51,10 @@ export async function processRentReminders() {
         return { sent: 0, total: 0 };
     }
 
-    const transporter = createMailTransporter();
+    const resend = createResendClient();
 
-    if (!transporter) {
-        console.warn("Email transport is not configured. Skipping rent reminder delivery.");
+    if (!resend) {
+        console.warn("Resend email delivery is not configured. Skipping rent reminder delivery.");
         return { sent: 0, total: dueReminders.length, skipped: dueReminders.length };
     }
 
@@ -72,12 +62,16 @@ export async function processRentReminders() {
 
     for (const reminder of dueReminders) {
         try {
-            await transporter.sendMail({
-                from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            const { error } = await resend.emails.send({
+                from: process.env.EMAIL_FROM,
                 to: reminder.email,
                 subject: `Rent reminder for ${reminder.full_name}`,
                 text: `Hello ${reminder.full_name},\n\nThis is a ${reminder.reminder_type} reminder for your rent due on ${reminder.scheduled_for}.\nYour current rent amount is ${reminder.currency || "USD"} ${Number(reminder.rent_amount).toFixed(2)}.\n\nPlease ensure payment is made on time.\n\nThanks,\nTenTraq`,
             });
+
+            if (error) {
+                throw error;
+            }
 
             await db.query(
                 "UPDATE rent_reminders SET sent_at = NOW() WHERE id = $1",
@@ -86,7 +80,7 @@ export async function processRentReminders() {
 
             sentCount += 1;
         } catch (error) {
-            console.error(`Failed to send reminder ${reminder.id} to ${reminder.email}:`, error.message);
+            console.error(`Failed to send reminder ${reminder.id} to ${reminder.email}:`, error);
         }
     }
 

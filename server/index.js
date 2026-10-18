@@ -13,7 +13,6 @@ import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import db from "./config/db.js";
 import {
-    createMailTransporter,
     processRentReminders,
     startRentReminderScheduler
 } from "./services/rentReminderService.js";
