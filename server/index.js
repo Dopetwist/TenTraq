@@ -47,7 +47,7 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage }); // Multer middleware for handling file uploads
 
 // Middlewares
-app.use(cors());
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 app.use(express.static("client/dist")); // server serves react for deployment
 
