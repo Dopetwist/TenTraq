@@ -1,4 +1,4 @@
-export const API_BASE_URL = "https://tentraq-api.onrender.com";
+export const API_BASE_URL = "https://api.tentraq.top";
 
 /* This function is a wrapper around the fetch API that automatically includes the authorization token 
 in the request headers if it exists in localStorage. It also handles JSON parsing and error handling. */
