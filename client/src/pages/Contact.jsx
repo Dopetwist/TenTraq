@@ -72,8 +72,8 @@ function Contact() {
                 <section className="contact-grid page-section">
                     <div className="contact-details">
                         <h2>We’re here to help.</h2><p>Choose the route that works best for you. We read every message and route it to the right person.</p>
-                        <a className="contact-detail" href="mailto:hello@tentraq.com">
-                            <span className="contact-icon"><Mail size={19} /></span><span><strong>Email us</strong><small>hello@tentraq.com</small></span>
+                        <a className="contact-detail" href="mailto:hello.tentraq@gmail.com">
+                            <span className="contact-icon"><Mail size={19} /></span><span><strong>Email us</strong><small>hello.tentraq@gmail.com</small></span>
                         </a>
                         <div className="contact-detail">
                             <span className="contact-icon"><Clock3 size={19} /></span><span><strong>Support hours</strong><small>Monday to Friday, 9am–5pm</small></span>
