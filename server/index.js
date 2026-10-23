@@ -1355,12 +1355,11 @@ app.post("/api/contact", async (req, res) => {
             });
         }
 
-        // Resend email test
         await resend.emails.send({
-            from,
-            to: "jonathanafugwobi1@gmail.com",
-            subject: `TenTraq Contact form email test: ${topic}`,
-            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic}\n\nTesting email delivery from TenTraq. \n\n ${message}`,
+            from: email,
+            to: "hello.tentraq@gmail.com",
+            subject: `TenTraq Contact form: ${topic}`,
+            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic} \n\n ${message}`,
         });
 
         res.json({ message: "Your message has been received. We'll get back to you soon." });
