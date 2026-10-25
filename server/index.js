@@ -27,6 +27,12 @@ const port = process.env.PORT || 5000;
 const authSecret = process.env.AUTH_SECRET || "local-development-secret-change-me";
 const scrypt = promisify(scryptCallback);
 
+const allowedOrigins = [
+  "https://www.tentraq.top",
+  "https://tentraq.top",
+  "http://localhost:5173",
+];
+
 // Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -47,7 +53,23 @@ const storage = new CloudinaryStorage({
 const upload = multer({ storage }); // Multer middleware for handling file uploads
 
 // Middlewares
-app.use(cors()); // Enable CORS for all routes
+
+// Configure CORS
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests without an Origin header, such as Postman or server-to-server calls.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error(`CORS blocked origin: ${origin}`));
+    },
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.static("client/dist")); // server serves react for deployment
 
