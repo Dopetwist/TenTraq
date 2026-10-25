@@ -52,6 +52,7 @@ The platform allows users to manage tenants, rental properties, payments, and te
 ### Database
 
 * PostgreSQL
+* Supabase
 
 ---
 
