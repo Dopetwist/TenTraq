@@ -2,6 +2,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { Bell, Settings, LogOut, User } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useState } from "react";
+import ThemeToggle from "./ThemeToggle";
 import "./Topbar.css";
 
 function Topbar() {
@@ -29,6 +30,8 @@ function Topbar() {
 
         {/* Right side - User info and actions */}
         <div className="topbar-right">
+          <ThemeToggle />
+
           {/* Notifications */}
           <button className="topbar-icon-btn">
             <Bell size={20} />

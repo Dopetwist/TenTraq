@@ -4,8 +4,8 @@
   right: 0;
   left: 16rem;
   height: 4rem;
-  background-color: white;
-  border-bottom: 1px solid #e2e8f0;
+  background-color: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
   z-index: 20;
 }
 
@@ -35,7 +35,7 @@
 
 .topbar-icon-btn {
   padding: 0.5rem;
-  color: #555;
+  color: var(--sub-text-color);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -48,7 +48,7 @@
 }
 
 .topbar-icon-btn:hover {
-  background-color: #f1f5f9;
+  background-color: var(--surface-muted-color);
 }
 
 .notification-dot {
@@ -57,14 +57,14 @@
   right: 0.25rem;
   width: 0.5rem;
   height: 0.5rem;
-  background-color: #EF4444;
+  background-color: var(--delete-color);
   border-radius: 50%;
 }
 
 .topbar-divider {
   width: 1px;
   height: 1.5rem;
-  background-color: #e2e8f0;
+  background-color: var(--border-color);
 }
 
 .topbar-profile {
@@ -84,13 +84,13 @@
 }
 
 .profile-btn:hover {
-  background-color: #f1f5f9;
+  background-color: var(--surface-muted-color);
 }
 
 .profile-avatar {
   width: 2rem;
   height: 2rem;
-  background-color: #2563EB;
+  background-color: var(--primary-color);
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
@@ -113,13 +113,13 @@
 .profile-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #1E293B;
+  color: var(--secondary-color);
   margin: 0;
 }
 
 .profile-role {
   font-size: 0.75rem;
-  color: #555;
+  color: var(--sub-text-color);
   margin: 0;
 }
 
@@ -128,8 +128,8 @@
   right: 0;
   margin-top: 0.5rem;
   width: 12rem;
-  background-color: white;
-  border: 1px solid #e2e8f0;
+  background-color: var(--surface-color);
+  border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   z-index: 50;
@@ -140,7 +140,7 @@
   text-align: left;
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  color: #555;
+  color: var(--sub-text-color);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -151,7 +151,7 @@
 }
 
 .menu-item:hover {
-  background-color: #f1f5f9;
+  background-color: var(--surface-muted-color);
 }
 
 .menu-item:first-child {
@@ -159,15 +159,15 @@
 }
 
 .menu-item-logout {
-  color: #EF4444;
+  color: var(--delete-color);
   border-radius: 0 0 0.5rem 0.5rem;
 }
 
 .menu-item-logout:hover {
-  background-color: #fee2e2;
+  background-color: var(--error-background-color);
 }
 
 .menu-divider {
   height: 1px;
-  background-color: #e2e8f0;
+  background-color: var(--border-color);
 }

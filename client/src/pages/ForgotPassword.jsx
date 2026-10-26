@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { apiRequest } from "../services/api.js";
 import PasswordInput from "../components/PasswordInput.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 
 function ForgotPassword() {
     const [formData, setFormData] = useState({ email: "", secret_word: "", password: "", confirmPassword: "" });
@@ -49,6 +50,7 @@ function ForgotPassword() {
 
     return (
         <main className="auth-page">
+            <ThemeToggle className="auth-theme-toggle" />
             <div className="auth-panel">
                 <Link className="auth-brand" to="/">TenTraq</Link>
                 <p className="auth-eyebrow">Account recovery</p>

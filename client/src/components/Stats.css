@@ -1,7 +1,7 @@
 .stats-section {
     min-height: auto;
     padding: 3.5rem 5% 4rem;
-    background-color: white;
+    background-color: var(--surface-color);
 }
 
 .stats-heading {
@@ -44,8 +44,8 @@
     gap: 1rem;
     min-width: 0;
     padding: 1.5rem;
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
     border-radius: 0.75rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -63,7 +63,7 @@
     width: 2.75rem;
     height: 2.75rem;
     color: var(--accent-color);
-    background-color: #d1fae5;
+    background-color: var(--success-background-color);
     border-radius: 0.65rem;
 }
 

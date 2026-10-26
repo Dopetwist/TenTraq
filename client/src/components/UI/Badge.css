@@ -9,31 +9,31 @@
 }
 
 .badge-success {
-  background-color: #d1fae5;
-  color: #065f46;
-  border-color: #a7f3d0;
+  background-color: var(--success-background-color);
+  color: var(--success-text-color);
+  border-color: var(--success-border-color);
 }
 
 .badge-warning {
-  background-color: #fef3c7;
-  color: #92400e;
-  border-color: #fcd34d;
+  background-color: var(--warning-background-color);
+  color: var(--warning-text-color);
+  border-color: var(--warning-border-color);
 }
 
 .badge-destructive {
-  background-color: #fee2e2;
-  color: #991b1b;
-  border-color: #fca5a5;
+  background-color: var(--error-background-color);
+  color: var(--error-text-color);
+  border-color: var(--error-border-color);
 }
 
 .badge-neutral {
-  background-color: #e2e8f0;
-  color: #1e293b;
-  border-color: #cbd5e1;
+  background-color: var(--surface-muted-color);
+  color: var(--secondary-color);
+  border-color: var(--border-strong-color);
 }
 
 .badge-active {
-  background-color: #dbeafe;
-  color: #1e40af;
-  border-color: #bfdbfe;
+  background-color: var(--info-background-color);
+  color: var(--info-text-color);
+  border-color: var(--info-border-color);
 }

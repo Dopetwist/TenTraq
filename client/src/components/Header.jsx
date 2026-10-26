@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { Menu, User, X } from "lucide-react";
 import Navbar from "./Navbar";
 import GetStartedButton from "../components/GetStartedButton";
+import ThemeToggle from "./ThemeToggle";
 import { useState } from "react";
 
 function Header() {
@@ -30,6 +31,7 @@ function Header() {
             />
 
             <div className="mobile-nav-icons-container">
+                <ThemeToggle />
                 {user ? (
                     <button
                     onClick={() => navigate("/dashboard")}
