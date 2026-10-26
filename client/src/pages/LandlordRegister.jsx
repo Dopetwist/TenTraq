@@ -4,6 +4,7 @@ import { apiRequest } from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import PasswordInput from "../components/PasswordInput.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import ThemeToggle from "../components/ThemeToggle.jsx";
 
 function LandlordRegister() {
     const navigate = useNavigate();
@@ -45,6 +46,7 @@ function LandlordRegister() {
 
     return (
         <main className="auth-page">
+            <ThemeToggle className="auth-theme-toggle" />
             <div className="auth-panel auth-panel-wide">
                 <Link className="auth-brand" to="/">TenTraq</Link>
                 <p className="auth-eyebrow">A clearer way to manage rentals</p>

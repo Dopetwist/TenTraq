@@ -53,7 +53,7 @@ function Tenants() {
 
             <div className="search-con">
                 <div className="search-icon">
-                    <Search size={20} color="#555" />
+                    <Search size={20} color="var(--sub-text-color)" />
                 </div>
                 <input 
                     type="text" 

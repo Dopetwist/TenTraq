@@ -7,54 +7,54 @@
 .input-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1E293B;
+  color: var(--secondary-color);
   display: block;
 }
 
 .input-field,
 .select-field {
   padding: 0.5rem 0.75rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-strong-color);
   border-radius: 0.375rem;
-  background-color: #f8fafc;
-  color: #1E293B;
+  background-color: var(--background-color);
+  color: var(--secondary-color);
   font-size: 0.95rem;
   font-family: inherit;
   transition: all 0.2s ease;
 }
 
 .input-field::placeholder {
-  color: #555;
+  color: var(--sub-text-color);
 }
 
 .input-field:focus,
 .select-field:focus {
   outline: none;
-  border-color: #2563EB;
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  background-color: white;
+  background-color: var(--surface-color);
 }
 
 .input-field.input-error {
-  border-color: #EF4444;
+  border-color: var(--delete-color);
 }
 
 .input-field.input-error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-  border-color: #EF4444;
+  border-color: var(--delete-color);
 }
 
 .input-error-text {
   font-size: 0.75rem;
-  color: #EF4444;
+  color: var(--delete-color);
 }
 
 .input-help-text {
   font-size: 0.75rem;
-  color: #555;
+  color: var(--sub-text-color);
 }
 
 .select-field {
-  background-color: white;
+  background-color: var(--surface-color);
   cursor: pointer;
 }

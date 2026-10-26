@@ -10,7 +10,7 @@
 .empty-state-icon {
   margin-bottom: 1rem;
   padding: 1rem;
-  background-color: #f1f5f9;
+  background-color: var(--surface-muted-color);
   border-radius: 9999px;
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@
 }
 
 .empty-state-icon svg {
-  color: #cbd5e1;
+  color: var(--border-strong-color);
   width: 48px;
   height: 48px;
 }
@@ -26,13 +26,13 @@
 .empty-state-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #1E293B;
+  color: var(--secondary-color);
   margin-bottom: 0.25rem;
 }
 
 .empty-state-description {
   font-size: 0.875rem;
-  color: #555;
+  color: var(--sub-text-color);
   line-height: 1.6;
   max-width: 28rem;
   margin-bottom: 1.5rem;

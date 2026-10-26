@@ -9,22 +9,22 @@
 .dashboard-title {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #1E293B;
+  color: var(--secondary-color);
   margin: 0 0 0.25rem 0;
 }
 
 .dashboard-subtitle {
-  color: #555;
+  color: var(--sub-text-color);
   margin: 0;
 }
 
 .dashboard-error {
   margin-bottom: 1.5rem;
   padding: 1rem;
-  background-color: #fee2e2;
-  border: 1px solid #fca5a5;
+  background-color: var(--error-background-color);
+  border: 1px solid var(--error-border-color);
   border-radius: 0.5rem;
-  color: #991b1b;
+  color: var(--error-text-color);
 }
 
 .dashboard-stats {
@@ -47,9 +47,9 @@
 }
 
 .dashboard-recent {
-  background-color: white;
+  background-color: var(--surface-color);
   border-radius: 0.5rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   padding: 1.5rem;
 }
@@ -63,7 +63,7 @@
 }
 
 .dashboard-payment-eyebrow {
-  color: #2563eb;
+  color: var(--primary-color);
   font-size: .75rem;
   font-weight: 700;
   letter-spacing: .08em;
@@ -86,7 +86,7 @@
 .dashboard-section-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1E293B;
+  color: var(--secondary-color);
   margin: 0 0 1rem 0;
 }
 
@@ -100,7 +100,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tenant-item:last-child {
@@ -109,18 +109,18 @@
 
 .tenant-name {
   font-weight: 500;
-  color: #1E293B;
+  color: var(--secondary-color);
   margin: 0;
 }
 
 .tenant-email {
   font-size: 0.875rem;
-  color: #555;
+  color: var(--sub-text-color);
   margin: 0;
 }
 
 .tenant-badge {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #10B981;
+  color: var(--accent-color);
 }

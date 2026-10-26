@@ -6,7 +6,7 @@ function Hero() {
         <section id="hero">
             <div className="hero-texts">
                 <h2 className="hero-heading">
-                    Manage <span className="text-[#10B981]">Tenants</span>
+                    Manage <span className="text-accent">Tenants</span>
                     <br />
                     Without the Chaos
                 </h2>
