@@ -18,10 +18,9 @@ import {
 } from "./services/rentReminderService.js";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 env.config();
 
+const resend = new Resend(process.env.RESEND_API_KEY);
 const app = express();
 const port = process.env.PORT || 5000;
 const authSecret = process.env.AUTH_SECRET || "local-development-secret-change-me";
@@ -89,6 +88,14 @@ const verifyPassword = async (password, storedHash) => {
     const storedKey = Buffer.from(key, "hex");
     return storedKey.length === derivedKey.length && timingSafeEqual(storedKey, derivedKey);
 };
+
+const escapeHtml = (value) => value.replace(/[&<>"']/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+})[character]);
 
 const createToken = (landlord) => {
     const payload = Buffer.from(JSON.stringify({
@@ -576,7 +583,64 @@ app.post("/api/auth/register", async (req, res) => {
              VALUES ($1, $2, $3, $4) RETURNING id, full_name, email`,
             [fullName, email, passwordHash, secretWord]
         );
+
         const landlord = result.rows[0];
+
+        const from = process.env.EMAIL_FROM;
+
+        if (!process.env.RESEND_API_KEY || !from) {
+            console.warn("Welcome email not sent because Resend email delivery is not configured.");
+        } else {
+            const safeFullName = escapeHtml(landlord.full_name);
+
+            try {
+                const { error } = await resend.emails.send({
+                    from,
+                    to: landlord.email,
+                    subject: "Welcome to TenTraq",
+                    text: `Welcome to TenTraq, ${landlord.full_name}!\n\nYour account is ready. Sign in to manage your properties and tenants, track rent and payments, and keep your records organized.\n\nThanks for choosing TenTraq.`,
+                    html: `
+                        <!doctype html>
+                        <html lang="en">
+                            <head>
+                                <meta charset="utf-8">
+                                <meta name="viewport" content="width=device-width, initial-scale=1">
+                                <title>Welcome to TenTraq</title>
+                            </head>
+                            <body style="margin: 0; padding: 32px 16px; background-color: #f3f6f5; color: #23332f; font-family: Arial, Helvetica, sans-serif;">
+                                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e9e5; border-radius: 12px; overflow: hidden;">
+                                    <tr>
+                                        <td style="padding: 24px 32px; background-color: #2563EB; color: #ffffff;">
+                                            <p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 1.5px;">TENTRAQ</p>
+                                            <p style="margin: 8px 0 0; color: #d7ebe3; font-size: 13px;">Property management, made simpler.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 32px;">
+                                            <h2 style="margin: 0 0 16px; color: #23332f; font-size: 24px; line-height: 1.35;">Welcome to TenTraq, ${safeFullName}!</h2>
+                                            <p style="margin: 0 0 16px; color: #42534e; font-size: 15px; line-height: 1.7;">Your account is ready. You can now manage your properties and tenants, track rent and payments, and keep your records organized in one place.</p>
+                                            <p style="margin: 0; color: #42534e; font-size: 15px; line-height: 1.7;">Thanks for choosing TenTraq. We’re glad to have you with us.</p>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 18px 32px; border-top: 1px solid #e8eeeb; color: #71807a; font-size: 12px; line-height: 1.5;">
+                                            This email confirms that your TenTraq account was successfully created.
+                                        </td>
+                                    </tr>
+                                </table>
+                            </body>
+                        </html>
+                    `,
+                });
+
+                if (error) {
+                    console.error("Failed to send TenTraq welcome email:", error);
+                }
+            } catch (emailError) {
+                console.error("Failed to send TenTraq welcome email:", emailError);
+            }
+        }
+
         res.status(201).json({ landlord, token: createToken(landlord) });
     } catch (error) {
         if (error.code === "23505") {
@@ -1316,6 +1380,49 @@ app.post("/api/send-email", async (req, res) => {
             });
         }
 
+        const htmlSubject = escapeHtml(subject);
+        const htmlMessage = message
+            .split(/\r\n|\r|\n/)
+            .map(escapeHtml)
+            .join("<br>");
+
+        const html = `
+            <!doctype html>
+            <html lang="en">
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>${htmlSubject}</title>
+                </head>
+                <body style="margin: 0; padding: 32px 16px; background-color: #f3f6f5; color: #23332f; font-family: Arial, Helvetica, sans-serif;">
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e9e5; border-radius: 12px; overflow: hidden;">
+                        <tr>
+                            <td style="padding: 24px 32px; background-color: #2563EB; color: #ffffff;">
+                                <img src="https://res.cloudinary.com/dig8qxmbf/image/upload/v1793124473/Screenshot_74_fedrau.png" alt="TenTraq Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+                                <p style="margin: 8px 0 0; color: #d7ebe3; font-size: 13px;">A message from your property manager</p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 32px;">
+                                <h1 style="margin: 0 0 20px; color: #23332f; font-size: 22px; line-height: 1.35;">${htmlSubject}</h1>
+                                <div style="color: #42534e; font-size: 15px; line-height: 1.7; overflow-wrap: anywhere;">${htmlMessage}</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 18px 32px; border-top: 1px solid #e8eeeb; color: #71807a; font-size: 12px; line-height: 1.5; text-align: center;">
+                                <p style="margin: 0;">
+                                    This email was sent through TenTraq. Please reply directly to your property manager if you have any questions.
+                                </p>
+                                <p style="margin: 10px 0 0;">
+                                    © ${new Date().getFullYear()} TenTraq. All rights reserved.
+                                </p>
+                            </td>
+                        </tr>
+                    </table>
+                </body>
+            </html>
+        `;
+
         const { data, error } = await resend.emails.send({
             from,
             to: recipientType === "single"
@@ -1326,6 +1433,7 @@ app.post("/api/send-email", async (req, res) => {
                 : { bcc: recipientEmails }),
             subject,
             text: message,
+            html,
         });
 
         if (error) {
@@ -1377,11 +1485,22 @@ app.post("/api/contact", async (req, res) => {
             });
         }
 
+        const htmlTemplate = `
+            <img src="https://res.cloudinary.com/dig8qxmbf/image/upload/v1793124473/Screenshot_74_fedrau.png" alt="TenTraq Logo" style="width: 100px; height: auto; margin-bottom: 10px;">
+            <h2>Contact Form Submission</h2>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Topic:</strong> ${topic}</p>
+            <p><strong>Message:</strong></p>
+            <p>${message.replace(/\n/g, "<br>")}</p>
+        `;
+
         await resend.emails.send({
-            from: email,
+            from,
             to: "hello.tentraq@gmail.com",
-            subject: `TenTraq Contact form: ${topic}`,
-            text: `Name: ${name}\nEmail: ${email}\nTopic: ${topic} \n\n ${message}`,
+            replyTo: email,
+            subject: `Contact form: ${topic}`,
+            html: htmlTemplate
         });
 
         res.json({ message: "Your message has been received. We'll get back to you soon." });
