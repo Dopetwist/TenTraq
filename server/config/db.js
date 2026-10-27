@@ -9,11 +9,20 @@ const { Pool } = pg;
 pg.types.setTypeParser(1082, (value) => value);
 
 // Create a new PostgreSQL connection pool using environment variables
-const db = new Pool({
+/* const db = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: {
         rejectUnauthorized: false, // Disable SSL certificate verification (use with caution)
     },
+}); */
+
+// Local Development PostgreSQL connection pool configuration
+const db = new Pool({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: Number(process.env.DB_PORT || 5432)
 });
 
 db.connect()
