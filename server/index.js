@@ -1340,8 +1340,8 @@ app.post("/api/send-email", async (req, res) => {
                 <body style="margin: 0; padding: 32px 16px; background-color: #f3f6f5; color: #23332f; font-family: Arial, Helvetica, sans-serif;">
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e1e9e5; border-radius: 12px; overflow: hidden;">
                         <tr>
-                            <td style="padding: 24px 32px; background-color: #174c3c; color: #ffffff;">
-                                <p style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 1.5px;">TENTRAQ</p>
+                            <td style="padding: 24px 32px; background-color: #2563EB; color: #ffffff;">
+                                <img src="https://res.cloudinary.com/dig8qxmbf/image/upload/v1793124473/Screenshot_74_fedrau.png" alt="TenTraq Logo" style="width: 150px; height: auto; margin-bottom: 10px;">
                                 <p style="margin: 8px 0 0; color: #d7ebe3; font-size: 13px;">A message from your property manager</p>
                             </td>
                         </tr>
@@ -1352,12 +1352,14 @@ app.post("/api/send-email", async (req, res) => {
                             </td>
                         </tr>
                         <tr>
-                            <td style="padding: 18px 32px; border-top: 1px solid #e8eeeb; color: #71807a; font-size: 12px; line-height: 1.5;">
-                                This email was sent through TenTraq. Please reply directly to your property manager if you have any questions.
+                            <td style="padding: 18px 32px; border-top: 1px solid #e8eeeb; color: #71807a; font-size: 12px; line-height: 1.5; text-align: center;">
+                                <p style="margin: 0;">
+                                    This email was sent through TenTraq. Please reply directly to your property manager if you have any questions.
+                                </p>
+                                <p style="margin: 10px 0 0;">
+                                    © ${new Date().getFullYear()} TenTraq. All rights reserved.
+                                </p>
                             </td>
-                             <p style="margin:5px 0 0;">
-                                © ${new Date().getFullYear()} TenTraq. All rights reserved.
-                            </p>
                         </tr>
                     </table>
                 </body>
