@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getEmailRecipients, sendTenantEmail } from "../services/emailService.js";
+import { useToast } from "../context/ToastContext.jsx";
 
 function EmailPage() {
     const [recipients, setRecipients] = useState({ tenants: [], properties: [] });
@@ -13,6 +14,8 @@ function EmailPage() {
     const [message, setMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
     const [feedback, setFeedback] = useState(null);
+
+    const { showToast } = useToast();
 
     useEffect(() => {
         let isCurrent = true;
@@ -70,8 +73,10 @@ function EmailPage() {
                 subject,
                 message
             });
+            showToast("Email sent successfully.");
             setFeedback({ type: "success", text: "Email sent successfully." });
         } catch (error) {
+            showToast(error.message, "error");
             setFeedback({ type: "error", text: error.message });
         } finally {
             setIsSending(false);
