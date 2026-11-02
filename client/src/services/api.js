@@ -1,5 +1,6 @@
-/* export const API_BASE_URL = "https://api.tentraq.top"; */
-export const API_BASE_URL = "http://localhost:5000"; // For local development
+/* export const API_BASE_URL = "http://localhost:5000"; */ // For local development
+
+export const API_BASE_URL = "https://api.tentraq.top";
 
 /* This function is a wrapper around the fetch API that automatically includes the authorization token 
 in the request headers if it exists in localStorage. It also handles JSON parsing and error handling. */
