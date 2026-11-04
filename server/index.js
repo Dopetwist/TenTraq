@@ -1532,7 +1532,11 @@ app.get("/api/health/db", async (req, res) => {
       serverTime: result.rows[0].server_time,
     });
   } catch (error) {
-    console.error("Database health check failed:", error.message);
+    console.error("Database health check failed:", {
+      message: error.message,
+      code: error.code,
+      detail: error.detail,
+    });
 
     res.status(500).json({
       success: false,
