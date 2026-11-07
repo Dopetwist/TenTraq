@@ -99,7 +99,7 @@ function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
                             type="file" 
                             id="upload-doc" 
                             name="document" 
-                            accept=".pdf,.doc,.docx"
+                            accept=".png,.jpg,.jpeg,.pdf,.doc,.docx"
                             onChange={(e) =>
                                 setFormData((prev) => ({
                                     ...prev,

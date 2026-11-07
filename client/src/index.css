@@ -244,8 +244,16 @@ section {
     cursor: pointer;
 }
 
+.mobile-get-started-btn.small-device {
+    width: 100%;
+}
+
 .get-started-button.mobile {
-    margin-top: 1rem;
+    margin: 1.1rem 0;
+}
+
+.get-started.small-device {
+    width: 100%;
 }
 
 .get-started {

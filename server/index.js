@@ -44,7 +44,7 @@ const storage = new CloudinaryStorage({
     cloudinary,
     params: {
         folder: "document_uploads",
-        resource_type: "auto", // allows images, PDFs, etc.
+        resource_type: "auto", // Automatically determine the resource type (image, video, raw) based on the file
         type: "authenticated",
     },
 });
@@ -134,6 +134,26 @@ const getAuthenticatedClaims = (req) => {
         return null;
     }
 };
+
+// Document URL Parsing Utility for Cloudinary
+function parseCloudinaryUrl(url) {
+    const m = url.match(
+        /\/(image|raw|video)\/(upload|authenticated|private)\/(?:s--[^/]+--\/)?(?:v(\d+)\/)?(.+)$/
+    );
+    if (!m) return null;
+    const [, resourceType, type, version, rest] = m;
+    const cleanRest = decodeURIComponent(rest.split("?")[0]);
+
+    if (resourceType === "raw") {
+        return { resourceType, type, version, publicId: cleanRest };
+    }
+    const dot = cleanRest.lastIndexOf(".");
+    return {
+        resourceType, type, version,
+        publicId: dot > -1 ? cleanRest.slice(0, dot) : cleanRest,
+        format: dot > -1 ? cleanRest.slice(dot + 1) : undefined,
+    };
+}
 
 const paymentMethods = new Set(["cash", "bank_transfer", "pos", "online", "other"]);
 
@@ -966,7 +986,7 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
         // Access the uploaded file
         const documentUrl = req.file ? req.file.path : null;
         const cloudinaryPublicId = req.file ? req.file.filename : null;
-        const resourceType = req.file ? req.file.resource_type : null;
+        const resourceType = req.file ? parseCloudinaryUrl(req.file.path)?.resourceType : null;
 
         // Validate tenant fields; documents are optional.
         if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date) {
@@ -1198,7 +1218,7 @@ app.post("/api/documents/upload", upload.single("document"), async (req, res) =>
         // Access the uploaded file
         const documentUrl = req.file ? req.file.path : null;
         const cloudinaryPublicId = req.file ? req.file.filename : null;
-        const resourceType = req.file ? req.file.resource_type : null;
+        const resourceType = req.file ? parseCloudinaryUrl(req.file.path)?.resourceType : null;
 
 
         if (!documentUrl) {
@@ -1245,18 +1265,27 @@ app.get("/api/documents/:id/view", async (req, res) => {
         }
 
         const document = result.rows[0];
-        if (!document.cloudinary_public_id || !document.resource_type) {
+        if (!document.document_url) {
             return res.status(404).json({ error: "Document file not found." });
         }
 
-        const accessType = document.document_url?.includes("/authenticated/")
-            ? "authenticated"
-            : "upload";
-        const documentUrl = cloudinary.url(document.cloudinary_public_id, {
-            resource_type: document.resource_type,
-            type: accessType,
+        const parsed = parseCloudinaryUrl(document.document_url);
+        const publicId = document.cloudinary_public_id || parsed?.publicId;
+        const resourceType = document.resource_type || parsed?.resourceType;
+
+        if (!publicId || !resourceType) {
+            return res.status(500).json({ error: "Unrecognised document URL." });
+        }
+
+        // Generate a signed URL for the document with a short expiration time
+        const documentUrl = cloudinary.url(publicId, {
+            resource_type: resourceType,
+            type: parsed?.type || "authenticated",
+            version: parsed?.version,
+            format: parsed?.format,
             sign_url: true,
             secure: true,
+            expires_at: Math.floor(Date.now() / 1000) + 300, // URL expires in 5 minutes
         });
 
         res.json({ url: documentUrl });
