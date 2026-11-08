@@ -1986,6 +1986,77 @@ button#send:disabled {
     color: var(--secondary-color);
 }
 
+.document-preview-overlay {
+    z-index: 1100;
+}
+
+.document-preview-modal {
+    display: flex;
+    flex-direction: column;
+    width: min(94vw, 76rem);
+    height: min(88vh, 54rem);
+    padding: 1.5rem;
+}
+
+.document-preview-modal .modal-heading {
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.document-preview-modal .modal-heading > div {
+    min-width: 0;
+}
+
+.document-preview-modal .modal-heading h2 {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.document-preview-content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    background: var(--surface-muted-color);
+}
+
+.document-preview-message {
+    padding: 1.5rem;
+    color: var(--sub-text-color);
+    text-align: center;
+}
+
+.document-preview-message.form-error {
+    margin: 0;
+}
+
+.document-preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.document-preview-frame {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: var(--surface-color);
+}
+
+.document-preview-download {
+    display: inline-block;
+    margin-top: 1rem;
+    text-decoration: none;
+}
+
 .property-form {
     display: flex;
     flex-direction: column;

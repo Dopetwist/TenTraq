@@ -5,6 +5,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../services/api.js";
 import Modal from "../components/Modal";
 import DocumentModal from "../components/DocumentModal";
+import DocumentPreviewModal from "../components/DocumentPreviewModal";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatCurrencyAmount } from "../utils/formatCurrency.js";
 import TenantPaymentHistory from "../components/TenantPaymentHistory.jsx";
@@ -16,6 +17,7 @@ function TenantDetails() {
     const [ tenantDocs, setTenantDocs ] = useState(null);
     const [ showModal, setShowModal ] = useState(false);
     const [ showDocumentModal, setShowDocumentModal ] = useState(false);
+    const [ previewDocument, setPreviewDocument ] = useState(null);
     const [ documentDelete, setDocumentDelete ] = useState(false);
     const [ selectedTenantId, setSelectedTenantId ] = useState(null);
     const [ selectedDocumentId, setSelectedDocumentId ] = useState(null);
@@ -118,24 +120,6 @@ function TenantDetails() {
         }
     };
 
-    const handleDocumentView = async (documentId) => {
-        const documentWindow = window.open("about:blank", "_blank");
-        if (!documentWindow) {
-            showToast("Allow pop-ups to view this document.", "error");
-            return;
-        }
-
-        try {
-            const token = localStorage.getItem("tentraq-token");
-            const response = await axios.get(`${API_BASE_URL}/api/documents/${documentId}/view`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {}
-            });
-            documentWindow.location = response.data.url;
-        } catch (error) {
-            documentWindow.close();
-            showToast(error.response?.data?.error || "Unable to open document.", "error");
-        }
-    };
 
     return (
         <div id="details-container">
@@ -199,7 +183,7 @@ function TenantDetails() {
                                         <div className="document-action-btns">
                                             <button 
                                             className="document-view-btn" 
-                                            onClick={() => handleDocumentView(doc.id)}
+                                            onClick={() => setPreviewDocument(doc)}
                                             >
                                                 View Document
                                             </button>
@@ -247,6 +231,12 @@ function TenantDetails() {
                 tenantId={id}
                 onCreated={fetchDocuments}
                 onClose={() => setShowDocumentModal(false)}
+            />
+
+            <DocumentPreviewModal
+                isOpen={Boolean(previewDocument)}
+                previewDocument={previewDocument}
+                onClose={() => setPreviewDocument(null)}
             />
         </div>
     )
