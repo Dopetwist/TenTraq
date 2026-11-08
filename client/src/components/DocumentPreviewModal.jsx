@@ -81,7 +81,7 @@ function DocumentPreviewModal({ isOpen, previewDocument, onClose }) {
 
     return (
         <div className="modal-overlay document-preview-overlay" onClick={onClose}>
-            <section
+            <div
                 className="modal document-preview-modal"
                 role="dialog"
                 aria-modal="true"
@@ -130,7 +130,7 @@ function DocumentPreviewModal({ isOpen, previewDocument, onClose }) {
                         </div>
                     )}
                 </div>
-            </section>
+            </div>
         </div>
     );
 }
