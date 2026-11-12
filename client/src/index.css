@@ -1356,6 +1356,45 @@ section {
     box-shadow: 0 0 0 3px #2563eb1c;
 }
 
+.reminder-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.reminder-options legend {
+    padding: 0 0.35rem;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.reminder-options p {
+    margin: 0;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.reminder-options-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+    gap: 0.65rem;
+}
+
+.reminder-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--secondary-color);
+    font-size: 0.9rem;
+}
+
+.reminder-option input {
+    accent-color: var(--primary-color);
+}
+
 .edit-form-btns {
     display: flex;
     gap: 1rem;
@@ -1467,6 +1506,12 @@ section {
 .form-text {
     font-size: 0.75rem;
     color: var(--sub-text-color);
+}
+
+.doc-text {
+    font-size: 0.75rem;
+    color: var(--sub-text-color);
+    margin-top: 0.5rem;
 }
 
 .docs-header {

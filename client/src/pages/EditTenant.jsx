@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { useAuth } from "../context/AuthContext.jsx";
 import axios from "axios";
 import { API_BASE_URL } from "../services/api.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatRentInput, sanitizeRentInput } from "../utils/formatCurrency.js";
+import { REMINDER_OPTIONS } from "../constants/reminderOptions.js";
 
 function EditTenant() {
     const { id } = useParams();
 
     const [ properties, setProperties ] = useState([]);
     const [ clicked, setClicked ] = useState(false);
+    const [ isTenantLoading, setIsTenantLoading ] = useState(true);
+    const [ loadError, setLoadError ] = useState("");
 
-    const location = useLocation();
     const navigate = useNavigate();
 
     const { user } = useAuth();
@@ -30,7 +32,8 @@ function EditTenant() {
         rent: "",
         status: "active",
         lease_start_date: "",
-        lease_end_date: ""
+        lease_end_date: "",
+        reminder_durations: []
     });
 
     const handleSubmit = async (e) => {
@@ -55,7 +58,8 @@ function EditTenant() {
                 rent: "",
                 status: "active",
                 lease_start_date: "",
-                lease_end_date: ""
+                lease_end_date: "",
+                reminder_durations: []
             });
 
             // Redirect to tenant details page after short delay
@@ -81,21 +85,55 @@ function EditTenant() {
         });
     };
 
-    useEffect(() => {
-        if (location.state) {
-            const tenant = location.state;
+    const handleReminderChange = (e) => {
+        const { checked, value } = e.target;
 
-            setFormData({
-                ...tenant,
-                property: tenant.property_id, // Tenant property_id field
-                room: tenant.room_number,
-                rent: tenant.rent_amount,
-                status: tenant.status,
-                lease_start_date: tenant.lease_start_date,
-                lease_end_date: tenant.lease_end_date
-            });
-        }
-    }, [location.state]);
+        setFormData((previous) => ({
+            ...previous,
+            reminder_durations: checked
+                ? [...previous.reminder_durations, value]
+                : previous.reminder_durations.filter((duration) => duration !== value)
+        }));
+    };
+
+    useEffect(() => {
+        let isCurrent = true;
+
+        const fetchTenant = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/tenants/${id}`);
+                const tenant = response.data;
+
+                if (!isCurrent) return;
+
+                setFormData({
+                    ...tenant,
+                    property: tenant.property_id,
+                    room: tenant.room_number,
+                    rent: tenant.rent_amount,
+                    status: tenant.status,
+                    lease_start_date: tenant.lease_start_date,
+                    lease_end_date: tenant.lease_end_date,
+                    reminder_durations: tenant.reminder_durations || []
+                });
+            } catch (error) {
+                console.error(error.response?.data || error.message);
+                if (isCurrent) {
+                    setLoadError("Unable to load tenant details.");
+                }
+            } finally {
+                if (isCurrent) {
+                    setIsTenantLoading(false);
+                }
+            }
+        };
+
+        fetchTenant();
+
+        return () => {
+            isCurrent = false;
+        };
+    }, [id]);
 
     // Fetch all properties from backend database and filter by landlord ID
     useEffect(() => {
@@ -112,6 +150,18 @@ function EditTenant() {
         fetchProperties();
     }, [landlordId]);
 
+    if (isTenantLoading) {
+        return <p className="ten-details-loading">Loading tenant...</p>;
+    }
+
+    if (loadError) {
+        return (
+            <div className="edit-container">
+                <p className="form-error" role="alert">{loadError}</p>
+                <button type="button" onClick={() => navigate(`/tenants/${id}`)}>Back to tenant</button>
+            </div>
+        );
+    }
 
     return (
         <div className="edit-container">
@@ -234,6 +284,25 @@ function EditTenant() {
                     value={formData.lease_end_date} 
                     onChange={handleChange} />
                 </div>
+
+                <fieldset className="reminder-options">
+                    <legend>Rent reminders</legend>
+                    <p>Choose when to remind this tenant before their lease ends.</p>
+                    <div className="reminder-options-list">
+                        {REMINDER_OPTIONS.map((duration) => (
+                            <label className="reminder-option" key={duration}>
+                                <input
+                                    type="checkbox"
+                                    name="reminder_durations"
+                                    value={duration}
+                                    checked={formData.reminder_durations.includes(duration)}
+                                    onChange={handleReminderChange}
+                                />
+                                {duration}
+                            </label>
+                        ))}
+                    </div>
+                </fieldset>
 
                 <div className="edit-form-btns">
                     <button 
