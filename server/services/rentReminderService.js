@@ -1,12 +1,55 @@
 import cron from "node-cron";
 import { Resend } from "resend";
 import db from "../config/db.js";
+import {
+    buildCronSchedule,
+    getReminderDate,
+    normalizeReminderDurations
+} from "./reminderSchedule.js";
 
-// Define the cron schedule for daily rent reminders at 8 AM
-export const DAILY_REMINDER_SCHEDULE = "0 8 * * *";
+export {
+    buildCronSchedule,
+    getReminderDate,
+    normalizeReminderDurations
+} from "./reminderSchedule.js";
 
-export function buildCronSchedule() {
-    return DAILY_REMINDER_SCHEDULE;
+export async function syncTenantRentReminders(client, tenantId, leaseEndDate, reminderDurations, resetSentReminders = false) {
+    const existingResult = await client.query(
+        "SELECT id, reminder_type FROM rent_reminders WHERE tenant_id = $1 FOR UPDATE",
+        [tenantId]
+    );
+    const existingReminders = existingResult.rows;
+
+    await client.query(
+        "DELETE FROM rent_reminders WHERE tenant_id = $1 AND NOT (reminder_type = ANY($2::text[]))",
+        [tenantId, reminderDurations]
+    );
+
+    for (const reminderType of reminderDurations) {
+        const matchingRows = existingReminders.filter((reminder) => reminder.reminder_type === reminderType);
+        const scheduledFor = getReminderDate(leaseEndDate, reminderType);
+
+        if (matchingRows.length === 0) {
+            await client.query(
+                "INSERT INTO rent_reminders (tenant_id, reminder_type, scheduled_for) VALUES ($1, $2, $3)",
+                [tenantId, reminderType, scheduledFor]
+            );
+            continue;
+        }
+
+        const [existingReminder, ...duplicateRows] = matchingRows;
+        await client.query(
+            `UPDATE rent_reminders
+             SET scheduled_for = $2,
+                 sent_at = CASE WHEN $3 OR scheduled_for IS DISTINCT FROM $2::date THEN NULL ELSE sent_at END
+             WHERE id = $1`,
+            [existingReminder.id, scheduledFor, resetSentReminders]
+        );
+
+        for (const duplicate of duplicateRows) {
+            await client.query("DELETE FROM rent_reminders WHERE id = $1", [duplicate.id]);
+        }
+    }
 }
 
 // Create a Resend client when email delivery is configured.
@@ -32,11 +75,13 @@ export async function getDueRentReminders() {
             t.full_name,
             t.email,
             t.rent_amount,
-            t.currency
+            t.currency,
+            t.lease_end_date
         FROM rent_reminders rr
         INNER JOIN tenants t ON t.id = rr.tenant_id
         WHERE rr.sent_at IS NULL
           AND rr.scheduled_for <= CURRENT_DATE
+          AND t.status = 'active'
         ORDER BY rr.scheduled_for ASC
     `);
 
@@ -66,7 +111,7 @@ export async function processRentReminders() {
                 from: process.env.EMAIL_FROM,
                 to: reminder.email,
                 subject: `Rent reminder for ${reminder.full_name}`,
-                text: `Hello ${reminder.full_name},\n\nThis is a ${reminder.reminder_type} reminder for your rent due on ${reminder.scheduled_for}.\nYour current rent amount is ${reminder.currency || "USD"} ${Number(reminder.rent_amount).toFixed(2)}.\n\nPlease ensure payment is made on time.\n\nThanks,\nTenTraq`,
+                text: `Hello ${reminder.full_name},\n\nThis is your ${reminder.reminder_type} reminder that your lease ends on ${reminder.lease_end_date}.\nYour current rent amount is ${reminder.currency || "USD"} ${Number(reminder.rent_amount).toFixed(2)}.\n\nPlease contact your landlord if you would like to discuss renewing your lease.\n\nThanks,\nTenTraq`,
             });
 
             if (error) {

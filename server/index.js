@@ -14,7 +14,9 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import db from "./config/db.js";
 import {
     processRentReminders,
-    startRentReminderScheduler
+    startRentReminderScheduler,
+    normalizeReminderDurations,
+    syncTenantRentReminders
 } from "./services/rentReminderService.js";
 import { Resend } from "resend";
 
@@ -959,7 +961,15 @@ app.get("/api/tenants/:id", async (req, res) => {
             return res.status(404).json({ error: "Tenant not found!" });
         }
 
-        res.json(result.rows[0]); // return single tenant
+        const remindersResult = await db.query(
+            "SELECT DISTINCT reminder_type FROM rent_reminders WHERE tenant_id = $1",
+            [id]
+        );
+
+        res.json({
+            ...result.rows[0],
+            reminder_durations: remindersResult.rows.map((reminder) => reminder.reminder_type)
+        });
     } catch (error) {
         return res.status(500).json({error: error.message});
     }
@@ -980,13 +990,21 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
             rent,
             lease_start_date,
             lease_end_date,
-            document_title
+            document_title,
+            reminder_durations
         } = req.body;
 
         // Access the uploaded file
         const documentUrl = req.file ? req.file.path : null;
         const cloudinaryPublicId = req.file ? req.file.filename : null;
         const resourceType = req.file ? parseCloudinaryUrl(req.file.path)?.resourceType : null;
+        let selectedReminderDurations;
+
+        try {
+            selectedReminderDurations = normalizeReminderDurations(reminder_durations);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
 
         // Validate tenant fields; documents are optional.
         if (!full_name || !email || !phone || !property || !room || !currency || !rent || !lease_start_date || !lease_end_date) {
@@ -997,33 +1015,56 @@ app.post("/api/tenants", upload.single("document"), async (req, res) => {
             return res.status(400).json({ error: "Both document title and document file are required." });
         }
 
-        const result = await db.query(
-            `INSERT INTO tenants (
-                full_name, email, phone, property_id, room_number, rent_amount, 
-                lease_start_date, lease_end_date, status, currency
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-             RETURNING *`,
-            [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, initialStatus, currency]
-        );
+        const client = await db.connect();
 
-        const newTenant = result.rows[0];
+        try {
+            await client.query("BEGIN");
 
-        if (document_title && documentUrl) {
-            await db.query(`
-                INSERT INTO documents 
-                (
-                    document_title, 
-                    document_url, 
-                    tenant_id,
-                    cloudinary_public_id,
-                    resource_type
-                ) 
-                VALUES ($1, $2, $3, $4, $5)`, 
-                [document_title, documentUrl, newTenant.id, cloudinaryPublicId, resourceType]);
+            const result = await client.query(
+                `INSERT INTO tenants (
+                    full_name, email, phone, property_id, room_number, rent_amount,
+                    lease_start_date, lease_end_date, status, currency
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                 RETURNING *`,
+                [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, initialStatus, currency]
+            );
+
+            const newTenant = result.rows[0];
+
+            await syncTenantRentReminders(
+                client,
+                newTenant.id,
+                lease_end_date,
+                selectedReminderDurations
+            );
+
+            if (document_title && documentUrl) {
+                await client.query(`
+                    INSERT INTO documents
+                    (
+                        document_title,
+                        document_url,
+                        tenant_id,
+                        cloudinary_public_id,
+                        resource_type
+                    )
+                    VALUES ($1, $2, $3, $4, $5)`,
+                    [document_title, documentUrl, newTenant.id, cloudinaryPublicId, resourceType]);
+            }
+
+            await client.query("COMMIT");
+            res.status(201).json({
+                ...newTenant,
+                reminder_durations: selectedReminderDurations
+            });
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
         }
-
-        res.status(201).json(newTenant); // return created tenant
     } catch (error) {
+        console.error("Failed to register tenant:", error.message);
         res.status(500).json({ error: error.message });
     }
 });
@@ -1043,15 +1084,59 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
         rent,
         status,
         lease_start_date,
-        lease_end_date
+        lease_end_date,
+        reminder_durations
     } = req.body;
 
     try {
-        await db.query(`UPDATE tenants SET 
-            full_name = $1, email = $2, phone = $3, property_id = $4, room_number = $5, 
-            rent_amount = $6, lease_start_date = $7, lease_end_date = $8, status = $9, currency = $10
-            WHERE tenants.id = $11
-            `, [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, status, currency, id]);
+        let selectedReminderDurations;
+
+        try {
+            selectedReminderDurations = normalizeReminderDurations(reminder_durations);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+
+        const client = await db.connect();
+
+        try {
+            await client.query("BEGIN");
+
+            const existingTenant = await client.query(
+                "SELECT lease_end_date FROM tenants WHERE id = $1 FOR UPDATE",
+                [id]
+            );
+
+            if (existingTenant.rows.length === 0) {
+                await client.query("ROLLBACK");
+                return res.status(404).json({ error: "Tenant not found." });
+            }
+
+            const previousLeaseEndDate = existingTenant.rows[0].lease_end_date;
+            const updatedTenant = await client.query(
+                `UPDATE tenants SET
+                    full_name = $1, email = $2, phone = $3, property_id = $4, room_number = $5,
+                    rent_amount = $6, lease_start_date = $7, lease_end_date = $8, status = $9, currency = $10
+                 WHERE tenants.id = $11
+                 RETURNING id`,
+                [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, status, currency, id]
+            );
+
+            await syncTenantRentReminders(
+                client,
+                updatedTenant.rows[0].id,
+                lease_end_date,
+                selectedReminderDurations,
+                previousLeaseEndDate !== lease_end_date
+            );
+
+            await client.query("COMMIT");
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
 
         res.status(200).json({ message: "Tenant updated successfully" });
     } catch (error) {

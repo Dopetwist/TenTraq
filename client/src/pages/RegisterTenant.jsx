@@ -5,6 +5,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../services/api.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { formatRentInput, sanitizeRentInput } from "../utils/formatCurrency.js";
+import { REMINDER_OPTIONS } from "../constants/reminderOptions.js";
 
 function RegisterTenant() {
     const [ properties, setProperties ] = useState([]);
@@ -30,6 +31,7 @@ function RegisterTenant() {
         rent: "",
         lease_start_date: "",
         lease_end_date: "",
+        reminder_durations: [],
         document_title: "",
         document: null
     });
@@ -43,6 +45,17 @@ function RegisterTenant() {
         });
     };
 
+    const handleReminderChange = (e) => {
+        const { checked, value } = e.target;
+
+        setFormData((previous) => ({
+            ...previous,
+            reminder_durations: checked
+                ? [...previous.reminder_durations, value]
+                : previous.reminder_durations.filter((duration) => duration !== value)
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -53,6 +66,11 @@ function RegisterTenant() {
         // Append document fields only when document upload is enabled.
         Object.entries(formData).forEach(([key, value]) => {
             const isDocumentField = ["document_title", "document"].includes(key);
+
+            if (key === "reminder_durations") {
+                value.forEach((duration) => payload.append(key, duration));
+                return;
+            }
 
             if ((!isDocumentField || isChecked) && value !== null && value !== undefined && value !== "") {
                 payload.append(key, value);
@@ -80,6 +98,7 @@ function RegisterTenant() {
                 rent: "",
                 lease_start_date: "",
                 lease_end_date: "",
+                reminder_durations: [],
                 document_title: "",
                 document: null
             });
@@ -239,6 +258,25 @@ function RegisterTenant() {
                             />
                         </div>
                     </div>
+
+                    <fieldset className="reminder-options">
+                        <legend>Rent reminders</legend>
+                        <p>Choose when to remind this tenant before their lease ends.</p>
+                        <div className="reminder-options-list">
+                            {REMINDER_OPTIONS.map((duration) => (
+                                <label className="reminder-option" key={duration}>
+                                    <input
+                                        type="checkbox"
+                                        name="reminder_durations"
+                                        value={duration}
+                                        checked={formData.reminder_durations.includes(duration)}
+                                        onChange={handleReminderChange}
+                                    />
+                                    {duration}
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
 
                     <div className="checkbox-container">
                         <input 

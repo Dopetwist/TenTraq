@@ -95,6 +95,8 @@ function DocumentModal({ isOpen, onClose, onCreated, tenantId }) {
                                 required
                             />
                         </div>
+
+                        <p className="doc-text">Please upload a PDF, PNG, JPG or DOC file.</p>
                         <input 
                             type="file" 
                             id="upload-doc" 
