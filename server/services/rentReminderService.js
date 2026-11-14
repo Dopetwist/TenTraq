@@ -13,6 +13,7 @@ export {
     normalizeReminderDurations
 } from "./reminderSchedule.js";
 
+// Sync tenant rent reminders with the database
 export async function syncTenantRentReminders(client, tenantId, leaseEndDate, reminderDurations, resetSentReminders = false) {
     const existingResult = await client.query(
         "SELECT id, reminder_type FROM rent_reminders WHERE tenant_id = $1 FOR UPDATE",
@@ -20,6 +21,7 @@ export async function syncTenantRentReminders(client, tenantId, leaseEndDate, re
     );
     const existingReminders = existingResult.rows;
 
+    // Normalize and deduplicate reminder durations
     await client.query(
         "DELETE FROM rent_reminders WHERE tenant_id = $1 AND NOT (reminder_type = ANY($2::text[]))",
         [tenantId, reminderDurations]
