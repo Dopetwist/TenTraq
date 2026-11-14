@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router";
 import { getEmailRecipients, sendTenantEmail } from "../services/emailService.js";
 import { useToast } from "../context/ToastContext.jsx";
 
@@ -17,6 +18,10 @@ function EmailPage() {
 
     const { showToast } = useToast();
 
+    const location = useLocation();
+
+    const tenantState = location?.state || {};
+
     useEffect(() => {
         let isCurrent = true;
 
@@ -25,6 +30,11 @@ function EmailPage() {
             setRecipientLoadError("");
 
             try {
+                if (tenantState && tenantState.tenantId) {
+                    setRecipientType("single");
+                    setTenantId(tenantState.tenantId);
+                }
+
                 const data = await getEmailRecipients();
                 if (isCurrent) setRecipients(data);
             } catch (error) {
@@ -42,9 +52,12 @@ function EmailPage() {
 
     const hasEmailAddress = (tenant) =>
         typeof tenant.email === "string" && tenant.email.trim().length > 0;
+    
     const tenantsWithEmail = recipients.tenants.filter(hasEmailAddress);
+    
     const getPropertyTenantCount = (selectedPropertyId) =>
         tenantsWithEmail.filter((tenant) => String(tenant.property_id) === String(selectedPropertyId)).length;
+    
     const canSend = recipientType === "all"
         ? tenantsWithEmail.length > 0
         : recipientType === "single"

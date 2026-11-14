@@ -11,7 +11,7 @@ import { formatCurrencyAmount } from "../utils/formatCurrency.js";
 import TenantPaymentHistory from "../components/TenantPaymentHistory.jsx";
 
 function TenantDetails() {
-    const { id } = useParams();
+    const { id } = useParams(); // Get tenant ID from URL parameters
 
     const [ tenant, setTenant ] = useState(null);
     const [ tenantDocs, setTenantDocs ] = useState(null);
@@ -136,7 +136,12 @@ function TenantDetails() {
                         >
                             Edit Tenant
                         </button>
-                        <button className="send-email">Send Email</button>
+                        <button 
+                        className="send-email"
+                        onClick={() => navigate("/emails", { state: { tenantId: id, tenantName: tenant.full_name, tenantEmail: tenant.email } })}
+                        >
+                            Send Email
+                        </button>
                         <button 
                         className="delete-btn"
                         onClick={() => {
