@@ -11,12 +11,14 @@ test('rent reminder scheduler runs every day at 8 AM', () => {
   assert.equal(buildCronSchedule(), '0 8 * * *');
 });
 
+// Additional tests for reminder duration normalization and date calculation
 test('reminder durations are validated and deduplicated', () => {
   assert.deepEqual(normalizeReminderDurations(['2 Months', '1 Week', '2 Months']), ['2 Months', '1 Week']);
   assert.deepEqual(normalizeReminderDurations(undefined), []);
   assert.throws(() => normalizeReminderDurations('Tomorrow'), /invalid/);
 });
 
+// Additional tests for reminder date calculation
 test('reminder dates are calculated relative to lease end with calendar month clamping', () => {
   assert.equal(getReminderDate('2025-03-31', '1 Month'), '2025-02-28');
   assert.equal(getReminderDate('2024-04-30', '2 Months'), '2024-02-29');

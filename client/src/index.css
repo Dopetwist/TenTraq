@@ -917,11 +917,13 @@ section {
     background-color: var(--accent-hover-color);
 }
 
-.tenants-btns button.send-email {
+.tenants-btns button.send-email,
+.details-btns button.send-email {
     background-color: var(--primary-color);
 }
 
-.tenants-btns button.send-email:hover {
+.tenants-btns button.send-email:hover,
+.details-btns button.send-email:hover {
     background-color: var(--primary-hover-color);
 }
 

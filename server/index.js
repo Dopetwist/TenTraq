@@ -169,6 +169,7 @@ const isValidDate = (value) => {
 
 const isValidAmount = (value) => /^(?:0|[1-9]\d*)(?:\.\d{1,2})?$/.test(String(value || "")) && value !== "0" && value !== "0.00";
 
+// Serializes a rent obligation row into a standardized object
 const serializeObligation = (row) => ({
     id: row.id,
     tenantId: row.tenant_id,
@@ -185,6 +186,7 @@ const serializeObligation = (row) => ({
     createdAt: row.created_at
 });
 
+// Serializes a payment row into a standardized object
 const serializePayment = (row) => ({
     id: row.id,
     rentObligationId: row.rent_obligation_id,
@@ -287,6 +289,7 @@ app.get("/api/payment-tenants", async (req, res) => {
     }
 });
 
+// Fetch rent obligations for a specific landlord
 app.get("/api/rent-obligations", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
@@ -310,6 +313,7 @@ app.get("/api/rent-obligations", async (req, res) => {
     }
 });
 
+// Create a new rent obligation
 app.post("/api/rent-obligations", async (req, res) => {
     const claims = getAuthenticatedClaims(req);
     if (!claims) return res.status(401).json({ error: "Authentication required." });
@@ -1122,6 +1126,7 @@ app.put("/api/tenants/edit/:id", async (req, res) => {
                 [full_name, email, phone, property, room, rent, lease_start_date, lease_end_date, status, currency, id]
             );
 
+            // Sync rent reminders for the tenant after updating their details, especially if the lease end date has changed.
             await syncTenantRentReminders(
                 client,
                 updatedTenant.rows[0].id,
